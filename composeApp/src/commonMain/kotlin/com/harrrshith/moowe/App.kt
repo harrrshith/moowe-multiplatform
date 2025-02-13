@@ -18,10 +18,7 @@ fun App() {
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            ImageCarousel(
-                screenWidth = width
-            )
+            OnBoardingRoute()
         }
     }
 }
