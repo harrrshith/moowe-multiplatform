@@ -3,11 +3,13 @@ package com.harrrshith.moowe
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,23 +37,29 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.harrrshith.moowe.theme.FontFamily
 import kotlinx.coroutines.delay
 import moowe.composeapp.generated.resources.Res
 import moowe.composeapp.generated.resources.app_name
 import moowe.composeapp.generated.resources.next
 import org.jetbrains.compose.resources.stringResource
 
-
+val primaryColor = Color(0xFF5D2F9E) //purple
+val primaryColorOffShade = Color(0xFF71DFE3) //teal
+val secondaryColor = Color(0xFF3BBFC4) //teal dark
+val secondaryColorOffShade = Color(0xFF5E62A6)//violet
+val tertiaryColor = Color(0xFF4E1A8E) //dark violet
+val tertiaryColorOffShade = Color(0xFF3BBFC4) //teal dark
 @Composable
 fun OnBoardingRoute() {
-    WonderfulGradientBackground {
+    WonderfulGradientBackground(
+        modifier = Modifier
+//            .systemBarsPadding()
+            .fillMaxSize()
+    ) {
         OnBoardingScreen()
     }
 }
@@ -60,74 +68,94 @@ fun OnBoardingRoute() {
 private fun OnBoardingScreen(
     modifier: Modifier = Modifier
 ){
-    var startAnimation by remember { mutableStateOf(false) }
-    var startAlpha by remember { mutableStateOf(false) }
-    var startButtonAlpha by remember { mutableStateOf(false) }
-    val animatedOffsetY by  animateFloatAsState(
-        targetValue = if (startAnimation) 0f else 1500f,
+    // Define constants for animation values
+    val animationDelay = 500L
+    val alphaAnimationDelay = 200L
+    val initialOffsetY = 1500f
+    val targetOffsetY = 0f
+    val initialAlpha = 0.5f
+    val targetAlpha = 1f
+    val initialButtonAlpha = 0f
+    val targetButtonAlpha = 1f
+    val initialButtonWidth = 0f
+    val targetButtonWidth = 180f
+    val initialButtonHeight = 0f
+    val targetButtonHeight = 50f
+
+    // Combine animation states into a single variable
+    var animationProgress by remember { mutableStateOf(0) }
+
+    val animatedOffsetY by animateFloatAsState(
+        targetValue = if (animationProgress > 0) targetOffsetY else initialOffsetY,
+        animationSpec = spring(
+            dampingRatio = .8f,
+            stiffness = Spring.StiffnessMedium
+        ),
         label = "offsetY"
     )
+
     val animatedAlpha by animateFloatAsState(
-        targetValue = if (startAlpha) 1f else .5f,
+        targetValue = if (animationProgress > 1) targetAlpha else initialAlpha,
         label = "alpha"
     )
+
     val animatedButtonAlpha by animateFloatAsState(
-        targetValue = if (startButtonAlpha) 1f else 0f,
+        targetValue = if (animationProgress > 2) targetButtonAlpha else initialButtonAlpha,
         label = "alpha"
     )
+
     val animatedButtonWidth by animateFloatAsState(
-        targetValue = if (startButtonAlpha) 180f else 0f,
+        targetValue = if (animationProgress > 2) targetButtonWidth else initialButtonWidth,
         label = "width"
     )
+
     val animatedButtonHeight by animateFloatAsState(
-        targetValue = if (startButtonAlpha) 50f else 0f,
-        label = "width"
+        targetValue = if (animationProgress > 2) targetButtonHeight else initialButtonHeight,
+        label = "height"
     )
+
     Box(
-        modifier = modifier
-            .fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
-    ){
+    ) {
         Text(
-            modifier = modifier
+            modifier = Modifier
                 .offset { IntOffset(x = 0, y = animatedOffsetY.toInt()) }
                 .alpha(animatedAlpha),
             text = stringResource(Res.string.app_name),
-            style = TextStyle(
-                fontFamily = FontFamily,
-                fontWeight = FontWeight.Black,
-                color = Color.White,
-                fontSize = 42.sp
-            ),
+            style = MaterialTheme.typography.displayLarge,
+            color = Color.White,
+            fontSize = 42.sp,
             textAlign = TextAlign.Center,
         )
         Button(
-            onClick = {  },
-            modifier = modifier
+            onClick = { /* Handle button click */ },
+            modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 80.dp)
                 .alpha(animatedButtonAlpha)
                 .height(animatedButtonHeight.dp)
                 .width(animatedButtonWidth.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.tertiary,
-                contentColor = MaterialTheme.colorScheme.onTertiary
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             )
         ) {
             Text(
                 text = stringResource(Res.string.next),
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.labelLarge,
+                letterSpacing = 2.sp
             )
         }
     }
 
     LaunchedEffect(Unit) {
-        delay(1000)
-        startAnimation = !startAnimation
-        delay(200)
-        startAlpha = !startAlpha
-        delay(200)
-        startButtonAlpha = !startButtonAlpha
+        delay(animationDelay)
+        animationProgress = 1
+        delay(alphaAnimationDelay)
+        animationProgress = 2
+        delay(alphaAnimationDelay)
+        animationProgress = 3
     }
 }
 
@@ -137,9 +165,9 @@ fun WonderfulGradientBackground(
     content: @Composable () -> Unit
 ) {
     //https://github.com/Rahkeen/Arcdroid/blob/main/app/src/main/java/co/rikin/arcdroid/MainActivity.kt
-    val brush1 = Brush.verticalGradient(colors = listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primaryContainer))
-    val brush2 = Brush.horizontalGradient(colors = listOf(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.secondaryContainer))
-    val brush3 = Brush.horizontalGradient(colors = listOf(MaterialTheme.colorScheme.tertiary, MaterialTheme.colorScheme.tertiaryContainer))
+    val brush1 = remember { Brush.verticalGradient(colors = listOf(primaryColor, primaryColorOffShade, secondaryColor, secondaryColorOffShade)) }
+    val brush2 = remember { Brush.horizontalGradient(colors = listOf(secondaryColor, secondaryColorOffShade, primaryColor, primaryColorOffShade)) }
+    val brush3 = remember { Brush.horizontalGradient(colors = listOf(tertiaryColor, tertiaryColorOffShade)) }
     val infiniteTransition = rememberInfiniteTransition(label = "infinite transition")
     val circle1XAxis = createCircle1XAxisAnimation(infiniteTransition)
     val circle1YAxis = createCircleYAxisAnimation(infiniteTransition)
@@ -153,9 +181,8 @@ fun WonderfulGradientBackground(
     Box {
         Box(
             modifier = modifier
-                .fillMaxSize()
                 .background(color = MaterialTheme.colorScheme.surface)
-                .blur(radius = 100.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded)
+                .blur(radius = 120.dp, edgeTreatment = BlurredEdgeTreatment.Rectangle)
                 .drawBehind {
                     val circle1Offset = Offset(
                         size.width * circle1XAxis.value,
