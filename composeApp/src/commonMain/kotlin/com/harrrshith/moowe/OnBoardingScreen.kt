@@ -226,7 +226,7 @@ const val CIRCLE1_TRANSLATION_DURATION = 24000
 const val CIRCLE1_SCALE_DURATION = 13456
 const val CIRCLE2_TRANSLATION_DURATION = 15000
 const val CIRCLE2_SCALE_DURATION = 16235
-const val CIRCLE3_TRANSLATION_DURATION = 10000
+const val CIRCLE3_TRANSLATION_DURATION = 8000
 const val CIRCLE3_SCALE_DURATION = 9875
 
 val createCircle1XAxisAnimation : @Composable (InfiniteTransition) -> State<Float> = { infiniteTransition ->
@@ -249,15 +249,15 @@ val createCircle1XAxisAnimation : @Composable (InfiniteTransition) -> State<Floa
 
 val createCircleYAxisAnimation: @Composable (InfiniteTransition) -> State<Float> = { infiniteTransition ->
     infiniteTransition.animateFloat(
-        initialValue = .25f,
-        targetValue = 1.0f,
+        initialValue = .1f,
+        targetValue = 0.4f,
         animationSpec = infiniteRepeatable(
             animation = keyframes {
                 durationMillis = CIRCLE1_TRANSLATION_DURATION
-                .5f at (CIRCLE1_TRANSLATION_DURATION * .25).toInt() using LinearEasing
-                .5f at (CIRCLE1_TRANSLATION_DURATION * .5).toInt() using LinearEasing
-                1.0f at (CIRCLE1_TRANSLATION_DURATION * .75).toInt() using LinearEasing
-                .25f at CIRCLE1_TRANSLATION_DURATION using LinearEasing
+                .4f at (CIRCLE1_TRANSLATION_DURATION * .25).toInt() using LinearEasing
+//                .5f at (CIRCLE1_TRANSLATION_DURATION * .5).toInt() using LinearEasing
+//                1.0f at (CIRCLE1_TRANSLATION_DURATION * .75).toInt() using LinearEasing
+                .1f at CIRCLE1_TRANSLATION_DURATION using LinearEasing
             },
             repeatMode = RepeatMode.Restart
         ),
@@ -284,15 +284,15 @@ val createCircle1ScaleAnimation: @Composable (InfiniteTransition) -> State<Float
 
 val createCircle2YAxisAnimation: @Composable (InfiniteTransition) -> State<Float> = { infiniteTransition ->
     infiniteTransition.animateFloat(
-        initialValue = 0.5f,
-        targetValue = 1.0f,
+        initialValue = 0.25f,
+        targetValue = 0f,
         animationSpec = infiniteRepeatable(
             animation = keyframes {
                 durationMillis = CIRCLE2_TRANSLATION_DURATION
                 0f at (CIRCLE2_TRANSLATION_DURATION * .25).toInt() using LinearEasing
-                .5f at (CIRCLE2_TRANSLATION_DURATION * .5).toInt() using LinearEasing
-                1.0f at (CIRCLE2_TRANSLATION_DURATION * .75).toInt() using LinearEasing
-                .5f at CIRCLE2_TRANSLATION_DURATION using LinearEasing
+//                .5f at (CIRCLE2_TRANSLATION_DURATION * .5).toInt() using LinearEasing
+//                1.0f at (CIRCLE2_TRANSLATION_DURATION * .75).toInt() using LinearEasing
+                .25f at CIRCLE2_TRANSLATION_DURATION using LinearEasing
             },
             repeatMode = RepeatMode.Restart
         ),
@@ -335,13 +335,13 @@ val createCircle3XAxisAnimation: @Composable (InfiniteTransition) -> State<Float
 
 val createCircle3YAxisAnimation: @Composable (InfiniteTransition) -> State<Float> = { infiniteTransition ->
     infiniteTransition.animateFloat(
-        initialValue = 1.0f,
+        initialValue = .35f,
         targetValue = 0f,
         animationSpec = infiniteRepeatable(
             animation = keyframes {
                 durationMillis = CIRCLE3_TRANSLATION_DURATION
-                0f at (CIRCLE3_TRANSLATION_DURATION * 0.5).toInt() using LinearEasing
-                1.0f at CIRCLE3_TRANSLATION_DURATION using LinearEasing
+                0f at (CIRCLE3_TRANSLATION_DURATION * 0.35).toInt() using LinearEasing
+                .35f at CIRCLE3_TRANSLATION_DURATION using LinearEasing
             },
             repeatMode = RepeatMode.Restart
         ),

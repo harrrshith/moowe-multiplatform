@@ -12,11 +12,9 @@ import org.jetbrains.compose.resources.Font
 val notoSansFont: FontFamily
     @Composable
     get() = FontFamily(
-        Font(resource = Res.font.noto_sans_variable, weight = FontWeight.Black),
-        Font(resource = Res.font.noto_sans_variable, weight = FontWeight.ExtraBold),
-        Font(resource = Res.font.noto_sans_variable, weight = FontWeight.Medium),
         Font(resource = Res.font.noto_sans_variable, weight = FontWeight.Normal),
-        Font(resource = Res.font.noto_sans_variable, weight = FontWeight.ExtraLight),
+        Font(resource = Res.font.noto_sans_variable, weight = FontWeight.Black), //After adding this, black weight was available. No idea why it wasn't working then or is this desired behavior?
+
     )
 
 
@@ -28,7 +26,7 @@ fun MooweTypography(): Typography {
             fontFamily = notoSansFont,
             fontWeight = FontWeight.Black,
             fontSize = 42.sp,
-            letterSpacing = .4.sp,
+            letterSpacing = 0.4.sp,
         ),
         headlineLarge = defaultTypography.headlineLarge.copy(
             fontFamily = notoSansFont,
@@ -37,6 +35,7 @@ fun MooweTypography(): Typography {
         ),
         headlineMedium = defaultTypography.headlineMedium.copy(
             fontFamily = notoSansFont,
+            fontWeight = FontWeight.Bold, // Added fontWeight for consistency
         ),
         bodyLarge = defaultTypography.bodyLarge.copy(
             fontFamily = notoSansFont,
@@ -53,7 +52,7 @@ fun MooweTypography(): Typography {
             fontSize = 18.sp,
             fontWeight = FontWeight.Medium,
         ),
-        labelMedium = defaultTypography.labelSmall.copy(
+        labelMedium = defaultTypography.labelMedium.copy(
             fontFamily = notoSansFont,
             fontSize = 16.sp,
             fontWeight = FontWeight.Normal,
@@ -62,6 +61,6 @@ fun MooweTypography(): Typography {
             fontFamily = notoSansFont,
             fontSize = 14.sp,
             fontWeight = FontWeight.Light,
-        ),
+        )
     )
 }
