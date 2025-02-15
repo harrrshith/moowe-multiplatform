@@ -1,4 +1,4 @@
-package com.harrrshith.moowe
+package com.harrrshith.moowe.ui.onBoarding
 
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.LinearEasing
