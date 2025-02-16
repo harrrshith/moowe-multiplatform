@@ -58,7 +58,6 @@ fun ImageCarousel(
     LazyRow(
         modifier = modifier
             .fillMaxWidth()
-            .statusBarsPadding()
             .padding(vertical = 16.dp),
         state = lazyListState,
         contentPadding = PaddingValues(horizontal = horizontalPadding),

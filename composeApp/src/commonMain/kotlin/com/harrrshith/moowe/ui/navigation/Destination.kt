@@ -7,14 +7,14 @@ sealed class Destination{
     @Serializable
     data object OnBoard: Destination()
     @Serializable
-    sealed class Home: Destination() {
+    data object Home: Destination() {
         @Serializable
-        data object Discover: Home()
+        data object Discover: Destination()
         @Serializable
-        data object Trending: Home()
+        data object Trending: Destination()
         @Serializable
-        data object Search: Home()
+        data object Search: Destination()
         @Serializable
-        data object Yours: Home()
+        data object Yours: Destination()
     }
 }
