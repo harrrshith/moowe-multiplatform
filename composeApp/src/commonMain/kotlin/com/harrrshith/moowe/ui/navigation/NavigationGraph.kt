@@ -11,9 +11,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.harrrshith.moowe.ImageCarousel
+import com.harrrshith.moowe.ui.discover.DiscoverRoute
 import com.harrrshith.moowe.ui.onBoarding.OnBoardingRoute
-import com.harrrshith.moowe.width
 
 @Composable
 fun NavigationGraph(
@@ -36,10 +35,7 @@ fun NavigationGraph(
             startDestination = Destination.Home.Discover
         ){
             composable<Destination.Home.Discover> {
-                ImageCarousel(
-                    screenWidth = width,
-                    modifier = Modifier.fillMaxSize()
-                )
+                DiscoverRoute()
             }
             composable<Destination.Home.Trending> {
                 Box(
