@@ -1,4 +1,4 @@
-package com.harrrshith.moowe
+package com.harrrshith.moowe.ui.onBoarding
 
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.LinearEasing
@@ -54,19 +54,24 @@ val secondaryColorOffShade = Color(0xFF5E62A6)//violet
 val tertiaryColor = Color(0xFF4E1A8E) //dark violet
 val tertiaryColorOffShade = Color(0xFF3BBFC4) //teal dark
 @Composable
-fun OnBoardingRoute() {
+fun OnBoardingRoute(
+    navigateToHome: () -> Unit
+) {
     WonderfulGradientBackground(
         modifier = Modifier
 //            .systemBarsPadding()
             .fillMaxSize()
     ) {
-        OnBoardingScreen()
+        OnBoardingScreen(
+            navigateToHome = navigateToHome
+        )
     }
 }
 
 @Composable
 private fun OnBoardingScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    navigateToHome: () -> Unit
 ){
     // Define constants for animation values
     val animationDelay = 500L
@@ -129,7 +134,7 @@ private fun OnBoardingScreen(
             textAlign = TextAlign.Center,
         )
         Button(
-            onClick = { /* Handle button click */ },
+            onClick = { navigateToHome() },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 80.dp)
