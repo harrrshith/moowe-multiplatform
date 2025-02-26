@@ -3,11 +3,14 @@ package com.harrrshith.moowe.ui.discover
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.harrrshith.moowe.ui.components.ImageCarousel
+import com.harrrshith.moowe.ui.components.ImageSlider
 import com.harrrshith.moowe.width
 
 @Composable
@@ -26,17 +29,39 @@ fun DiscoverRoute(){
     )
     val lazyListState = rememberLazyListState()
     val flingBehavior = rememberSnapFlingBehavior(lazyListState)
-    ImageCarousel(
+    val screenWidth = width
+    val verticalScrollState = rememberScrollState()
+
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(vertical = 16.dp)
-            .statusBarsPadding(),
-        colors = colors,
-        screenWidth = width,
-        itemWidth = 0.7f,
-        horizontalArrangement = Arrangement.spacedBy(32.dp),
-        lazyListState = lazyListState,
-        flingBehavior = flingBehavior,
-    )
+            .statusBarsPadding()
+            .verticalScroll(verticalScrollState),
+    ){
+        ImageCarousel(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
+            colors = colors,
+            screenWidth = screenWidth,
+            itemWidth = 0.75f,
+            horizontalArrangement = Arrangement.spacedBy(32.dp),
+            lazyListState = lazyListState,
+            flingBehavior = flingBehavior,
+        )
+
+
+        repeat(5){
+            val imageSliderList = rememberLazyListState()
+            Spacer(modifier = Modifier.height(16.dp))
+            ImageSlider(
+                listState = imageSliderList,
+                colors = colors,
+                screenWidth = screenWidth,
+                contentHorizontalPadding = 16.dp,
+                itemsShownPerScreen = 4,
+            )
+        }
+    }
 }
 

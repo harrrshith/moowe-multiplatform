@@ -19,7 +19,7 @@ fun NavigationGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController
 ) {
-    val startDestination = Destination.OnBoard
+    val startDestination = Destination.Home
     val navigate = remember { NavigationHelper(navController) }
     NavHost(
         modifier = modifier,
