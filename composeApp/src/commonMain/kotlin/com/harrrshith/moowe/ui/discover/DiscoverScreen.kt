@@ -6,12 +6,18 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.harrrshith.moowe.data.network.MovieApi
+import com.harrrshith.moowe.data.network.MovieRepositoryImpl
+import com.harrrshith.moowe.log
 import com.harrrshith.moowe.ui.components.ImageCarousel
 import com.harrrshith.moowe.ui.components.ImageSlider
 import com.harrrshith.moowe.width
+import kotlinx.coroutines.launch
 
 @Composable
 fun DiscoverRoute(){
@@ -61,6 +67,16 @@ fun DiscoverRoute(){
                 contentHorizontalPadding = 16.dp,
                 itemsShownPerScreen = 4,
             )
+        }
+    }
+    val scope  = rememberCoroutineScope()
+    val repository = MovieRepositoryImpl(MovieApi())
+    LaunchedEffect(Unit){
+        scope.launch {
+            val result = repository.getTrendingMovies()
+            result.collect{ response ->
+                log(response.toString())
+            }
         }
     }
 }
