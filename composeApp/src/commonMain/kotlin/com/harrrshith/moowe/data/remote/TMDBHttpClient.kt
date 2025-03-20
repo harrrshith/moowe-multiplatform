@@ -1,4 +1,4 @@
-package com.harrrshith.moowe.data.network
+package com.harrrshith.moowe.data.remote
 
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -12,7 +12,7 @@ import io.ktor.http.path
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-object NetworkService {
+object TMDBHttpClient {
     private const val API_KEY = ""
     private const val API_TOKEN = ""
     val httpClient = HttpClient {
