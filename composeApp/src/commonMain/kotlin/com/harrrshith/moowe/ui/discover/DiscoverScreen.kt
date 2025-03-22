@@ -11,8 +11,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.harrrshith.moowe.data.network.MovieApi
-import com.harrrshith.moowe.data.network.MovieRepositoryImpl
+import com.harrrshith.moowe.data.remote.MovieApi
+import com.harrrshith.moowe.data.repository.MovieRepositoryImpl
 import com.harrrshith.moowe.log
 import com.harrrshith.moowe.ui.components.ImageCarousel
 import com.harrrshith.moowe.ui.components.ImageSlider
