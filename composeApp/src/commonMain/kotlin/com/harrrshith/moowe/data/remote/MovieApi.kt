@@ -7,7 +7,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 
 class MovieApi(
-    private val client: HttpClient = TMDBHttpClient.httpClient
+    private val client: HttpClient
 ) {
     suspend fun getTrendingMovies(
         mediaType: String = "movie",
