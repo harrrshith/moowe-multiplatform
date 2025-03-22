@@ -1,5 +1,7 @@
 package com.harrrshith.moowe.data.remote
 
+import com.harrrshith.moowe.Constants.API_KEY
+import com.harrrshith.moowe.Constants.API_TOKEN
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
@@ -13,8 +15,6 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
 object TMDBHttpClient {
-    private const val API_KEY = ""
-    private const val API_TOKEN = ""
     val httpClient = HttpClient {
         install(ContentNegotiation) {
             json(Json {

@@ -18,6 +18,7 @@ import com.harrrshith.moowe.ui.components.ImageCarousel
 import com.harrrshith.moowe.ui.components.ImageSlider
 import com.harrrshith.moowe.width
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun DiscoverRoute(){
@@ -79,5 +80,11 @@ fun DiscoverRoute(){
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun AppPreview(){
+    DiscoverRoute()
 }
 
