@@ -1,29 +1,40 @@
 package com.harrrshith.moowe.ui.discover
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.harrrshith.moowe.data.remote.MovieApi
-import com.harrrshith.moowe.data.repository.MovieRepositoryImpl
-import com.harrrshith.moowe.domain.repository.MovieRepository
-import com.harrrshith.moowe.log
 import com.harrrshith.moowe.ui.components.ImageCarousel
 import com.harrrshith.moowe.ui.components.ImageSlider
 import com.harrrshith.moowe.width
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import org.koin.compose.koinInject
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun DiscoverRoute(){
+fun DiscoverRoute(
+    viewModel: DiscoverViewModel = koinViewModel()
+){
+    val uiState by viewModel.uiState.collectAsState()
     val colors = listOf(
         Color(0xFFFF0000),
         Color(0xFF00FF00),
@@ -41,6 +52,10 @@ fun DiscoverRoute(){
     val screenWidth = width
     val verticalScrollState = rememberScrollState()
 
+    println("Movies: ${uiState.movies}")
+    LaunchedEffect(uiState) {
+        println("Movies: ${uiState.movies}")
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -51,13 +66,20 @@ fun DiscoverRoute(){
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 16.dp),
-            colors = colors,
             screenWidth = screenWidth,
-            itemWidth = 0.75f,
             horizontalArrangement = Arrangement.spacedBy(32.dp),
             lazyListState = lazyListState,
             flingBehavior = flingBehavior,
-        )
+            items = colors,
+        ) { item, index ->
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(16f/9)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(item)
+            )
+        }
 
 
         repeat(5){
@@ -70,16 +92,6 @@ fun DiscoverRoute(){
                 contentHorizontalPadding = 16.dp,
                 itemsShownPerScreen = 4,
             )
-        }
-    }
-    val scope  = rememberCoroutineScope()
-    val repository = koinInject<MovieRepository>()
-    LaunchedEffect(Unit) {
-        scope.launch {
-            val result = repository.getTrendingMovies()
-            result.collect { response ->
-                log("$response")
-            }
         }
     }
 }

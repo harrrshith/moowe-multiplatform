@@ -7,7 +7,3 @@ class AndroidPlatform : Platform {
 }
 
 actual fun getPlatform(): Platform = AndroidPlatform()
-
-actual fun log(msg: String) {
-    android.util.Log.d("Moowe", msg)
-}
