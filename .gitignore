@@ -33,3 +33,4 @@ google-services.json
 *.hprof
 .kotlin/
 .DS_Store
+composeApp/src/commonMain/kotlin/com/harrrshith/moowe/Constants.kt

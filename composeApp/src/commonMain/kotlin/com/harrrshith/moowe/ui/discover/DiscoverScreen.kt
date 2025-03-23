@@ -13,11 +13,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.harrrshith.moowe.data.remote.MovieApi
 import com.harrrshith.moowe.data.repository.MovieRepositoryImpl
+import com.harrrshith.moowe.domain.repository.MovieRepository
 import com.harrrshith.moowe.log
 import com.harrrshith.moowe.ui.components.ImageCarousel
 import com.harrrshith.moowe.ui.components.ImageSlider
 import com.harrrshith.moowe.width
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.koinInject
 
 @Composable
 fun DiscoverRoute(){
@@ -70,14 +73,20 @@ fun DiscoverRoute(){
         }
     }
     val scope  = rememberCoroutineScope()
-    val repository = MovieRepositoryImpl(MovieApi())
-    LaunchedEffect(Unit){
+    val repository = koinInject<MovieRepository>()
+    LaunchedEffect(Unit) {
         scope.launch {
             val result = repository.getTrendingMovies()
-            result.collect{ response ->
-                log(response.toString())
+            result.collect { response ->
+                log("$response")
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun AppPreview(){
+    DiscoverRoute()
 }
 
