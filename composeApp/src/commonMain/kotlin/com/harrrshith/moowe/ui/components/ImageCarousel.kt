@@ -29,17 +29,18 @@ import kotlin.math.abs
 import kotlin.math.min
 
 @Composable
-fun ImageCarousel(
+fun <T> ImageCarousel(
+    items: List<T>,
     modifier: Modifier = Modifier,
-    colors: List<Color>, //Will change this to actual content
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
     screenWidth: Dp = 200.dp,
-    itemWidth: Float = 0.7f,
+    itemWidthFraction: Float = 0.75f,
     lazyListState: LazyListState,
-    flingBehavior: FlingBehavior?,
-){
-    val itemWidth = remember { screenWidth * itemWidth }
-    val horizontalPadding = remember { (screenWidth - itemWidth) / 2  }
+    flingBehavior: FlingBehavior? = null,
+    content: @Composable (T, Int) -> Unit,
+) {
+    val itemWidth = remember { screenWidth * itemWidthFraction }
+    val horizontalPadding = remember { (screenWidth - itemWidth) / 2 }
 
     LazyRow(
         modifier = modifier,
@@ -49,26 +50,29 @@ fun ImageCarousel(
         flingBehavior = flingBehavior ?: ScrollableDefaults.flingBehavior(),
         userScrollEnabled = true
     ) {
-        itemsIndexed(colors) { index, color ->
+        itemsIndexed(items) { index, item ->
             CarouselItem(
-                color = color,
                 itemWidth = itemWidth,
                 index = index,
-                lazyListState = lazyListState
-            )
+                lazyListState = lazyListState,
+                screenWidth = screenWidth
+            ) {
+                content(item, index)
+            }
         }
     }
 }
 
 @Composable
 private fun CarouselItem(
-    color: Color,
     itemWidth: Dp,
     index: Int,
-    lazyListState: LazyListState
+    lazyListState: LazyListState,
+    screenWidth: Dp,
+    content: @Composable () -> Unit
 ) {
     val density = LocalDensity.current
-    val maxWidthPx = with(density) { width.toPx() }
+    val maxWidthPx = with(density) { screenWidth.toPx() }
 
     val scale = calculateItemScale(
         listState = lazyListState,
@@ -85,12 +89,7 @@ private fun CarouselItem(
             .scale(scale.value)
             .clip(RoundedCornerShape(12.dp))
     ) {
-        Box(
-            modifier = Modifier
-                .width(itemWidth)
-                .aspectRatio(1.5f)
-                .background(color)
-        )
+        content()
     }
 }
 

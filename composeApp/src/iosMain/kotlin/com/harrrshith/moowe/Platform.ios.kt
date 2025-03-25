@@ -7,7 +7,3 @@ class IOSPlatform: Platform {
 }
 
 actual fun getPlatform(): Platform = IOSPlatform()
-
-actual fun log(msg: String) {
-    println(msg)
-}
