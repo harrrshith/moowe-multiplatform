@@ -55,6 +55,8 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.compose.viewmodel)
             api(libs.koin.annotations)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.okhttp)
         }
 //        iosMain.dependencies {
 //            implementation(libs.ktor.client.darwin)

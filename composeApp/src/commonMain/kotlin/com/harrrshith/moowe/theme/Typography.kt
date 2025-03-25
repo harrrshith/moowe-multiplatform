@@ -33,6 +33,11 @@ fun MooweTypography(): Typography {
             fontWeight = FontWeight.Black,
             fontSize = 22.sp,
         ),
+        titleLarge = defaultTypography.titleLarge.copy(
+            fontFamily = notoSansFont,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 18.sp,
+        ),
         headlineMedium = defaultTypography.headlineMedium.copy(
             fontFamily = notoSansFont,
             fontWeight = FontWeight.Bold, // Added fontWeight for consistency
