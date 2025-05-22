@@ -38,7 +38,6 @@ fun App() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .safeDrawingPadding(),
-                contentPadding = PaddingValues(horizontal = 32.dp),
             ) {
                 items(items = colors) { color ->
                     Card(
