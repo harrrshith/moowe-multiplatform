@@ -2,11 +2,12 @@ package com.harrrshith.imagecarousel.utils
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-actual fun getScreenHeight(): Dp = 0.dp
+actual fun getScreenHeight(): Dp = LocalWindowInfo.current.containerSize.width.dp
 
 @Composable
-actual fun getScreenWidth(): Dp = 0.dp
+actual fun getScreenWidth(): Dp = LocalWindowInfo.current.containerSize.width.dp

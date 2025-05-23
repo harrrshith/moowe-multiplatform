@@ -33,11 +33,15 @@ fun App() {
                 Color(0xFF26A69A)
             )
         }
-        Surface {
+        Surface(
+            modifier = Modifier
+                .fillMaxSize()
+                .safeDrawingPadding()
+        ) {
             ImageCarousel(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .safeDrawingPadding(),
+                    .padding(top = 32.dp),
             ) {
                 items(items = colors) { color ->
                     Card(
