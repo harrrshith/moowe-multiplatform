@@ -64,6 +64,7 @@ kotlin {
             implementation(libs.koin.android)
         }
         commonMain.dependencies {
+            implementation(projects.imageCarousel)
             implementation(compose.runtime)
             implementation(compose.foundation)
             implementation(compose.material3)

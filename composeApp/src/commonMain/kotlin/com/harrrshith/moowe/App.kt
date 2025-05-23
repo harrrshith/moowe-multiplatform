@@ -17,8 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.harrrshith.moowe.ui.components.imageCarousel.ImageCarousel
-import com.harrrshith.moowe.ui.components.imageCarousel.items
+import com.harrrshith.imagecarousel.ImageCarousel
+import com.harrrshith.imagecarousel.items
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -42,7 +42,7 @@ fun App() {
                 items(items = colors) { color ->
                     Card(
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .fillMaxWidth(0.95f)
                             .aspectRatio(1.5f)
                             .padding(horizontal = 12.dp)
                     ) {

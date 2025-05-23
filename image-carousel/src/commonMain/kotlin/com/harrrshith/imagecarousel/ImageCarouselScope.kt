@@ -1,4 +1,4 @@
-package com.harrrshith.moowe.ui.components.imageCarousel
+package com.harrrshith.imagecarousel
 
 import androidx.compose.runtime.Composable
 

@@ -1,4 +1,4 @@
-package com.harrrshith.moowe.utils
+package com.harrrshith.imagecarousel.utils
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -11,4 +11,5 @@ actual fun getScreenWidth(): Dp = LocalWindowInfo.current.containerSize.width.px
 
 @Composable
 actual fun getScreenHeight(): Dp = LocalWindowInfo.current.containerSize.height.pxToPoint().dp
+
 fun Int.pxToPoint(): Double = this.toDouble() / UIScreen.mainScreen.scale

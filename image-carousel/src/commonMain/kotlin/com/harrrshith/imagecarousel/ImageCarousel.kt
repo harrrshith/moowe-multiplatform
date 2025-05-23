@@ -1,4 +1,4 @@
-package com.harrrshith.moowe.ui.components.imageCarousel
+package com.harrrshith.imagecarousel
 
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.harrrshith.moowe.utils.screenWidth
+import com.harrrshith.imagecarousel.utils.screenWidth
 
 @Composable
 fun ImageCarousel(
@@ -22,12 +22,13 @@ fun ImageCarousel(
     state: LazyListState = rememberLazyListState(),
     contentPadding: PaddingValues = PaddingValues(0.dp),
     itemWidthFraction: Float = 0.75f,
+    itemHeight: Dp? = null,
     content: ImageCarouselScope.() -> Unit
 ) {
     val screenWidth = screenWidth
     val itemWidth = screenWidth * itemWidthFraction
     val sideContentPadding = (screenWidth - itemWidth) / 2
-    val scope = ImageCarouselScopeImpl(screenWidth)
+    val scope = ImageCarouselScopeImpl(screenWidth, itemHeight)
     LazyRow(
         modifier = modifier,
         state = state,

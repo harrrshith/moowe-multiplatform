@@ -1,4 +1,4 @@
-package com.harrrshith.moowe.ui.components.imageCarousel
+package com.harrrshith.imagecarousel
 
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
@@ -6,7 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
 
 class ImageCarouselScopeImpl(
-    private val screenWidth: Dp
+    private val screenWidth: Dp,
+    private val itemHeight: Dp?
 ) : ImageCarouselScope {
     val items = mutableListOf<(LazyListScope, LazyListState) -> Unit>()
 
@@ -19,6 +20,7 @@ class ImageCarouselScopeImpl(
             listScope.item(key = key, contentType = contentType) {
                 CarouselItemWrapper(
                     screenWidth = screenWidth,
+                    itemHeight = itemHeight,
                     state = state,
                     itemIndex = 0,
                     content = content
@@ -41,6 +43,7 @@ class ImageCarouselScopeImpl(
             ) { index ->
                 CarouselItemWrapper(
                     screenWidth = screenWidth,
+                    itemHeight = itemHeight,
                     state = state,
                     itemIndex = index,
                     content = { itemContent(index) }

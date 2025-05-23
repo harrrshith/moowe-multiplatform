@@ -1,9 +1,10 @@
-package com.harrrshith.moowe.ui.components.imageCarousel
+package com.harrrshith.imagecarousel
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
@@ -18,6 +19,7 @@ import androidx.compose.ui.unit.Dp
 @Composable
 fun CarouselItemWrapper(
     screenWidth: Dp,
+    itemHeight: Dp?,
     state: LazyListState,
     itemIndex: Int,
     content: @Composable ImageCarouselItemScope.() -> Unit
@@ -33,12 +35,13 @@ fun CarouselItemWrapper(
             itemInfo = itemInfo,
             screenWidthPx = screenWidthPx
         ),
-        animationSpec = tween(150)
+        animationSpec = tween(100)
     )
 
-    val scope = remember(itemWidth, scale) {
+    val scope = remember(itemWidth, itemHeight, scale) {
         object : ImageCarouselItemScope {
             override val itemWidth = itemWidth
+            override val itemHeight = itemHeight
             override val scale = scale
         }
     }
@@ -46,6 +49,7 @@ fun CarouselItemWrapper(
     Box(
         modifier = Modifier
             .width(itemWidth)
+            .then(if (itemHeight != null) Modifier.height(itemHeight) else Modifier)
             .scale(scale),
         contentAlignment = Alignment.Center
     ) {
