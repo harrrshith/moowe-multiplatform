@@ -13,12 +13,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.harrrshith.imagecarousel.ImageCarousel
 import com.harrrshith.imagecarousel.items
+import com.harrrshith.moowe.ui.theme.AppTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
+    AppTheme {
         val colors = remember {
             listOf(
                 Color(0xFFFFA726), Color(0xFF66BB6A), Color(0xFF42A5F5),
