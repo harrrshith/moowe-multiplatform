@@ -10,7 +10,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.harrrshith.moowe.ScreenOne
+import com.harrrshith.moowe.ui.discover.DiscoverRoute
 
 @Composable
 fun NavigationGraph(
@@ -27,7 +27,7 @@ fun NavigationGraph(
             startDestination = Destination.Home.Discover
         ){
             composable<Destination.Home.Discover> {
-                ScreenOne()
+                DiscoverRoute()
             }
             composable<Destination.Home.Trending> {
                 Box(
