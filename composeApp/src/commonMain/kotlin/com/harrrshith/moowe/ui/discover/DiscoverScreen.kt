@@ -29,10 +29,11 @@ import com.harrrshith.moowe.LocalHazeState
 import com.harrrshith.moowe.ui.components.AppTopBar
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun DiscoverRoute(
-
+    discoverViewModel: DiscoverViewModel = (koinViewModel())
 ) {
     val hazeState = LocalHazeState.current
     DiscoverScreen(
