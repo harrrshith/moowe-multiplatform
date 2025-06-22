@@ -1,18 +1,20 @@
 package com.harrrshith.moowe.ui.discover
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.domain.repository.MovieRepository
-import kotlinx.coroutines.launch
+import com.harrrshith.moowe.domain.utility.Result
 
 class DiscoverViewModel(
-    mooweRepository: MovieRepository
+    private val mooweRepository: MovieRepository
 ): ViewModel() {
-    init {
-        print("Hello world")
-        viewModelScope.launch {
-            val movies = mooweRepository.getTrendingMovies()
-            print(movies)
+    val movie: List<Movie> = emptyList()
+    suspend fun fetchTrendingMovies() {
+        when (val trendingMovies = mooweRepository.getTrendingMovies()) {
+            is Result.Error -> print("Error")
+            Result.Loading -> print("Loading")
+            is Result.Success -> print(trendingMovies.data)
         }
+
     }
 }
