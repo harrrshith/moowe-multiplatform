@@ -7,18 +7,17 @@ data class DiscoverUiState(
     val trendingMovies: List<Movie> = emptyList(),
     val trendingLoading: Boolean = true,
     val actionMovies: List<Movie> = emptyList(),
-    val actionLoading: Boolean = true,
+    val actionLoading: Boolean = false,
     val adventureMovies: List<Movie> = emptyList(),
-    val adventureLoading: Boolean = true,
+    val adventureLoading: Boolean = false,
     val romanceMovies: List<Movie> = emptyList(),
-    val romanceLoading: Boolean = true,
+    val romanceLoading: Boolean = false,
     val documentaryMovies: List<Movie> = emptyList(),
-    val documentaryLoading: Boolean = true,
+    val documentaryLoading: Boolean = false,
     val topRatedMovies: List<Movie> = emptyList(),
-    val topRatedLoading: Boolean = true,
+    val topRatedLoading: Boolean = false,
     val errorMessage: String? = null
 ) {
     val isLoading: Boolean
-        get() = trendingLoading || actionLoading || adventureLoading ||
-                romanceLoading || documentaryLoading || topRatedLoading
+        get() = trendingLoading
 }

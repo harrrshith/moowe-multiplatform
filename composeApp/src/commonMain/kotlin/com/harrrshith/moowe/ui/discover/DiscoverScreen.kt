@@ -4,6 +4,7 @@ package com.harrrshith.moowe.ui.discover
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -33,7 +34,7 @@ fun DiscoverRoute(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val hazeState = LocalHazeState.current
     when {
-        uiState.isLoading -> {
+        uiState.trendingLoading -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -81,96 +82,50 @@ private fun DiscoverScreen(
                 bottom = 80.dp
             )
         ) {
-            item {
-                TrendingList(
-                    title = "Trending",
-                    movies = movies
-                ) {}
-            }
-            item {
-                AppImageCarousel()
-            }
-            item {
-                AppImageCarousel()
-            }
-            item {
-                AppImageCarousel()
-            }
-            item {
-                AppImageCarousel()
-            }
-            item {
-                AppImageCarousel()
-            }
+            trendingList(
+                title = "Trending",
+                movies = movies,
+                onMovieClick = {}
+            )
+
+            trendingList(
+                title = "Other",
+                movies = movies,
+                onMovieClick = {}
+            )
         }
     }
 }
 
-@Composable
-fun AppImageCarousel() {
-    val colors = remember {
-        listOf(
-            Color(0xFFFFA726), Color(0xFF66BB6A), Color(0xFF42A5F5),
-            Color(0xFFAB47BC), Color(0xFFFF7043), Color(0xFF26C6DA),
-            Color(0xFFD4E157), Color(0xFFEC407A), Color(0xFF7E57C2),
-            Color(0xFF26A69A)
-        )
-    }
-    ImageCarousel(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 32.dp),
-    ) {
-        items(items = colors) { color ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth(0.95f)
-                    .aspectRatio(1.5f)
-                    .padding(horizontal = 12.dp)
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            brush = Brush.linearGradient(
-                                colors = listOf(color.copy(alpha = 0.6f), color)
-                            )
-                        )
-                )
-            }
-        }
-    }
-}
 
-@Composable
-private fun TrendingList(
+private fun LazyListScope.trendingList(
     title: String,
     movies: List<Movie>,
     onMovieClick: (Movie) -> Unit,
 ){
-    Text(
-        modifier = Modifier.padding(start = 32.dp),
-        text = title,
-        style = MaterialTheme.typography.headlineMedium,
-    )
+    item {
+        Text(
+            modifier = Modifier.padding(start = 32.dp, top = 16.dp),
+            text = title,
+            style = MaterialTheme.typography.headlineMedium,
+        )
 
-    Spacer(modifier = Modifier.height(8.dp))
-    ImageCarousel(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 32.dp),
-    ) {
-        items(items = movies) { movie ->
-            ImageCard(
-                modifier = Modifier
-                    .aspectRatio(16f / 9)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.Gray),
-                imageUrl = movie.backdropPath,
-                movieTitle = movie.title,
-                onClick = { onMovieClick(movie) },
-            )
+        Spacer(modifier = Modifier.height(8.dp))
+        ImageCarousel(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(items = movies) { movie ->
+                ImageCard(
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .aspectRatio(1.5f)
+                        .clip(RoundedCornerShape(8.dp)),
+                    imageUrl = movie.backdropPath,
+                    movieTitle = movie.title,
+                    onClick = { onMovieClick(movie) },
+                )
+            }
+
         }
-
     }
 }
