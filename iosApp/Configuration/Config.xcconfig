@@ -1,7 +1,19 @@
-TEAM_ID=
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
 
-PRODUCT_NAME=moowe
-PRODUCT_BUNDLE_IDENTIFIER=com.harrrshith.moowe.moowe$(TEAM_ID)
+// Product Settings - CRITICAL FOR FIXING THE BUILD ERROR
+PRODUCT_NAME = moowe
+PRODUCT_BUNDLE_IDENTIFIER = com.harrrshith.moowe.moowe
+MARKETING_VERSION = 1.0
+CURRENT_PROJECT_VERSION = 1
 
-CURRENT_PROJECT_VERSION=1
-MARKETING_VERSION=1.0
+// Team Settings
+TEAM_ID = PM83B39XB9
+DEVELOPMENT_TEAM = PM83B39XB9
+
+// Framework Settings
+FRAMEWORK_SEARCH_PATHS = $(inherited) $(SRCROOT)/../composeApp/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)
+
+// Other Settings
+SWIFT_VERSION = 5.0
+IPHONEOS_DEPLOYMENT_TARGET = 15.0
