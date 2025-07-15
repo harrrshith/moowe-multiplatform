@@ -87,6 +87,7 @@ kotlin {
             implementation(libs.coil.network.ktor)
             implementation(libs.haze)
             implementation(libs.haze.materials)
+            implementation(libs.coroutines.core)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
