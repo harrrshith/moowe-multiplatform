@@ -1,37 +1,29 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 package com.harrrshith.moowe.ui.discover
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.harrrshith.imagecarousel.ImageCarousel
-import com.harrrshith.imagecarousel.items
+import com.harrrshith.imagecarousel.utils.screenWidth
 import com.harrrshith.moowe.LocalHazeState
+import com.harrrshith.moowe.domain.model.Genre
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.ui.components.AppTopBar
-import com.harrrshith.moowe.ui.components.ImageCard
+import com.harrrshith.moowe.ui.discover.mock.mockMovies
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.rememberHazeState
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -72,6 +64,8 @@ private fun DiscoverScreen(
     hazeState: HazeState,
     movies: List<Movie>,
 ) {
+    val width = screenWidth
+    val actionListState = rememberLazyListState()
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -80,59 +74,63 @@ private fun DiscoverScreen(
                 hazeState = hazeState
             )
         }
-    ) {
+    ) { innerPadding ->
         LazyColumn(
             modifier = modifier
                 .hazeSource(state = hazeState),
             contentPadding = PaddingValues(
-                top = 100.dp,
-                bottom = 80.dp
-            )
+                top = innerPadding.calculateTopPadding(),
+                bottom = innerPadding.calculateBottomPadding()
+            ),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
             trendingList(
-                title = "Trending Now",
                 movies = movies,
                 onMovieClick = {}
             )
 
-            trendingList(
-                title = "Other",
+            movieList(
+                genre = Genre.ACTION,
                 movies = movies,
-                onMovieClick = {}
+                lazyListState = actionListState,
+                itemsTobeDisplayed = 3,
+                screenWidth = width
+            )
+
+            movieList(
+                genre = Genre.ADVENTURE,
+                movies = movies,
+                lazyListState = actionListState,
+                itemsTobeDisplayed = 3,
+                screenWidth = width
+            )
+
+            movieList(
+                genre = Genre.ROMANCE,
+                movies = movies,
+                lazyListState = actionListState,
+                itemsTobeDisplayed = 3,
+                screenWidth = width
+            )
+
+            movieList(
+                genre = Genre.DOCUMENTARY,
+                movies = movies,
+                lazyListState = actionListState,
+                itemsTobeDisplayed = 3,
+                screenWidth = width
             )
         }
     }
 }
 
 
-private fun LazyListScope.trendingList(
-    title: String,
-    movies: List<Movie>,
-    onMovieClick: (Movie) -> Unit,
-){
-    item {
-        Text(
-            modifier = Modifier.padding(start = 32.dp, top = 16.dp),
-            text = title,
-            style = MaterialTheme.typography.headlineMedium,
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-        ImageCarousel(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(items = movies) { movie ->
-                ImageCard(
-                    modifier = Modifier
-                        .fillMaxWidth(0.9f)
-                        .aspectRatio(1.5f)
-                        .clip(RoundedCornerShape(8.dp)),
-                    imageUrl = movie.backdropPath,
-                    movieTitle = movie.title,
-                    onClick = { onMovieClick(movie) },
-                )
-            }
-
-        }
-    }
+@Preview()
+@Composable
+private fun DiscoverScreenPreview() {
+    val fakeHazeState = rememberHazeState()
+    DiscoverScreen(
+        hazeState = fakeHazeState,
+        movies = mockMovies
+    )
 }
