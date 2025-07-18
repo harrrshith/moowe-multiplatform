@@ -4,10 +4,12 @@ import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import com.harrrshith.imagecarousel.utils.screenWidth
@@ -25,10 +27,11 @@ fun ImageCarousel(
     val contentPadding = (width - itemWidth) / 2
     val scope = ImageCarouselScopeImpl(width, itemHeight)
     LazyRow(
-        modifier = modifier,
+        modifier = modifier.wrapContentHeight(),
         state = state,
-        contentPadding = PaddingValues(contentPadding),
+        contentPadding = PaddingValues(horizontal = contentPadding, vertical = contentPadding / 2),
         horizontalArrangement = Arrangement.spacedBy(contentPadding * 0.6f),
+        verticalAlignment = Alignment.Top,
         flingBehavior = rememberSnapFlingBehavior(lazyListState = state, snapPosition = SnapPosition.Center)
     ) {
         scope.content()

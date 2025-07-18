@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
@@ -49,9 +50,15 @@ fun CarouselItemWrapper(
     Box(
         modifier = Modifier
             .width(itemWidth)
-            .then(if (itemHeight != null) Modifier.height(itemHeight) else Modifier)
+            .then(
+                if (itemHeight != null) {
+                    Modifier.height(itemHeight)
+                } else {
+                    Modifier.wrapContentHeight()
+                }
+            )
             .scale(scale),
-        contentAlignment = Alignment.Center
+        contentAlignment = if (itemHeight != null) Alignment.Center else Alignment.TopCenter
     ) {
         scope.content()
     }

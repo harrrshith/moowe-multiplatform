@@ -1,6 +1,7 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 package com.harrrshith.moowe.ui.discover
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -32,27 +33,29 @@ fun DiscoverRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val hazeState = LocalHazeState.current
-    when {
-        uiState.trendingLoading -> {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
+    Crossfade(uiState) {
+        when(uiState.trendingLoading) {
+            true -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .height(48.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = 4.dp
+                    )
+                }
+            } else -> {
+                DiscoverScreen(
                     modifier = Modifier
-                        .padding(16.dp)
-                        .height(48.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = 4.dp
+                        .fillMaxSize(),
+                    hazeState = hazeState,
+                    movies = uiState.trendingMovies
                 )
             }
-        } else -> {
-            DiscoverScreen(
-                modifier = Modifier
-                    .fillMaxSize(),
-                hazeState = hazeState,
-                movies = uiState.trendingMovies
-            )
         }
     }
 
@@ -66,6 +69,9 @@ private fun DiscoverScreen(
 ) {
     val width = screenWidth
     val actionListState = rememberLazyListState()
+    val adventureListState = rememberLazyListState()
+    val romanceListState = rememberLazyListState()
+    val documentaryListState = rememberLazyListState()
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -82,7 +88,7 @@ private fun DiscoverScreen(
                 top = innerPadding.calculateTopPadding(),
                 bottom = innerPadding.calculateBottomPadding()
             ),
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             trendingList(
                 movies = movies,
@@ -100,7 +106,7 @@ private fun DiscoverScreen(
             movieList(
                 genre = Genre.ADVENTURE,
                 movies = movies,
-                lazyListState = actionListState,
+                lazyListState = adventureListState,
                 itemsTobeDisplayed = 3,
                 screenWidth = width
             )
@@ -108,7 +114,7 @@ private fun DiscoverScreen(
             movieList(
                 genre = Genre.ROMANCE,
                 movies = movies,
-                lazyListState = actionListState,
+                lazyListState = romanceListState,
                 itemsTobeDisplayed = 3,
                 screenWidth = width
             )
@@ -116,7 +122,7 @@ private fun DiscoverScreen(
             movieList(
                 genre = Genre.DOCUMENTARY,
                 movies = movies,
-                lazyListState = actionListState,
+                lazyListState = documentaryListState,
                 itemsTobeDisplayed = 3,
                 screenWidth = width
             )

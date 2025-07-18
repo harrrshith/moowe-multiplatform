@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
@@ -61,12 +62,12 @@ fun LazyListScope.movieList(
         val actualItemWidth = remember { screenWidth / (itemsTobeDisplayed + 0.5f) }
         val horizontalPadding = remember { screenWidth - ((actualItemWidth + 8.dp) * itemsTobeDisplayed) }
         Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
                 modifier = Modifier.padding(start = horizontalPadding),
                 text = genre.displayName,
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
             )
             LazyRow(
                 modifier = Modifier
