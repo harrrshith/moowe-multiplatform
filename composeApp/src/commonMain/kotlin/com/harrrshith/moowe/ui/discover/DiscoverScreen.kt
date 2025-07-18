@@ -33,8 +33,8 @@ fun DiscoverRoute(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val hazeState = LocalHazeState.current
-    Crossfade(uiState) {
-        when(uiState.trendingLoading) {
+    Crossfade(uiState.isLoading) { isLoading ->
+        when(isLoading) {
             true -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -53,7 +53,11 @@ fun DiscoverRoute(
                     modifier = Modifier
                         .fillMaxSize(),
                     hazeState = hazeState,
-                    movies = uiState.trendingMovies
+                    trendingMovies = uiState.trendingMovies,
+                    actionMovies = uiState.actionMovies,
+                    adventureMovies = uiState.adventureMovies,
+                    fantasyMovies = uiState.fantasyMovies,
+                    documentaries = uiState.documentaries
                 )
             }
         }
@@ -65,7 +69,11 @@ fun DiscoverRoute(
 private fun DiscoverScreen(
     modifier: Modifier = Modifier,
     hazeState: HazeState,
-    movies: List<Movie>,
+    trendingMovies: List<Movie>? = null,
+    actionMovies: List<Movie>? = null,
+    adventureMovies: List<Movie>? = null,
+    fantasyMovies: List<Movie>? = null,
+    documentaries: List<Movie>? = null
 ) {
     val width = screenWidth
     val actionListState = rememberLazyListState()
@@ -86,46 +94,56 @@ private fun DiscoverScreen(
                 .hazeSource(state = hazeState),
             contentPadding = PaddingValues(
                 top = innerPadding.calculateTopPadding(),
-                bottom = innerPadding.calculateBottomPadding()
+                bottom = 120.dp
             ),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            trendingList(
-                movies = movies,
-                onMovieClick = {}
-            )
+            trendingMovies?.let { movies ->
+                trendingList(
+                    movies = movies,
+                    onMovieClick = {}
+                )
+            }
 
-            movieList(
-                genre = Genre.ACTION,
-                movies = movies,
-                lazyListState = actionListState,
-                itemsTobeDisplayed = 3,
-                screenWidth = width
-            )
+            actionMovies?.let { movies ->
+                movieList(
+                    genre = Genre.ACTION,
+                    movies = movies,
+                    lazyListState = actionListState,
+                    itemsTobeDisplayed = 3,
+                    screenWidth = width
+                )
+            }
 
-            movieList(
-                genre = Genre.ADVENTURE,
-                movies = movies,
-                lazyListState = adventureListState,
-                itemsTobeDisplayed = 3,
-                screenWidth = width
-            )
+            adventureMovies?.let { movies ->
+                movieList(
+                    genre = Genre.ADVENTURE,
+                    movies = movies,
+                    lazyListState = adventureListState,
+                    itemsTobeDisplayed = 3,
+                    screenWidth = width
+                )
+            }
 
-            movieList(
-                genre = Genre.ROMANCE,
-                movies = movies,
-                lazyListState = romanceListState,
-                itemsTobeDisplayed = 3,
-                screenWidth = width
-            )
+            fantasyMovies?.let { movies ->
+                movieList(
+                    genre = Genre.FANTASY,
+                    movies = movies,
+                    lazyListState = romanceListState,
+                    itemsTobeDisplayed = 3,
+                    screenWidth = width
+                )
+            }
 
-            movieList(
-                genre = Genre.DOCUMENTARY,
-                movies = movies,
-                lazyListState = documentaryListState,
-                itemsTobeDisplayed = 3,
-                screenWidth = width
-            )
+            documentaries?.let { movies ->
+                movieList(
+                    genre = Genre.DOCUMENTARY,
+                    movies = movies,
+                    lazyListState = documentaryListState,
+                    itemsTobeDisplayed = 3,
+                    screenWidth = width
+                )
+            }
         }
     }
 }
@@ -137,6 +155,7 @@ private fun DiscoverScreenPreview() {
     val fakeHazeState = rememberHazeState()
     DiscoverScreen(
         hazeState = fakeHazeState,
-        movies = mockMovies
+        trendingMovies = mockMovies,
+        actionMovies = mockMovies
     )
 }

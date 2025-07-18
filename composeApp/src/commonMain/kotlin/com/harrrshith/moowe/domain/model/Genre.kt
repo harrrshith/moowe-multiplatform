@@ -4,6 +4,6 @@ enum class Genre(val id: Int, val displayName: String) {
     TRENDING(0, "Trending"),
     ACTION(28, "Action"),
     ADVENTURE(12, "Adventure"),
-    ROMANCE(10749, "Romance"),
+    FANTASY(14, "Fantasy"),
     DOCUMENTARY(99, "Biopics & Documentaries")
 }

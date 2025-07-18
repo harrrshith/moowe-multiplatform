@@ -2,53 +2,71 @@ package com.harrrshith.moowe.ui.discover
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.harrrshith.moowe.domain.model.Genre
 import com.harrrshith.moowe.domain.repository.MovieRepository
 import com.harrrshith.moowe.domain.utility.Result
-import com.harrrshith.moowe.ui.discover.DiscoverUiEvent.*
+import com.harrrshith.moowe.ui.utility.successOrEmpty
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class DiscoverViewModel(
-    private val mooweRepository: MovieRepository
+    private val repository: MovieRepository
 ): ViewModel() {
     private val _uiState = MutableStateFlow(DiscoverUiState())
     val uiState: StateFlow<DiscoverUiState> = _uiState.asStateFlow()
     private val _uiEvents = MutableSharedFlow<DiscoverUiEvent>()
     val uiEvents: SharedFlow<DiscoverUiEvent> = _uiEvents.asSharedFlow()
+
     init {
-        fetchAllCategories()
+        fetchAllMovies()
     }
 
-    private fun fetchAllCategories() {
-        fetchTrendingMovies()
-    }
-
-    private fun fetchTrendingMovies() {
+    private fun fetchAllMovies() {
         viewModelScope.launch {
-            when (val response = mooweRepository.getTrendingMovies()) {
-                is Result.Loading -> {
-                    _uiState.update { it.copy(trendingLoading = true) }
-                }
-                is Result.Success -> {
-                    _uiState.update {
-                        it.copy(
-                            trendingLoading = false,
-                            trendingMovies = response.data.subList(0, 10), // Limit to 10 movies
-                            errorMessage = null
-                        )
-                    }
-                }
+            _uiState.update { it.copy(isLoading = true) }
+            try {
+                coroutineScope {
+                    val trendingDeferred = async { repository.getTrendingMovies() }
+                    val actionDeferred = async { repository.getMoviesByGenre(Genre.ACTION) }
+                    val adventureDeferred = async { repository.getMoviesByGenre(Genre.ADVENTURE) }
+                    val fantasyDeferred = async { repository.getMoviesByGenre(Genre.FANTASY) }
+                    val documentaryDeferred = async { repository.getMoviesByGenre(Genre.DOCUMENTARY) }
 
-                is Result.Error -> {
+                    val trendingResult = trendingDeferred.await()
+                    val actionResult = actionDeferred.await()
+                    val adventureResult = adventureDeferred.await()
+                    val fantasyResult = fantasyDeferred.await()
+                    val documentaryResult = documentaryDeferred.await()
+
                     _uiState.update {
                         it.copy(
-                            trendingLoading = false,
-                            errorMessage = response.message
+                            isLoading = false,
+                            trendingMovies = trendingResult.successOrEmpty().take(10),
+                            actionMovies = actionResult.successOrEmpty(),
+                            adventureMovies = adventureResult.successOrEmpty(),
+                            fantasyMovies = fantasyResult.successOrEmpty(),
+                            documentaries = documentaryResult.successOrEmpty(),
+                            errorMessage = listOfNotNull(
+                                (trendingResult as? Result.Error)?.message,
+                                (actionResult as? Result.Error)?.message,
+                                (adventureResult as? Result.Error)?.message,
+                                (fantasyResult as? Result.Error)?.message,
+                                (documentaryResult as? Result.Error)?.message
+                            ).firstOrNull()
                         )
                     }
-                    _uiEvents.emit(ShowError(message = response.message))
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        errorMessage = e.message
+                    )
                 }
             }
         }
+
     }
 }
