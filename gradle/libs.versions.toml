@@ -20,6 +20,7 @@ koin-compose = "4.1.0"
 ksp = "2.2.0-2.0.2"
 navigationCompose = "2.9.0-beta03"
 roomVersion = "2.7.2"
+sqliteVersion = "2.5.1"
 
 [libraries]
 haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
@@ -30,6 +31,8 @@ androidx-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:life
 androidx-lifecycle-runtime-compose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomVersion"}
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomVersion" }
+androidx-sqlite = { module = "androidx.sqlite:sqlite", version.ref = "sqliteVersion" }
+androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqliteVersion" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil-version" }
 coil-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil-version" }
 coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }

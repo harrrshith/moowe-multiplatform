@@ -9,7 +9,7 @@ import platform.Foundation.NSFileManager
 import platform.Foundation.NSUserDomainMask
 
 fun getDatabaseBuilder(): RoomDatabase.Builder<MooweDatabase> {
-    val dbFilePath = documentDirectory() + "/my_room.db"
+    val dbFilePath = documentDirectory() + "/moowe_room.db"
     return Room.databaseBuilder<MooweDatabase>(
         name = dbFilePath,
     )

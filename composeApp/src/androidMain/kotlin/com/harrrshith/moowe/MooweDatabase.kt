@@ -12,6 +12,6 @@ fun getDatabaseBuilder(context: Context): RoomDatabase.Builder<MooweDatabase> {
 
     return Room.databaseBuilder<MooweDatabase>(
         context = appContext,
-        name = dbFile.name
+        name = dbFile.absolutePath
     )
 }

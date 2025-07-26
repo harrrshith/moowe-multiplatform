@@ -93,6 +93,8 @@ kotlin {
             implementation(libs.haze.materials)
             implementation(libs.coroutines.core)
             implementation(libs.androidx.room.runtime)
+            implementation(libs.androidx.sqlite)
+            implementation(libs.androidx.sqlite.bundled)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

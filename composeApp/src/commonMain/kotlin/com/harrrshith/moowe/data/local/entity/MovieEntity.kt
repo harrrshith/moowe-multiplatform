@@ -1,13 +1,14 @@
 package com.harrrshith.moowe.data.local.entity
 
 import androidx.room.Entity
+import androidx.room.PrimaryKey
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-@Entity
+@Entity(tableName = "movies")
 data class MovieEntity(
-    /* @PrimaryKey(autoGenerate = true)*/val id: Int,
+    @PrimaryKey val id: Int,
     val title: String,
     val overview: String,
     @SerialName("poster_path") val posterPath: String? = null,
