@@ -1,26 +1,26 @@
 [versions]
 
-agp = "8.10.0"
+agp = "8.11.1"
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
 androidx-activity = "1.10.1"
 androidx-lifecycle = "2.9.1"
-coil-version = "3.2.0"
-compose-hot-reload = "1.0.0-beta03"
+coil-version = "3.3.0"
+compose-hot-reload = "1.0.0-beta04"
 compose-multiplatform = "1.8.2"
 coroutines = "1.10.2"
-haze = "1.6.7"
+haze = "1.6.9"
 kotlin = "2.2.0"
 kotlinx-coroutines = "1.10.2"
 kotlinx-serialization-json = "1.9.0"
-ktor = "3.2.1"
+ktor = "3.2.2"
 koin = "4.1.0"
 koin-compose = "4.1.0"
 ksp = "2.2.0-2.0.2"
-navigationCompose = "2.9.0-beta03"
+navigationCompose = "2.9.0-beta04"
 roomVersion = "2.7.2"
-sqliteVersion = "2.5.1"
+sqliteVersion = "2.5.2"
 
 [libraries]
 haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
