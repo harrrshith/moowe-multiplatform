@@ -98,14 +98,14 @@ private fun DiscoverScreen(
             ),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            trendingMovies?.let { movies ->
+            trendingMovies?.takeIf { it.isNotEmpty() }?.let { movies ->
                 trendingList(
                     movies = movies,
                     onMovieClick = {}
                 )
             }
 
-            actionMovies?.let { movies ->
+            actionMovies?.takeIf { it.isNotEmpty() }?.let { movies ->
                 movieList(
                     genre = Genre.ACTION,
                     movies = movies,
@@ -115,7 +115,7 @@ private fun DiscoverScreen(
                 )
             }
 
-            adventureMovies?.let { movies ->
+            adventureMovies?.takeIf { it.isNotEmpty() }?.let { movies ->
                 movieList(
                     genre = Genre.ADVENTURE,
                     movies = movies,
@@ -125,7 +125,7 @@ private fun DiscoverScreen(
                 )
             }
 
-            fantasyMovies?.let { movies ->
+            fantasyMovies?.takeIf { it.isNotEmpty() }?.let { movies ->
                 movieList(
                     genre = Genre.FANTASY,
                     movies = movies,
@@ -135,7 +135,7 @@ private fun DiscoverScreen(
                 )
             }
 
-            documentaries?.let { movies ->
+            documentaries?.takeIf { it.isNotEmpty() }?.let { movies ->
                 movieList(
                     genre = Genre.DOCUMENTARY,
                     movies = movies,

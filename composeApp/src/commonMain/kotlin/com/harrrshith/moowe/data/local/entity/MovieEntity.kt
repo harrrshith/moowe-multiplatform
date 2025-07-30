@@ -18,5 +18,6 @@ data class MovieEntity(
     @SerialName("vote_count") val voteCount: Int = 0,
     val popularity: Double = 0.0,
     val adult: Boolean = false,
-    @SerialName("genre_ids") val genreIds: List<Int> = emptyList()
+    @SerialName("genre_ids") val genreIds: List<Int> = emptyList(),
+    @SerialName("genre") var genre: Int? = Int.MIN_VALUE
 )

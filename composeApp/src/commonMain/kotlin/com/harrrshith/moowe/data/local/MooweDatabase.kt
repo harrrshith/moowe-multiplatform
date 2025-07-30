@@ -1,7 +1,9 @@
 package com.harrrshith.moowe.data.local
 
+import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.RoomDatabaseConstructor
 import androidx.room.TypeConverters
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.harrrshith.moowe.data.local.converters.Converters
@@ -15,10 +17,14 @@ import kotlinx.coroutines.IO
     exportSchema = true
 )
 @TypeConverters(Converters::class)
+@ConstructedBy(MooweDatabaseConstructor::class)
 abstract class MooweDatabase : RoomDatabase() {
     abstract fun getMooweDao(): MooweDao
 }
-
+@Suppress("NO_ACTUAL_FOR_EXPECT")
+expect object MooweDatabaseConstructor: RoomDatabaseConstructor<MooweDatabase> {
+    override fun initialize(): MooweDatabase
+}
 fun getMovieDatabase(builder: RoomDatabase.Builder<MooweDatabase>): MooweDatabase {
     return builder
         .setDriver(BundledSQLiteDriver())

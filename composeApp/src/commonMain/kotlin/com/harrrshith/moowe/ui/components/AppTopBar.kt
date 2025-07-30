@@ -25,8 +25,8 @@ internal fun AppTopBar(
             .fillMaxWidth()
             .hazeEffect(
                 state = hazeState,
-                style = HazeMaterials.thick()){
-                progressive = HazeProgressive.verticalGradient(startIntensity = 0.5f, endIntensity = 1f)
+                style = HazeMaterials.thin()){
+                progressive = HazeProgressive.verticalGradient(startIntensity = 1f, endIntensity = 0.1f)
             },
         title = {
             Text(

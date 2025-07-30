@@ -11,6 +11,7 @@ import com.harrrshith.moowe.domain.utility.Result
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
@@ -21,22 +22,17 @@ class MovieRepositoryImpl(
     
     override suspend fun getTrendingMovies(): Result<List<Movie>> {
         return try {
-            // Try to fetch from network first
-            val networkResult = withContext(Dispatchers.Default) {
+            val movies = withContext(Dispatchers.Default) {
                 val response = api.getTrendingMovies()
-                val movies = response.movies.map { it.toDomain() }
-                val entities = response.movies.map { it.toEntity() }
-                
-                // Cache movies in local database
+                val entities = response.movies.map { it.toEntity().copy(genre = Genre.TRENDING.id) }
+                entities.map { it.copy(genre = Genre.TRENDING.id) }
                 dao.insertMovies(entities)
-                
-                movies
+                dao.getAllMovies().map { it.toDomain() }
             }
-            Result.Success(networkResult)
+            Result.Success(movies)
         } catch (e: Exception) {
-            // If network fails, try to load from cache
             return try {
-                val cachedMovies = dao.getAllMovies().first().map { it.toDomain() }
+                val cachedMovies = dao.getAllMovies().map { it.toDomain() }
                 if (cachedMovies.isNotEmpty()) {
                     Result.Success(cachedMovies)
                 } else {
@@ -52,25 +48,20 @@ class MovieRepositoryImpl(
         return try {
             val movies = withContext(Dispatchers.Default) {
                 val response = api.getMoviesByGenre(genreId = genre.id)
-                val movies = response.movies.map { it.toDomain() }
-                val entities = response.movies.map { it.toEntity() }
-                
-                // Cache movies in local database
+                val entities = response.movies.map { it.toEntity().copy(genre = genre.id) }
+                entities.map { it.copy(genre = Genre.TRENDING.id) }
                 dao.insertMovies(entities)
-                
-                movies
+                dao.getMoviesByGenre(id = genre.id).map { it.toDomain() }
             }
             Result.Success(movies)
         } catch (e: Exception) {
-            // Fallback to cached data for genre filtering would require additional logic
-            // For now, return error
             Result.Error(e.message ?: "Unknown error occurred", Int.MAX_VALUE)
         }
     }
     
     // Additional methods for local database operations
     fun getMoviesFlow(): Flow<List<Movie>> {
-        return dao.getAllMovies().map { entities ->
+        return dao.getAllMoviesFlow().map { entities ->
             entities.map { it.toDomain() }
         }
     }

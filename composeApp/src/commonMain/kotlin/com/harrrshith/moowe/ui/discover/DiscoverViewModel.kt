@@ -39,7 +39,7 @@ class DiscoverViewModel(
                     val adventureResult = adventureDeferred.await()
                     val fantasyResult = fantasyDeferred.await()
                     val documentaryResult = documentaryDeferred.await()
-
+                    print("Hello world\n\n $trendingResult")
                     _uiState.update {
                         it.copy(
                             isLoading = false,

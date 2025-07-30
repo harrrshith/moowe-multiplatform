@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.harrrshith.moowe.data.local.entity.MovieEntity
+import com.harrrshith.moowe.domain.model.Genre
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -16,7 +17,13 @@ interface MooweDao {
     suspend fun insertMovie(movie: MovieEntity)
 
     @Query("SELECT * FROM movies")
-    fun getAllMovies(): Flow<List<MovieEntity>>
+    fun getAllMoviesFlow(): Flow<List<MovieEntity>>
+
+    @Query("SELECT * FROM movies")
+    fun getAllMovies(): List<MovieEntity>
+
+    @Query("SELECT * FROM movies WHERE genre = :id")
+    fun getMoviesByGenre(id: Int): List<MovieEntity>
     
     @Query("SELECT * FROM movies WHERE id = :movieId")
     suspend fun getMovieById(movieId: Int): MovieEntity?
