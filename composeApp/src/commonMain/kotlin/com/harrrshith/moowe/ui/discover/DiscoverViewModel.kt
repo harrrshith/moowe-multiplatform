@@ -34,7 +34,6 @@ class DiscoverViewModel(
                     repository.getMoviesByGenre(genre = Genre.FANTASY),
                     repository.getMoviesByGenre(genre = Genre.DOCUMENTARY)
                 ) { trendingMovies, actionMovies, adventureMovies, fantasyMovies, documentaries ->
-                    print("Movies $trendingMovies")
                     _uiState.update {
                         it.copy(
                             isLoading = false,

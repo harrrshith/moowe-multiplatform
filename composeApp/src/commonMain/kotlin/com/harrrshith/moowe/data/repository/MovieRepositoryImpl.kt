@@ -29,7 +29,6 @@ class MovieRepositoryImpl(
                 dao.insertMovies(entities)
                 dao.getAllMovies().map { it.toDomain() }
             }
-            print("Movies trending $movies")
             emit(Result.Success(movies))
         } catch (e: Exception) {
             try {
@@ -54,13 +53,22 @@ class MovieRepositoryImpl(
                 dao.insertMovies(entities)
                 dao.getMoviesByGenre(id = genre.id).map { it.toDomain() }
             }
-            print("Movies ${genre.name} $movies")
             emit(Result.Success(movies))
         } catch (e: Exception) {
-            emit(Result.Error(e.message ?: "Unknown error occurred", Int.MAX_VALUE))
+            try {
+                val cachedMovies = dao.getMoviesByGenre(id = genre.id).map { it.toDomain() }
+                if (cachedMovies.isNotEmpty()) {
+                    emit(Result.Success(cachedMovies))
+                } else {
+                    emit(Result.Error(e.message ?: "No cached data available", Int.MAX_VALUE))
+                }
+            } catch (cacheException: Exception) {
+                emit(Result.Error(e.message ?: "Unknown error occurred", Int.MAX_VALUE))
+            }
         }
     }
-    
+
+
     // Additional methods for local database operations
     fun getMoviesFlow(): Flow<List<Movie>> {
         return dao.getAllMoviesFlow().map { entities ->
