@@ -12,21 +12,26 @@ class MooweApiHandler(
     suspend fun getTrendingMovies(
         mediaType: String = "movie",
         timeWindow: String = "day",
-        language: String = "en-IN"
+        language: String = "en-IN",
+        region: String = "IN"
     ): MoviesResponse {
         return client.get("trending/$mediaType/$timeWindow") {
             parameter("language", language)
+            parameter("include_adult", false)
+            parameter("region", region)
         }.body()
     }
 
     suspend fun getMoviesByGenre(
         genreId: Int,
-        language: String = "en-IN"
+        language: String = "en-IN",
+        region: String = "IN"
     ): MoviesResponse {
         return client.get("discover/movie") {
             parameter("language", language)
             parameter("with_genres", genreId)
             parameter("include_adult", false)
+            parameter("region", region)
         }.body()
     }
 }

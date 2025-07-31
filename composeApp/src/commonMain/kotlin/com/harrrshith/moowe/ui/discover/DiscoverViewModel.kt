@@ -27,37 +27,39 @@ class DiscoverViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                coroutineScope {
-                    val trendingDeferred = async { repository.getTrendingMovies() }
-                    val actionDeferred = async { repository.getMoviesByGenre(Genre.ACTION) }
-                    val adventureDeferred = async { repository.getMoviesByGenre(Genre.ADVENTURE) }
-                    val fantasyDeferred = async { repository.getMoviesByGenre(Genre.FANTASY) }
-                    val documentaryDeferred = async { repository.getMoviesByGenre(Genre.DOCUMENTARY) }
-
-                    val trendingResult = trendingDeferred.await()
-                    val actionResult = actionDeferred.await()
-                    val adventureResult = adventureDeferred.await()
-                    val fantasyResult = fantasyDeferred.await()
-                    val documentaryResult = documentaryDeferred.await()
-                    print("Hello world\n\n $trendingResult")
+                combine(
+                    repository.getTrendingMovies(),
+                    repository.getMoviesByGenre(genre = Genre.ACTION),
+                    repository.getMoviesByGenre(genre = Genre.ADVENTURE),
+                    repository.getMoviesByGenre(genre = Genre.FANTASY),
+                    repository.getMoviesByGenre(genre = Genre.DOCUMENTARY)
+                ) { trendingMovies, actionMovies, adventureMovies, fantasyMovies, documentaries ->
+                    print("Movies $trendingMovies")
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            trendingMovies = trendingResult.successOrEmpty().take(10),
-                            actionMovies = actionResult.successOrEmpty(),
-                            adventureMovies = adventureResult.successOrEmpty(),
-                            fantasyMovies = fantasyResult.successOrEmpty(),
-                            documentaries = documentaryResult.successOrEmpty(),
+                            trendingMovies = trendingMovies.successOrEmpty().take(10),
+                            actionMovies = actionMovies.successOrEmpty(),
+                            adventureMovies = adventureMovies.successOrEmpty(),
+                            fantasyMovies = fantasyMovies.successOrEmpty(),
+                            documentaries = documentaries.successOrEmpty(),
                             errorMessage = listOfNotNull(
-                                (trendingResult as? Result.Error)?.message,
-                                (actionResult as? Result.Error)?.message,
-                                (adventureResult as? Result.Error)?.message,
-                                (fantasyResult as? Result.Error)?.message,
-                                (documentaryResult as? Result.Error)?.message
+                                (trendingMovies as? Result.Error)?.message,
+                                (actionMovies as? Result.Error)?.message,
+                                (adventureMovies as? Result.Error)?.message,
+                                (fantasyMovies as? Result.Error)?.message,
+                                (documentaries as? Result.Error)?.message
                             ).firstOrNull()
                         )
                     }
-                }
+                }.catch { e ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            errorMessage = e.message
+                        )
+                    }
+                }.collect()
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(
@@ -67,6 +69,5 @@ class DiscoverViewModel(
                 }
             }
         }
-
     }
 }

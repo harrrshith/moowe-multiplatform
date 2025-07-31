@@ -20,8 +20,8 @@ class MovieRepositoryImpl(
     private val dao: MooweDao
 ) : MovieRepository {
     
-    override suspend fun getTrendingMovies(): Result<List<Movie>> {
-        return try {
+    override fun getTrendingMovies(): Flow<Result<List<Movie>>> = flow {
+        try {
             val movies = withContext(Dispatchers.Default) {
                 val response = api.getTrendingMovies()
                 val entities = response.movies.map { it.toEntity().copy(genre = Genre.TRENDING.id) }
@@ -29,23 +29,24 @@ class MovieRepositoryImpl(
                 dao.insertMovies(entities)
                 dao.getAllMovies().map { it.toDomain() }
             }
-            Result.Success(movies)
+            print("Movies trending $movies")
+            emit(Result.Success(movies))
         } catch (e: Exception) {
-            return try {
+            try {
                 val cachedMovies = dao.getAllMovies().map { it.toDomain() }
                 if (cachedMovies.isNotEmpty()) {
-                    Result.Success(cachedMovies)
+                    emit(Result.Success(cachedMovies))
                 } else {
-                    Result.Error(e.message ?: "No cached data available", Int.MAX_VALUE)
+                    emit(Result.Error(e.message ?: "No cached data available", Int.MAX_VALUE))
                 }
             } catch (cacheException: Exception) {
-                Result.Error(e.message ?: "Unknown error occurred", Int.MAX_VALUE)
+                emit(Result.Error(e.message ?: "Unknown error occurred", Int.MAX_VALUE))
             }
         }
     }
 
-    override suspend fun getMoviesByGenre(genre: Genre): Result<List<Movie>> {
-        return try {
+    override fun getMoviesByGenre(genre: Genre): Flow<Result<List<Movie>>> = flow{
+        try {
             val movies = withContext(Dispatchers.Default) {
                 val response = api.getMoviesByGenre(genreId = genre.id)
                 val entities = response.movies.map { it.toEntity().copy(genre = genre.id) }
@@ -53,9 +54,10 @@ class MovieRepositoryImpl(
                 dao.insertMovies(entities)
                 dao.getMoviesByGenre(id = genre.id).map { it.toDomain() }
             }
-            Result.Success(movies)
+            print("Movies ${genre.name} $movies")
+            emit(Result.Success(movies))
         } catch (e: Exception) {
-            Result.Error(e.message ?: "Unknown error occurred", Int.MAX_VALUE)
+            emit(Result.Error(e.message ?: "Unknown error occurred", Int.MAX_VALUE))
         }
     }
     
