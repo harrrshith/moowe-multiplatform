@@ -36,18 +36,7 @@ fun DiscoverRoute(
     Crossfade(uiState.isLoading) { isLoading ->
         when(isLoading) {
             true -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .height(48.dp),
-                        color = MaterialTheme.colorScheme.primary,
-                        strokeWidth = 4.dp
-                    )
-                }
+                LoadingScreen()
             } else -> {
                 DiscoverScreen(
                     modifier = Modifier
@@ -63,6 +52,21 @@ fun DiscoverRoute(
         }
     }
 
+}
+@Composable
+private fun LoadingScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier
+                .padding(16.dp)
+                .height(48.dp),
+            color = MaterialTheme.colorScheme.primary,
+            strokeWidth = 4.dp
+        )
+    }
 }
 
 @Composable
