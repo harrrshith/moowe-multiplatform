@@ -10,6 +10,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,10 +30,23 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun DiscoverRoute(
-    viewModel: DiscoverViewModel = (koinViewModel())
+    viewModel: DiscoverViewModel = koinViewModel(),
+    navigateToDetail: (Int) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val hazeState = LocalHazeState.current
+
+    LaunchedEffect(Unit) {
+        viewModel.uiEvents.collect { event ->
+            when (event) {
+                is DiscoverUiEvent.NavigateToDetail -> {
+                    navigateToDetail(event.id)
+                }
+                is DiscoverUiEvent.ShowError -> {}
+            }
+        }
+    }
+
     Crossfade(uiState.isLoading) { isLoading ->
         when(isLoading) {
             true -> {
@@ -46,7 +60,8 @@ fun DiscoverRoute(
                     actionMovies = uiState.actionMovies,
                     adventureMovies = uiState.adventureMovies,
                     fantasyMovies = uiState.fantasyMovies,
-                    documentaries = uiState.documentaries
+                    documentaries = uiState.documentaries,
+                    onClick = viewModel::onMovieClick
                 )
             }
         }
@@ -77,7 +92,8 @@ private fun DiscoverScreen(
     actionMovies: List<Movie>? = null,
     adventureMovies: List<Movie>? = null,
     fantasyMovies: List<Movie>? = null,
-    documentaries: List<Movie>? = null
+    documentaries: List<Movie>? = null,
+    onClick: (Int) -> Unit
 ) {
     val width = screenWidth
     val actionListState = rememberLazyListState()
@@ -105,7 +121,9 @@ private fun DiscoverScreen(
             trendingMovies?.takeIf { it.isNotEmpty() }?.let { movies ->
                 trendingList(
                     movies = movies,
-                    onMovieClick = {}
+                    onClick = {id ->
+                        onClick(id)
+                    }
                 )
             }
 
@@ -115,7 +133,10 @@ private fun DiscoverScreen(
                     movies = movies,
                     lazyListState = actionListState,
                     itemsTobeDisplayed = 3,
-                    screenWidth = width
+                    screenWidth = width,
+                    onClick = {id ->
+                        onClick(id)
+                    }
                 )
             }
 
@@ -125,7 +146,10 @@ private fun DiscoverScreen(
                     movies = movies,
                     lazyListState = adventureListState,
                     itemsTobeDisplayed = 3,
-                    screenWidth = width
+                    screenWidth = width,
+                    onClick = {id ->
+                        onClick(id)
+                    }
                 )
             }
 
@@ -135,7 +159,10 @@ private fun DiscoverScreen(
                     movies = movies,
                     lazyListState = romanceListState,
                     itemsTobeDisplayed = 3,
-                    screenWidth = width
+                    screenWidth = width,
+                    onClick = {id ->
+                        onClick(id)
+                    }
                 )
             }
 
@@ -145,7 +172,10 @@ private fun DiscoverScreen(
                     movies = movies,
                     lazyListState = documentaryListState,
                     itemsTobeDisplayed = 3,
-                    screenWidth = width
+                    screenWidth = width,
+                    onClick = {id ->
+                        onClick(id)
+                    }
                 )
             }
         }
@@ -160,6 +190,7 @@ private fun DiscoverScreenPreview() {
     DiscoverScreen(
         hazeState = fakeHazeState,
         trendingMovies = mockMovies,
-        actionMovies = mockMovies
+        actionMovies = mockMovies,
+        onClick = { }
     )
 }

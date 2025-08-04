@@ -9,52 +9,74 @@ import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.domain.repository.MovieRepository
 import com.harrrshith.moowe.domain.utility.Result
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 
 class MovieRepositoryImpl(
     private val api: MooweApiHandler,
     private val dao: MooweDao
 ) : MovieRepository {
-    
+
     override fun getTrendingMovies(): Flow<Result<List<Movie>>> = flow {
-        try {
-            val movies = withContext(Dispatchers.Default) {
-                val response = api.getTrendingMovies()
-                val entities = response.movies.map { it.toEntity().copy(genre = Genre.TRENDING.id) }
-                dao.insertMovies(entities)
+        val response = api.getTrendingMovies()
+        val entities = response.movies.map { it.toEntity().copy(genre = Genre.TRENDING.id) }
+        dao.insertMovies(entities)
+        emitAll(
+            dao.getMoviesByGenre(id = Genre.TRENDING.id)
+                .map { list ->
+                    Result.Success(
+                        list.map { it.toDomain() }
+                            .distinctBy { it.id }
+                            .sortedWith(
+                                compareByDescending<Movie> { it.popularity }
+                                    .thenByDescending { it.voteAverage }
+                            )
+                    )
+                }
+        )
+    }.catch { e ->
+        emit(
+            handleError(e as Exception) {
                 dao.getMoviesByGenre(id = Genre.TRENDING.id)
-                    .map { it.toDomain() }
-                    .distinctBy { it.id }
-                    .sortedWith(compareByDescending<Movie> { it.popularity }
-                        .thenByDescending { it.voteAverage })
-            }
-            emit(Result.Success(movies))
-        } catch (e: Exception) {
-            emit(handleError(e) { dao.getMoviesByGenre(Genre.TRENDING.id).map { it.toDomain() } })
-        }
+                    .firstOrNull()
+                    ?.map { it.toDomain() } ?: emptyList()
+            } as Result.Success<List<Movie>>
+        )
     }
 
-    override fun getMoviesByGenre(genre: Genre): Flow<Result<List<Movie>>> = flow{
-        try {
-            val movies = withContext(Dispatchers.Default) {
-                val response = api.getMoviesByGenre(genreId = genre.id)
-                val entities = response.movies.map { it.toEntity().copy(genre = genre.id) }
-                dao.insertMovies(entities)
+    override fun getMoviesByGenre(genre: Genre): Flow<Result<List<Movie>>> = flow {
+        val response = api.getMoviesByGenre(genreId = genre.id)
+        val entities = response.movies.map { it.toEntity().copy(genre = genre.id) }
+        dao.insertMovies(entities)
+        // ✅ Emits live DB updates automatically
+        emitAll(
+            dao.getMoviesByGenre(id = genre.id)
+                .map { list ->
+                    Result.Success(
+                        list.map { it.toDomain() }
+                            .distinctBy { it.id }
+                            .sortedWith(
+                                compareByDescending<Movie> { it.popularity }
+                                    .thenByDescending { it.voteAverage }
+                            )
+                    )
+                }
+        )
+    }.catch { e ->
+        emit(
+            handleError(e as Exception) {
                 dao.getMoviesByGenre(id = genre.id)
-                    .map { it.toDomain() }
-                    .distinctBy { it.id }
-                    .sortedWith(compareByDescending<Movie> { it.popularity }
-                        .thenByDescending { it.voteAverage })
-            }
-            emit(Result.Success(movies))
-        } catch (e: Exception) {
-            emit(handleError(e) { dao.getMoviesByGenre(genre.id).map { it.toDomain() } })
-        }
-    }
+                    .firstOrNull()
+                    ?.map { it.toDomain() } ?: emptyList()
+            } as Result.Success<List<Movie>>
+        )
+    }.flowOn(Dispatchers.IO)
 
     private suspend fun handleError(
         exception: Exception,

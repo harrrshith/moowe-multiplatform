@@ -69,4 +69,10 @@ class DiscoverViewModel(
             }
         }
     }
+
+    fun onMovieClick(id: Int) {
+        viewModelScope.launch {
+            _uiEvents.emit(DiscoverUiEvent.NavigateToDetail(id))
+        }
+    }
 }

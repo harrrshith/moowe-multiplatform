@@ -10,6 +10,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import com.harrrshith.moowe.ui.detail.DetailRoute
 import com.harrrshith.moowe.ui.discover.DiscoverRoute
 
 @Composable
@@ -27,7 +28,11 @@ fun NavigationGraph(
             startDestination = Destination.Home.Discover
         ){
             composable<Destination.Home.Discover> {
-                DiscoverRoute()
+                DiscoverRoute(
+                    navigateToDetail = { id ->
+                        navController.navigate(Destination.Detail(id))
+                    }
+                )
             }
             composable<Destination.Home.Trending> {
                 Box(
@@ -53,6 +58,10 @@ fun NavigationGraph(
                     Text("Yours")
                 }
             }
+        }
+
+        composable<Destination.Detail> {
+            DetailRoute()
         }
     }
 }

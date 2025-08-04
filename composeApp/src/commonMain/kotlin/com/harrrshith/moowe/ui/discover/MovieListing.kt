@@ -2,6 +2,7 @@ package com.harrrshith.moowe.ui.discover
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
@@ -28,7 +29,7 @@ import com.harrrshith.moowe.ui.components.ImageCard
 
 fun LazyListScope.trendingList(
     movies: List<Movie>,
-    onMovieClick: (Movie) -> Unit,
+    onClick: (Int) -> Unit,
 ){
     item {
         ImageCarousel(
@@ -43,7 +44,7 @@ fun LazyListScope.trendingList(
                         .background(Color.Black),
                     imageUrl = movie.backdropPath,
                     movieTitle = movie.title,
-                    onClick = { onMovieClick(movie) },
+                    onClick = { onClick(movie.id) },
                 )
             }
 
@@ -57,6 +58,7 @@ fun LazyListScope.movieList(
     lazyListState: LazyListState,
     itemsTobeDisplayed: Int,
     screenWidth: Dp,
+    onClick: (Int) -> Unit = {}
 ) {
     item {
         val actualItemWidth = remember { screenWidth / (itemsTobeDisplayed + 0.5f) }
@@ -85,6 +87,9 @@ fun LazyListScope.movieList(
                             .width(actualItemWidth)
                             .aspectRatio(0.75f)
                             .clip(RoundedCornerShape(12.dp))
+                            .clickable{
+                                onClick(movie.id)
+                            }
                     ) {
                         Image(
                             modifier = Modifier
