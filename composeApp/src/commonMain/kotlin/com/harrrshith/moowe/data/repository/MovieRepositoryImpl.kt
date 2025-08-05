@@ -100,9 +100,18 @@ class MovieRepositoryImpl(
             entities.map { it.toDomain() }
         }
     }
-    
-    suspend fun getMovieById(movieId: Int): Movie? {
-        return dao.getMovieById(movieId)?.toDomain()
+
+    override suspend fun getMovieById(id: Int): Result<Movie> {
+        return try {
+            val movie = dao.getMovieById(movieId = id)
+            if (movie != null) {
+                Result.Success(movie.toDomain())
+            } else {
+                Result.Error("Movie not found", status = 404)
+            }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Unknown error", status = 500)
+        }
     }
     
     suspend fun clearCache() {

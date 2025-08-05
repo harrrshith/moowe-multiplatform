@@ -69,12 +69,12 @@ private fun BottomBar(
 ){
     NavigationBar(
         modifier = Modifier
-            .fillMaxWidth()
             .hazeEffect(
                 state = hazeState,
                 style = HazeMaterials.thick()){
                 progressive = HazeProgressive.verticalGradient(startIntensity = 0.5f, endIntensity = 1f)
-            },
+            }
+            .fillMaxWidth(),
         containerColor = Color.Transparent
     ){
         tabs.forEach { tab ->

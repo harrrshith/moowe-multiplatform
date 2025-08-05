@@ -9,4 +9,6 @@ interface MovieRepository {
     fun getTrendingMovies(): Flow<Result<List<Movie>>>
 
     fun getMoviesByGenre(genre: Genre): Flow<Result<List<Movie>>>
+
+    suspend fun getMovieById(id: Int): Result<Movie>
 }

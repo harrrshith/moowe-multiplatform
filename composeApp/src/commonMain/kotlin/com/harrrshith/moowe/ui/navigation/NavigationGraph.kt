@@ -61,7 +61,9 @@ fun NavigationGraph(
         }
 
         composable<Destination.Detail> {
-            DetailRoute()
+            DetailRoute(
+                onBackPressed = { navController.popBackStack() }
+            )
         }
     }
 }

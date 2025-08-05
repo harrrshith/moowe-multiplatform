@@ -14,7 +14,7 @@ import kotlinx.coroutines.IO
 @Database(
     entities = [MovieEntity::class], 
     version = 1,
-    exportSchema = true
+    exportSchema = false
 )
 @TypeConverters(Converters::class)
 @ConstructedBy(MooweDatabaseConstructor::class)

@@ -22,12 +22,12 @@ internal fun AppTopBar(
 ) {
     CenterAlignedTopAppBar(
         modifier = Modifier
-            .fillMaxWidth()
             .hazeEffect(
                 state = hazeState,
                 style = HazeMaterials.thin()){
                 progressive = HazeProgressive.verticalGradient(startIntensity = 1f, endIntensity = 0.1f)
-            },
+            }
+            .fillMaxWidth(),
         title = {
             Text(
                 text = title,

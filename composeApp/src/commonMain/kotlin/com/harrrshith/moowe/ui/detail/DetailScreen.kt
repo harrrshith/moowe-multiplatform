@@ -1,11 +1,138 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
 package com.harrrshith.moowe.ui.detail
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.rememberAsyncImagePainter
+import com.harrrshith.moowe.Constants.IMAGE_BASE_URL
+import com.harrrshith.moowe.domain.model.Movie
+import com.harrrshith.moowe.ui.components.composeVectors.ArrowBackIcon
+import com.harrrshith.moowe.ui.components.composeVectors.LikeIcon
+import com.harrrshith.moowe.ui.components.composeVectors.ShareIcon
+import com.harrrshith.moowe.ui.detail.mock.mockMovie
+import com.harrrshith.moowe.ui.theme.AppTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun DetailRoute(
-    viewModel: DetailScreenViewModel = koinViewModel()
+    viewModel: DetailScreenViewModel = koinViewModel(),
+    onBackPressed: () -> Unit
 ){
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    uiState.movie?.let { movie ->
+        DetailScreen(
+            movie = movie,
+            onBackPressed = onBackPressed
+        )
+    }
+}
 
+@Composable
+private fun DetailScreen(
+    movie: Movie,
+    onBackPressed: () -> Unit
+){
+    Scaffold(
+        topBar = {
+            MooweTopAppBar(
+                movie = movie,
+                onBackPressed = onBackPressed,
+                onLikeClicked = {},
+                onShareClicked = {}
+            )
+        }
+    ) { paddingValues ->
+        LazyColumn {
+            banner(url = movie.backdropPath)
+        }
+
+    }
+}
+
+private fun LazyListScope.banner(
+    url: String
+){
+    item {
+        Image(
+            painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/$url"),
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1.25f)
+        )
+    }
+}
+
+
+
+@Composable
+private fun MooweTopAppBar(
+    movie: Movie,
+    onBackPressed: () -> Unit,
+    onLikeClicked: (Int) -> Unit,
+    onShareClicked: (Int) -> Unit
+) {
+    TopAppBar(
+        navigationIcon = {
+            IconButton(onClick = onBackPressed) {
+                Image(
+                    imageVector = ArrowBackIcon,
+                    contentDescription = "Back"
+                )
+            }
+        },
+        title = {
+            Text(
+                text = movie.title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.titleLarge
+            )
+        },
+        actions = {
+            IconButton(onClick = { onLikeClicked(movie.id) }) {
+                Image(imageVector = LikeIcon, contentDescription = "Like")
+            }
+            IconButton(onClick = { onShareClicked(movie.id) }) {
+                Image(imageVector = ShareIcon, contentDescription = "Share")
+            }
+        },
+    )
+}
+
+@Preview
+@Composable
+fun PreviewDetailScreen() {
+    AppTheme {
+        Surface {
+            DetailScreen(
+                movie = mockMovie,
+                onBackPressed = { }
+            )
+        }
+    }
 }
