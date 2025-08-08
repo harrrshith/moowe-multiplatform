@@ -12,12 +12,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
 @Database(
-    entities = [MovieEntity::class], 
-    version = 1,
-    exportSchema = false
+    entities = [MovieEntity::class],
+    version = 1
 )
-@TypeConverters(Converters::class)
 @ConstructedBy(MooweDatabaseConstructor::class)
+@TypeConverters(Converters::class)
 abstract class MooweDatabase : RoomDatabase() {
     abstract fun getMooweDao(): MooweDao
 }
