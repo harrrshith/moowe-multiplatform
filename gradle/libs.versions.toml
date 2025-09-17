@@ -1,10 +1,10 @@
 [versions]
 
-agp = "8.11.1"
+agp = "8.11.2"
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
-androidx-activity = "1.10.1"
+androidx-activity = "1.11.0"
 androidx-lifecycle = "2.9.1"
 coil-version = "3.3.0"
 compose-hot-reload = "1.0.0-beta04"
@@ -18,7 +18,7 @@ ktor = "3.2.2"
 koin = "4.1.0"
 koin-compose = "4.1.0"
 ksp = "2.2.0-2.0.2"
-navigationCompose = "2.9.0-beta04"
+navigationCompose = "2.9.0"
 roomVersion = "2.7.2"
 sqliteVersion = "2.5.2"
 
