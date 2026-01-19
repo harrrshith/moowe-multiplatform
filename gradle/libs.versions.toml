@@ -2,7 +2,7 @@
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
-agp = "8.13.2"
+agp = "9.0.0"
 componentsResources = "1.10.0"
 foundation = "1.10.0"
 kotlin = "2.3.0"
@@ -61,6 +61,7 @@ ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", v
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
+androidKmpLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 androidRoom = { id = "androidx.room", version.ref = "roomVersion" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-multiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

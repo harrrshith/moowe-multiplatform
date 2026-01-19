@@ -34,3 +34,4 @@ google-services.json
 .kotlin/
 .DS_Store
 composeApp/src/commonMain/kotlin/com/harrrshith/moowe/Constants.kt
+Agents.md

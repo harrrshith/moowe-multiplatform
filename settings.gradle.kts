@@ -34,3 +34,4 @@ plugins {
 
 include(":composeApp")
 include(":image-carousel")
+include(":androidApp")
