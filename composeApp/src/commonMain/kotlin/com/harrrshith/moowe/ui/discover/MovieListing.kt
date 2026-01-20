@@ -3,11 +3,14 @@ package com.harrrshith.moowe.ui.discover
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.snapping.SnapPosition
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -15,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -22,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import com.harrrshith.imagecarousel.ImageCarousel
 import com.harrrshith.imagecarousel.items
+import com.harrrshith.imagecarousel.utils.screenWidth
 import com.harrrshith.moowe.Constants.IMAGE_BASE_URL
 import com.harrrshith.moowe.domain.model.Genre
 import com.harrrshith.moowe.domain.model.Movie
@@ -30,24 +35,33 @@ import com.harrrshith.moowe.ui.components.ImageCard
 fun LazyListScope.trendingList(
     movies: List<Movie>,
     onClick: (Int) -> Unit,
-){
+) {
     item {
         ImageCarousel(
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            carouselWidth = screenWidth,
+            itemWidthFraction = 0.9f,
+            itemHeight = 200.dp,
+            spacing = 16.dp,
+
+            flingBehavior = rememberSnapFlingBehavior(
+                lazyListState = rememberLazyListState(),
+                snapPosition = SnapPosition.Center
+            )
         ) {
             items(items = movies) { movie ->
                 ImageCard(
                     modifier = Modifier
-                        .aspectRatio(1.5f)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color.Black),
+                        .graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                        }
+                        .clip(RoundedCornerShape(30.dp)),
                     imageUrl = movie.backdropPath,
                     movieTitle = movie.title,
                     onClick = { onClick(movie.id) },
                 )
             }
-
         }
     }
 }

@@ -21,22 +21,20 @@ import androidx.compose.ui.unit.Dp
 fun CarouselItemWrapper(
     screenWidth: Dp,
     itemHeight: Dp?,
+    itemWidthFraction: Float,
     state: LazyListState,
     itemIndex: Int,
     content: @Composable ImageCarouselItemScope.() -> Unit
 ) {
-    val itemWidth = screenWidth * 0.75f
+    val itemWidth = screenWidth * itemWidthFraction
     val density = LocalDensity.current
     val screenWidthPx = with(density) { screenWidth.toPx() }
 
     val itemInfo = state.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }
 
     val scale by animateFloatAsState(
-        targetValue = calculateScale(
-            itemInfo = itemInfo,
-            screenWidthPx = screenWidthPx
-        ),
-        animationSpec = tween(100)
+        targetValue = calculateScale(itemInfo, screenWidthPx),
+        animationSpec = tween(150)
     )
 
     val scope = remember(itemWidth, itemHeight, scale) {
@@ -50,15 +48,9 @@ fun CarouselItemWrapper(
     Box(
         modifier = Modifier
             .width(itemWidth)
-            .then(
-                if (itemHeight != null) {
-                    Modifier.height(itemHeight)
-                } else {
-                    Modifier.wrapContentHeight()
-                }
-            )
+            .then(if (itemHeight != null) Modifier.height(itemHeight) else Modifier.wrapContentHeight())
             .scale(scale),
-        contentAlignment = if (itemHeight != null) Alignment.Center else Alignment.TopCenter
+        contentAlignment = Alignment.Center
     ) {
         scope.content()
     }

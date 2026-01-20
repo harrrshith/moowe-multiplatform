@@ -1,10 +1,10 @@
 package com.harrrshith.imagecarousel
 
+import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -12,32 +12,42 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.harrrshith.imagecarousel.utils.screenWidth
 
 @Composable
 fun ImageCarousel(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
-    itemWidthFraction: Float = 0.75f,
-    width: Dp = screenWidth,
+    carouselWidth: Dp = screenWidth * 0.5f,
     itemHeight: Dp? = null,
+    itemWidthFraction: Float = 0.75f,
+    spacing: Dp = 16.dp,
+    contentPadding: PaddingValues = PaddingValues(
+        horizontal = (carouselWidth - (carouselWidth * itemWidthFraction)) / 2
+    ),
+    flingBehavior: FlingBehavior = rememberSnapFlingBehavior(
+        lazyListState = state,
+        snapPosition = SnapPosition.Center
+    ),
     content: ImageCarouselScope.() -> Unit
 ) {
-    val itemWidth = width * itemWidthFraction
-    val contentPadding = (width - itemWidth) / 2
-    val scope = ImageCarouselScopeImpl(width, itemHeight)
     LazyRow(
-        modifier = modifier.wrapContentHeight(),
+        modifier = modifier,
         state = state,
-        contentPadding = PaddingValues(horizontal = contentPadding, vertical = contentPadding / 2),
-        horizontalArrangement = Arrangement.spacedBy(contentPadding * 0.6f),
-        verticalAlignment = Alignment.Top,
-        flingBehavior = rememberSnapFlingBehavior(lazyListState = state, snapPosition = SnapPosition.Center)
+        contentPadding = contentPadding,
+        horizontalArrangement = Arrangement.spacedBy(spacing),
+        verticalAlignment = Alignment.CenterVertically,
+        flingBehavior = flingBehavior
     ) {
+        val scope = ImageCarouselScopeImpl(
+            lazyListScope = this,
+            state = state,
+            screenWidth = carouselWidth,
+            itemHeight = itemHeight,
+            itemWidthFraction = itemWidthFraction
+        )
         scope.content()
-        scope.items.forEach { item ->
-            item(this, state)
-        }
     }
 }
 
