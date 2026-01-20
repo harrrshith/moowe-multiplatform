@@ -47,7 +47,7 @@ fun LazyListScope.trendingList(
                 ImageCard(
                     modifier = Modifier
                         .fillMaxSize()
-                        .clip(RoundedCornerShape(30.dp)),
+                        .clip(RoundedCornerShape(24.dp)),
                     imageUrl = movie.backdropPath,
                     movieTitle = movie.title,
                     onClick = { onClick(movie.id) },
@@ -67,20 +67,19 @@ fun LazyListScope.movieList(
 ) {
     item {
         val actualItemWidth = remember { screenWidth / (itemsTobeDisplayed + 0.5f) }
-        val horizontalPadding = remember { screenWidth - ((actualItemWidth + 8.dp) * itemsTobeDisplayed) }
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
-                modifier = Modifier.padding(start = horizontalPadding),
+                modifier = Modifier.padding(start = 16.dp),
                 text = genre.displayName,
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             )
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth(),
                 state = lazyListState,
-                contentPadding = PaddingValues(start = horizontalPadding, end = horizontalPadding),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(
