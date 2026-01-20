@@ -36,11 +36,12 @@ fun LazyListScope.trendingList(
     item {
         val carouselState = rememberLazyListState()
         ImageCarousel(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
             state = carouselState,
             carouselWidth = screenWidth,
             itemHeight = screenWidth * 0.5f,
-            itemWidthFraction = 0.9f,
-            spacing = 12.dp,
+            itemWidthFraction = 0.8f,
+            spacing = 32.dp,
         ) {
             items(items = movies, key = { it.id }) { movie ->
                 ImageCard(

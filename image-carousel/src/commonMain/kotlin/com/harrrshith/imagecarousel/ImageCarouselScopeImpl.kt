@@ -10,9 +10,10 @@ internal class ImageCarouselScopeImpl(
     private val state: LazyListState,
     private val screenWidth: Dp,
     private val itemHeight: Dp?,
-    private val itemWidthFraction: Float
+    private val itemWidthFraction: Float,
+    private val indexOffset: Int = 0
 ) : ImageCarouselScope {
-    private var totalItems = 0
+    private var totalItems = indexOffset
 
     override fun item(key: Any?, contentType: Any?, content: @Composable ImageCarouselItemScope.() -> Unit) {
         val currentIndex = totalItems
