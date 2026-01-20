@@ -19,7 +19,7 @@ import com.harrrshith.imagecarousel.utils.screenWidth
 fun ImageCarousel(
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
-    carouselWidth: Dp = screenWidth * 0.5f,
+    carouselWidth: Dp = screenWidth,
     itemHeight: Dp? = null,
     itemWidthFraction: Float = 0.75f,
     spacing: Dp = 16.dp,

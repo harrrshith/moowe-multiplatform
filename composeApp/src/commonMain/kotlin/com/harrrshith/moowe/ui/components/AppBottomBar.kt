@@ -2,7 +2,6 @@ package com.harrrshith.moowe.ui.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -26,7 +25,6 @@ import com.harrrshith.moowe.ui.navigation.isTopLevelDestination
 import com.harrrshith.moowe.ui.navigation.topLevelDestinations
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.hazeEffect
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import dev.chrisbanes.haze.materials.HazeMaterials
@@ -40,22 +38,28 @@ fun AppBottomBar(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination?.route
     if (currentDestination.isTopLevelDestination()) {
-        BottomBar(
-            hazeState = hazeState,
-            tabs = tabs,
-            currentDestination = currentDestination,
-            onTabItemClick = { tab ->
-                if (tab.route::class.qualifiedName != currentDestination) {
-                    navController.navigate(tab.route) {
-                        popUpTo(Destination.Home.Discover::class.qualifiedName!!) {
-                            saveState = true
+        Box(
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 20.dp)
+                .clip(RoundedCornerShape(24.dp))
+        ){
+            BottomBar(
+                hazeState = hazeState,
+                tabs = tabs,
+                currentDestination = currentDestination,
+                onTabItemClick = { tab ->
+                    if (tab.route::class.qualifiedName != currentDestination) {
+                        navController.navigate(tab.route) {
+                            popUpTo(Destination.Home.Discover::class.qualifiedName!!) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
                         }
-                        launchSingleTop = true
-                        restoreState = true
                     }
                 }
-            }
-        )
+            )
+        }
     }
 }
 

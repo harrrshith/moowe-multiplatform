@@ -3,8 +3,6 @@ package com.harrrshith.moowe.ui.discover
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.snapping.SnapPosition
-import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
@@ -18,7 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -37,25 +34,18 @@ fun LazyListScope.trendingList(
     onClick: (Int) -> Unit,
 ) {
     item {
+        val carouselState = rememberLazyListState()
         ImageCarousel(
-            modifier = Modifier.fillMaxWidth(),
+            state = carouselState,
             carouselWidth = screenWidth,
+            itemHeight = screenWidth * 0.5f,
             itemWidthFraction = 0.9f,
-            itemHeight = 200.dp,
-            spacing = 16.dp,
-
-            flingBehavior = rememberSnapFlingBehavior(
-                lazyListState = rememberLazyListState(),
-                snapPosition = SnapPosition.Center
-            )
+            spacing = 12.dp,
         ) {
-            items(items = movies) { movie ->
+            items(items = movies, key = { it.id }) { movie ->
                 ImageCard(
                     modifier = Modifier
-                        .graphicsLayer {
-                            scaleX = scale
-                            scaleY = scale
-                        }
+                        .fillMaxSize()
                         .clip(RoundedCornerShape(30.dp)),
                     imageUrl = movie.backdropPath,
                     movieTitle = movie.title,
