@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -34,18 +35,27 @@ fun LazyListScope.trendingList(
     onClick: (Int) -> Unit,
 ) {
     item {
+        val itemWidthFraction = 0.8f
+        val carouselWidth = screenWidth
+        val sidePadding = (carouselWidth - (carouselWidth * itemWidthFraction)) / 2
+        val density = LocalDensity.current
+        val sidePaddingPx = with(density) { sidePadding.roundToPx() }
+
         // Create a large number of items for infinite scroll effect
         val infiniteItemCount = movies.size * 1000
         // Start from the middle to allow scrolling in both directions
         val startIndex = infiniteItemCount / 2
-        val carouselState = rememberLazyListState(initialFirstVisibleItemIndex = startIndex)
+        val carouselState = rememberLazyListState(
+            initialFirstVisibleItemIndex = startIndex + 1, // +1 to account for the start spacer in ImageCarousel
+            initialFirstVisibleItemScrollOffset = -sidePaddingPx
+        )
         
         ImageCarousel(
             modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
             state = carouselState,
-            carouselWidth = screenWidth,
+            carouselWidth = carouselWidth,
             itemHeight = screenWidth * 0.5f,
-            itemWidthFraction = 0.8f,
+            itemWidthFraction = itemWidthFraction,
             spacing = 32.dp,
         ) {
             items(count = infiniteItemCount) { index ->
