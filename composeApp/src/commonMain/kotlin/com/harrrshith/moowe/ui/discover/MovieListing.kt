@@ -34,7 +34,12 @@ fun LazyListScope.trendingList(
     onClick: (Int) -> Unit,
 ) {
     item {
-        val carouselState = rememberLazyListState()
+        // Create a large number of items for infinite scroll effect
+        val infiniteItemCount = movies.size * 1000
+        // Start from the middle to allow scrolling in both directions
+        val startIndex = infiniteItemCount / 2
+        val carouselState = rememberLazyListState(initialFirstVisibleItemIndex = startIndex)
+        
         ImageCarousel(
             modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
             state = carouselState,
@@ -43,7 +48,10 @@ fun LazyListScope.trendingList(
             itemWidthFraction = 0.8f,
             spacing = 32.dp,
         ) {
-            items(items = movies, key = { it.id }) { movie ->
+            items(count = infiniteItemCount) { index ->
+                // Map the infinite index to actual movie index using modulo
+                val movieIndex = index % movies.size
+                val movie = movies[movieIndex]
                 ImageCard(
                     modifier = Modifier
                         .fillMaxSize()
