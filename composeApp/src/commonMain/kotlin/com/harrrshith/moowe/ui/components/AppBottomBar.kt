@@ -1,6 +1,7 @@
 package com.harrrshith.moowe.ui.components
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -79,7 +80,8 @@ private fun BottomBar(
                 progressive = HazeProgressive.verticalGradient(startIntensity = 0.5f, endIntensity = 1f)
             }
             .fillMaxWidth(),
-        containerColor = Color.Transparent
+        containerColor = Color.Transparent,
+        windowInsets = WindowInsets(0, 0, 0, 0)
     ){
         tabs.forEach { tab ->
             val currentSelectedTab = currentDestination == tab.route::class.qualifiedName
