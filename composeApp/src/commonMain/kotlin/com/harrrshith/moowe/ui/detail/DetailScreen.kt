@@ -2,7 +2,6 @@
 package com.harrrshith.moowe.ui.detail
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Spacer
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -35,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.rememberAsyncImagePainter
+import com.harrrshith.imagecarousel.utils.screenHeight
 import com.harrrshith.moowe.Constants.IMAGE_BASE_URL
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.ui.components.composeVectors.ArrowBackIcon
@@ -65,8 +64,7 @@ private fun DetailScreen(
     onBackPressed: () -> Unit
 ){
     BoxWithConstraints {
-        val screenWidth = maxWidth
-        val headerHeight = screenWidth * (9f / 16f)
+        val headerHeight = screenHeight * 0.3f
         val scrollState = rememberLazyListState()
         val density = LocalDensity.current
 
@@ -88,7 +86,6 @@ private fun DetailScreen(
         }
 
         Box(modifier = Modifier.fillMaxSize()) {
-            // Parallax Header (Background)
             Image(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -100,7 +97,7 @@ private fun DetailScreen(
                     .bottomGradientOverlay(),
                 painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/${movie.backdropPath}"),
                 contentDescription = null,
-                contentScale = ContentScale.Fit
+                contentScale = ContentScale.FillBounds
             )
 
             LazyColumn(
@@ -126,9 +123,7 @@ private fun DetailScreen(
 
             // Top App Bar (Foreground)
             MooweTopAppBar(
-                modifier = Modifier.statusBarsPadding(),
                 title = movie.title,
-                backdropPath = movie.backdropPath,
                 alpha = topBarAlpha,
                 onBackPressed = onBackPressed,
                 onLikeClicked = { },
@@ -165,75 +160,52 @@ private fun LazyListScope.description(
 
 @Composable
 private fun MooweTopAppBar(
-    modifier: Modifier = Modifier,
     title: String,
-    backdropPath: String?,
     alpha: Float,
     onBackPressed: () -> Unit,
     onLikeClicked: (Int) -> Unit,
     onShareClicked: (Int) -> Unit
 ) {
-    Box(modifier = modifier) {
-        // Dynamic Background
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(64.dp) // Standard TopAppBar height
-                .graphicsLayer { this.alpha = alpha }
-                .background(MaterialTheme.colorScheme.surface)
-        ) {
-             if (backdropPath != null) {
-                 Image(
-                     painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/$backdropPath"),
-                     contentDescription = null,
-                     contentScale = ContentScale.Crop,
-                     modifier = Modifier.fillMaxSize(),
-                     alpha = 0.3f // Subtle background image in toolbar
-                 )
-             }
-        }
-
-        TopAppBar(
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color.Transparent,
-                scrolledContainerColor = Color.Transparent
-            ),
-            navigationIcon = {
-                IconButton(onClick = onBackPressed) {
-                    Image(
-                        imageVector = ArrowBackIcon,
-                        contentDescription = "Back",
-                        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSurface)
-                    )
-                }
-            },
-            title = {
-                if (alpha > 0.8f) {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleMedium,
-                        maxLines = 1
-                    )
-                }
-            },
-            actions = {
-                IconButton(onClick = { onLikeClicked(0) }) {
-                    Image(
-                        imageVector = LikeIcon,
-                        contentDescription = "Like",
-                        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSurface)
-                    )
-                }
-                IconButton(onClick = { onShareClicked(0) }) {
-                    Image(
-                        imageVector = ShareIcon,
-                        contentDescription = "Share",
-                        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSurface)
-                    )
-                }
+    TopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = Color.Transparent,
+            scrolledContainerColor = Color.Transparent
+        ),
+        navigationIcon = {
+            IconButton(onClick = onBackPressed) {
+                Image(
+                    imageVector = ArrowBackIcon,
+                    contentDescription = "Back",
+                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSurface)
+                )
             }
-        )
-    }
+        },
+        title = {
+            if (alpha > 0.8f) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1
+                )
+            }
+        },
+        actions = {
+            IconButton(onClick = { onLikeClicked(0) }) {
+                Image(
+                    imageVector = LikeIcon,
+                    contentDescription = "Like",
+                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSurface)
+                )
+            }
+            IconButton(onClick = { onShareClicked(0) }) {
+                Image(
+                    imageVector = ShareIcon,
+                    contentDescription = "Share",
+                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSurface)
+                )
+            }
+        }
+    )
 }
 
 @Preview
