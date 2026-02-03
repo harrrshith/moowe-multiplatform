@@ -8,7 +8,6 @@ interface ImageCarouselScope {
         contentType: Any? = null,
         content: @Composable ImageCarouselItemScope.() -> Unit
     )
-
     fun items(
         count: Int,
         key: ((index: Int) -> Any)? = null,
