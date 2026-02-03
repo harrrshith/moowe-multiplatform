@@ -24,7 +24,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
@@ -121,7 +120,6 @@ private fun DetailScreen(
                 description(description = movie.overview)
             }
 
-            // Top App Bar (Foreground)
             MooweTopAppBar(
                 title = movie.title,
                 alpha = topBarAlpha,
@@ -168,8 +166,7 @@ private fun MooweTopAppBar(
 ) {
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Transparent,
-            scrolledContainerColor = Color.Transparent
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha),
         ),
         navigationIcon = {
             IconButton(onClick = onBackPressed) {
