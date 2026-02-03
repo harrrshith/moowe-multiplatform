@@ -48,10 +48,11 @@ fun ImageCard(
                 .height(60.dp)
                 .background(
                     brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            Color.Black.copy(alpha = 0.5f),
-                            Color.Black.copy(alpha = 0.75f)
+                        colorStops = arrayOf(
+                            0.0f to Color.Transparent,
+                            0.4f to Color.Black.copy(alpha = 0.15f),
+                            0.7f to Color.Black.copy(alpha = 0.45f),
+                            1.0f to Color.Black.copy(alpha = 0.85f)
                         ),
                         startY = 0f,
                         endY = Float.POSITIVE_INFINITY
