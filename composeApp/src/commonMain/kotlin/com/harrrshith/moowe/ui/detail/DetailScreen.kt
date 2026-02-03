@@ -2,27 +2,37 @@
 package com.harrrshith.moowe.ui.detail
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.rememberAsyncImagePainter
+import com.harrrshith.imagecarousel.utils.screenHeight
 import com.harrrshith.moowe.Constants.IMAGE_BASE_URL
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.ui.components.composeVectors.ArrowBackIcon
@@ -52,41 +62,72 @@ private fun DetailScreen(
     movie: Movie,
     onBackPressed: () -> Unit
 ){
-    Scaffold(
-        topBar = {
+    BoxWithConstraints {
+        val headerHeight = screenHeight * 0.3f
+        val scrollState = rememberLazyListState()
+        val density = LocalDensity.current
+
+        val headerScrollOffset by remember {
+            derivedStateOf {
+                if (scrollState.firstVisibleItemIndex == 0) {
+                    scrollState.firstVisibleItemScrollOffset.toFloat()
+                } else {
+                    with(density) { headerHeight.toPx() }
+                }
+            }
+        }
+
+        val topBarAlpha by remember {
+            derivedStateOf {
+                val collapsedHeight = with(density) { (headerHeight - 64.dp).toPx() }
+                if (headerScrollOffset > collapsedHeight) 1f else (headerScrollOffset / collapsedHeight).coerceIn(0f, 1f)
+            }
+        }
+
+        Box(modifier = Modifier.fillMaxSize()) {
+            Image(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(headerHeight)
+                    .graphicsLayer {
+                        translationY = -headerScrollOffset / 2f
+                        alpha = 1f - topBarAlpha
+                    }
+                    .bottomGradientOverlay(),
+                painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/${movie.backdropPath}"),
+                contentDescription = null,
+                contentScale = ContentScale.FillBounds
+            )
+
+            LazyColumn(
+                state = scrollState,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                item {
+                    Spacer(modifier = Modifier.height(headerHeight))
+                }
+                title(title = movie.title)
+                description(description = movie.overview)
+                item {
+                    Spacer(modifier = Modifier.height(headerHeight))
+                }
+                title(title = movie.title)
+                description(description = movie.overview)
+                item {
+                    Spacer(modifier = Modifier.height(headerHeight))
+                }
+                title(title = movie.title)
+                description(description = movie.overview)
+            }
+
             MooweTopAppBar(
-                movie = movie,
+                title = movie.title,
+                alpha = topBarAlpha,
                 onBackPressed = onBackPressed,
-                onLikeClicked = {},
-                onShareClicked = {}
+                onLikeClicked = { },
+                onShareClicked = { }
             )
         }
-    ) { paddingValues ->
-        LazyColumn(
-            contentPadding = paddingValues
-        ) {
-            banner(url = movie.backdropPath)
-            title(title = movie.title)
-            description(description = movie.overview)
-        }
-
-    }
-}
-
-private fun LazyListScope.banner(
-    url: String
-){
-    item {
-        Image(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(16 / 9f)
-                .bottomGradientOverlay()
-            ,
-            painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/$url"),
-            contentDescription = null,
-            contentScale = ContentScale.Fit
-        )
     }
 }
 
@@ -95,7 +136,7 @@ private fun LazyListScope.title(
 ) {
     item {
         Text(
-            modifier = Modifier.padding(horizontal = 16.dp),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             text = title,
             style = MaterialTheme.typography.headlineLarge
         )
@@ -117,35 +158,47 @@ private fun LazyListScope.description(
 
 @Composable
 private fun MooweTopAppBar(
-    movie: Movie,
+    title: String,
+    alpha: Float,
     onBackPressed: () -> Unit,
     onLikeClicked: (Int) -> Unit,
     onShareClicked: (Int) -> Unit
 ) {
     TopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha),
+        ),
         navigationIcon = {
             IconButton(onClick = onBackPressed) {
                 Image(
                     imageVector = ArrowBackIcon,
                     contentDescription = "Back",
-                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.secondary)
+                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSurface)
                 )
             }
         },
-        title = {  },
+        title = {
+            if (alpha > 0.8f) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1
+                )
+            }
+        },
         actions = {
-            IconButton(onClick = { onLikeClicked(movie.id) }) {
+            IconButton(onClick = { onLikeClicked(0) }) {
                 Image(
                     imageVector = LikeIcon,
                     contentDescription = "Like",
-                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.secondary)
+                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSurface)
                 )
             }
-            IconButton(onClick = { onShareClicked(movie.id) }) {
+            IconButton(onClick = { onShareClicked(0) }) {
                 Image(
                     imageVector = ShareIcon,
                     contentDescription = "Share",
-                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.secondary)
+                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSurface)
                 )
             }
         }
