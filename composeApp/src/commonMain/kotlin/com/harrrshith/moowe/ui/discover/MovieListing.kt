@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -16,12 +17,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import com.harrrshith.imagecarousel.ImageCarousel
 import com.harrrshith.imagecarousel.items
+import com.harrrshith.imagecarousel.utils.screenWidth
 import com.harrrshith.moowe.Constants.IMAGE_BASE_URL
 import com.harrrshith.moowe.domain.model.Genre
 import com.harrrshith.moowe.domain.model.Movie
@@ -30,24 +33,44 @@ import com.harrrshith.moowe.ui.components.ImageCard
 fun LazyListScope.trendingList(
     movies: List<Movie>,
     onClick: (Int) -> Unit,
-){
+) {
     item {
+        val itemWidthFraction = 0.8f
+        val carouselWidth = screenWidth
+        val sidePadding = (carouselWidth - (carouselWidth * itemWidthFraction)) / 2
+        val density = LocalDensity.current
+        val sidePaddingPx = with(density) { sidePadding.roundToPx() }
+
+        // Create a large number of items for infinite scroll effect
+        val infiniteItemCount = movies.size * 1000
+        // Start from the middle to allow scrolling in both directions
+        val startIndex = infiniteItemCount / 2
+        val carouselState = rememberLazyListState(
+            initialFirstVisibleItemIndex = startIndex + 1, // +1 to account for the start spacer in ImageCarousel
+            initialFirstVisibleItemScrollOffset = -sidePaddingPx
+        )
+        
         ImageCarousel(
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+            state = carouselState,
+            carouselWidth = carouselWidth,
+            itemHeight = screenWidth * 0.5f,
+            itemWidthFraction = itemWidthFraction,
+            spacing = 32.dp,
         ) {
-            items(items = movies) { movie ->
+            items(count = infiniteItemCount) { index ->
+                // Map the infinite index to actual movie index using modulo
+                val movieIndex = index % movies.size
+                val movie = movies[movieIndex]
                 ImageCard(
                     modifier = Modifier
-                        .aspectRatio(1.5f)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color.Black),
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(24.dp)),
                     imageUrl = movie.backdropPath,
                     movieTitle = movie.title,
                     onClick = { onClick(movie.id) },
                 )
             }
-
         }
     }
 }
@@ -62,20 +85,19 @@ fun LazyListScope.movieList(
 ) {
     item {
         val actualItemWidth = remember { screenWidth / (itemsTobeDisplayed + 0.5f) }
-        val horizontalPadding = remember { screenWidth - ((actualItemWidth + 8.dp) * itemsTobeDisplayed) }
         Column(
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
-                modifier = Modifier.padding(start = horizontalPadding),
+                modifier = Modifier.padding(start = 16.dp),
                 text = genre.displayName,
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             )
             LazyRow(
                 modifier = Modifier
                     .fillMaxWidth(),
                 state = lazyListState,
-                contentPadding = PaddingValues(start = horizontalPadding, end = horizontalPadding),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(

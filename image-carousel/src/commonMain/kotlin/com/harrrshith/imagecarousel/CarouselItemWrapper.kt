@@ -1,19 +1,15 @@
 package com.harrrshith.imagecarousel
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 
@@ -21,59 +17,80 @@ import androidx.compose.ui.unit.Dp
 fun CarouselItemWrapper(
     screenWidth: Dp,
     itemHeight: Dp?,
+    itemWidthFraction: Float,
     state: LazyListState,
     itemIndex: Int,
     content: @Composable ImageCarouselItemScope.() -> Unit
 ) {
-    val itemWidth = screenWidth * 0.75f
+    val itemWidth = screenWidth * itemWidthFraction
     val density = LocalDensity.current
     val screenWidthPx = with(density) { screenWidth.toPx() }
 
-    val itemInfo = state.layoutInfo.visibleItemsInfo.find { it.index == itemIndex }
+    val transformation by remember(itemIndex, state, screenWidthPx) {
+        derivedStateOf {
+            val visibleItems = state.layoutInfo.visibleItemsInfo
+            val itemInfo = visibleItems.find { it.index == itemIndex }
+            calculateTransformation(itemInfo, screenWidthPx)
+        }
+    }
 
-    val scale by animateFloatAsState(
-        targetValue = calculateScale(
-            itemInfo = itemInfo,
-            screenWidthPx = screenWidthPx
-        ),
-        animationSpec = tween(100)
-    )
-
-    val scope = remember(itemWidth, itemHeight, scale) {
+    val scope = remember(itemWidth, itemHeight, transformation) {
         object : ImageCarouselItemScope {
             override val itemWidth = itemWidth
             override val itemHeight = itemHeight
-            override val scale = scale
+            override val scale: Float
+                get() = transformation.scale
         }
     }
 
     Box(
         modifier = Modifier
             .width(itemWidth)
-            .then(
-                if (itemHeight != null) {
-                    Modifier.height(itemHeight)
-                } else {
-                    Modifier.wrapContentHeight()
-                }
-            )
-            .scale(scale),
-        contentAlignment = if (itemHeight != null) Alignment.Center else Alignment.TopCenter
+            .then(if (itemHeight != null) Modifier.height(itemHeight) else Modifier.wrapContentHeight())
+            .graphicsLayer {
+                scaleX = transformation.scale
+                scaleY = transformation.scale
+                alpha = transformation.alpha
+                translationX = transformation.translationX
+            },
+        contentAlignment = Alignment.Center
     ) {
         scope.content()
     }
 }
 
-private fun calculateScale(
+private data class ItemTransformation(
+    val scale: Float,
+    val alpha: Float,
+    val translationX: Float
+)
+
+private fun calculateTransformation(
     itemInfo: LazyListItemInfo?,
     screenWidthPx: Float
-): Float {
-    if (itemInfo == null) return 1f
+): ItemTransformation {
+    if (itemInfo == null) return ItemTransformation(0.8f, 0.6f, 0f)
 
-    val halfWidth = screenWidthPx / 2
-    val itemCenter = itemInfo.offset + (itemInfo.size / 2)
-    val distanceFromCenter = kotlin.math.abs(itemCenter - halfWidth)
-    val scaleFactor = 1f - kotlin.math.min(1f, distanceFromCenter / halfWidth)
+    val center = screenWidthPx / 2f
+    val itemCenter = itemInfo.offset + (itemInfo.size / 2f)
+    val distanceFromCenter = itemCenter - center
+    val absDistance = kotlin.math.abs(distanceFromCenter)
+    
+    // Scale range 1.0 to 0.8
+    val fraction = (absDistance / center).coerceIn(0f, 1f)
+    val scaleCurve = 1f - (fraction * fraction)
+    val scale = 0.8f + (0.2f * scaleCurve)
+    
+    // Alpha range 1.0 to 0.6
+    val alpha = 0.6f + (0.4f * scaleCurve)
+    
+    // Translation: pull side items towards center to ensure peeking
+    // When item is on the right (distance > 0), translation is negative (left)
+    // When item is on the left (distance < 0), translation is positive (right)
+    val translationX = if (absDistance > 10f) {
+        val pullStrength = screenWidthPx * 0.1f // Pull by 10% of screen width
+        -(distanceFromCenter / absDistance) * pullStrength * fraction
+    } else 0f
 
-    return 1f + (0.2f * scaleFactor)
+    return ItemTransformation(scale, alpha, translationX)
 }
