@@ -1,6 +1,5 @@
 package com.harrrshith.moowe.data.repository
 
-import com.harrrshith.moowe.data.local.CacheConfig
 import com.harrrshith.moowe.data.local.MooweDao
 import com.harrrshith.moowe.data.remote.MooweApiHandler
 import com.harrrshith.moowe.data.toDomain
@@ -25,42 +24,29 @@ class MovieRepositoryImpl(
 ) : MovieRepository {
 
     override fun getTrendingMovies(): Flow<Result<List<Movie>>> = flow {
-        // Check if cached data exists and is still valid
-        val cachedMovies = dao.getMoviesByGenre(id = Genre.TRENDING.id).firstOrNull()
-        val isCacheValid = cachedMovies?.firstOrNull()?.let { movie ->
-            System.currentTimeMillis() - movie.cachedAt < CacheConfig.CACHE_EXPIRATION_TIME
-        } ?: false
-        
-        // If cache is valid, return it
-        if (isCacheValid && cachedMovies!!.isNotEmpty()) {
+        try {
+            // Fetch from network
+            val response = api.getTrendingMovies()
+            val entities = response.movies.map { 
+                it.toEntity().copy(
+                    genre = Genre.TRENDING.id,
+                    cachedAt = 0L
+                )
+            }
+            dao.insertMovies(entities)
+            
+            // Emit from cache
             emitAll(
                 dao.getMoviesByGenre(id = Genre.TRENDING.id)
                     .map { Result.Success(processMovies(it)) }
             )
-        } else {
-            // Otherwise fetch from network
-            try {
-                val response = api.getTrendingMovies()
-                val entities = response.movies.map { 
-                    it.toEntity().copy(
-                        genre = Genre.TRENDING.id,
-                        cachedAt = System.currentTimeMillis()
-                    )
-                }
-                dao.insertMovies(entities)
-                
-                // Emit fresh data from cache
-                emitAll(
-                    dao.getMoviesByGenre(id = Genre.TRENDING.id)
-                        .map { Result.Success(processMovies(it)) }
-                )
-            } catch (e: Exception) {
-                // On error, fallback to expired cache if available
-                if (!cachedMovies.isNullOrEmpty()) {
-                    emit(Result.Success(processMovies(cachedMovies)))
-                } else {
-                    emit(Result.Error(e.message ?: "No cached data available", Int.MAX_VALUE))
-                }
+        } catch (e: Exception) {
+            // On error, try to use cached data
+            val cachedMovies = dao.getMoviesByGenre(id = Genre.TRENDING.id).firstOrNull()
+            if (!cachedMovies.isNullOrEmpty()) {
+                emit(Result.Success(processMovies(cachedMovies)))
+            } else {
+                emit(Result.Error(e.message ?: "No cached data available", Int.MAX_VALUE))
             }
         }
     }.catch { e ->
@@ -68,42 +54,29 @@ class MovieRepositoryImpl(
     }.flowOn(Dispatchers.IO)
 
     override fun getMoviesByGenre(genre: Genre): Flow<Result<List<Movie>>> = flow {
-        // Check if cached data exists and is still valid
-        val cachedMovies = dao.getMoviesByGenre(id = genre.id).firstOrNull()
-        val isCacheValid = cachedMovies?.firstOrNull()?.let { movie ->
-            System.currentTimeMillis() - movie.cachedAt < CacheConfig.CACHE_EXPIRATION_TIME
-        } ?: false
-        
-        // If cache is valid, return it
-        if (isCacheValid && cachedMovies!!.isNotEmpty()) {
+        try {
+            // Fetch from network
+            val response = api.getMoviesByGenre(genreId = genre.id)
+            val entities = response.movies.map { 
+                it.toEntity().copy(
+                    genre = genre.id,
+                    cachedAt = 0L
+                )
+            }
+            dao.insertMovies(entities)
+            
+            // Emit from cache
             emitAll(
                 dao.getMoviesByGenre(id = genre.id)
                     .map { Result.Success(processMovies(it)) }
             )
-        } else {
-            // Otherwise fetch from network
-            try {
-                val response = api.getMoviesByGenre(genreId = genre.id)
-                val entities = response.movies.map { 
-                    it.toEntity().copy(
-                        genre = genre.id,
-                        cachedAt = System.currentTimeMillis()
-                    )
-                }
-                dao.insertMovies(entities)
-                
-                // Emit fresh data from cache
-                emitAll(
-                    dao.getMoviesByGenre(id = genre.id)
-                        .map { Result.Success(processMovies(it)) }
-                )
-            } catch (e: Exception) {
-                // On error, fallback to expired cache if available
-                if (!cachedMovies.isNullOrEmpty()) {
-                    emit(Result.Success(processMovies(cachedMovies)))
-                } else {
-                    emit(Result.Error(e.message ?: "No cached data available", Int.MAX_VALUE))
-                }
+        } catch (e: Exception) {
+            // On error, try to use cached data
+            val cachedMovies = dao.getMoviesByGenre(id = genre.id).firstOrNull()
+            if (!cachedMovies.isNullOrEmpty()) {
+                emit(Result.Success(processMovies(cachedMovies)))
+            } else {
+                emit(Result.Error(e.message ?: "No cached data available", Int.MAX_VALUE))
             }
         }
     }.catch { e ->
