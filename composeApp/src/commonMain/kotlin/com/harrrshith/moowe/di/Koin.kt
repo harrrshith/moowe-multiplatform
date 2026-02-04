@@ -1,5 +1,6 @@
 package com.harrrshith.moowe.di
 
+import com.harrrshith.moowe.data.local.CacheConfig
 import com.harrrshith.moowe.data.local.MooweDao
 import com.harrrshith.moowe.data.local.MooweDatabase
 import com.harrrshith.moowe.data.remote.MooweApiHandler
@@ -17,6 +18,7 @@ expect val platformModule: Module
 
 val databaseModule = module {
     single<MooweDao> { get<MooweDatabase>().getMooweDao() }
+    single { CacheConfig.DEFAULT }
 }
 
 val networkModule = module {
@@ -25,7 +27,7 @@ val networkModule = module {
 }
 
 val repositoryModule = module {
-    single<MovieRepository> { MovieRepositoryImpl(get(), get()) }
+    single<MovieRepository> { MovieRepositoryImpl(get(), get(), get()) }
 }
 
 val viewModelModule = module {
