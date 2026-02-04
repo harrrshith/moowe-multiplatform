@@ -22,5 +22,5 @@ data class MovieEntity(
     @SerialName("genre") var genre: Int? = Int.MIN_VALUE,
     
     // Simple cache timestamp
-    val cachedAt: Long = System.currentTimeMillis()
+    val cachedAt: Long
 )
