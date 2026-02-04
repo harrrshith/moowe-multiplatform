@@ -19,5 +19,23 @@ data class MovieEntity(
     val popularity: Double = 0.0,
     val adult: Boolean = false,
     @SerialName("genre_ids") val genreIds: List<Int> = emptyList(),
-    @SerialName("genre") var genre: Int? = Int.MIN_VALUE
-)
+    @SerialName("genre") var genre: Int? = Int.MIN_VALUE,
+    
+    // Cache metadata
+    val cachedAt: Long = System.currentTimeMillis(),
+    val lastAccessedAt: Long = System.currentTimeMillis()
+) {
+    /**
+     * Checks if the cache entry has expired
+     */
+    fun isExpired(expirationTimeMillis: Long): Boolean {
+        return System.currentTimeMillis() - cachedAt > expirationTimeMillis
+    }
+    
+    /**
+     * Checks if the cache entry is stale
+     */
+    fun isStale(staleTimeMillis: Long): Boolean {
+        return System.currentTimeMillis() - cachedAt > staleTimeMillis
+    }
+}
