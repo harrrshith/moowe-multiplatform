@@ -19,5 +19,8 @@ data class MovieEntity(
     val popularity: Double = 0.0,
     val adult: Boolean = false,
     @SerialName("genre_ids") val genreIds: List<Int> = emptyList(),
-    @SerialName("genre") var genre: Int? = Int.MIN_VALUE
+    @SerialName("genre") var genre: Int? = Int.MIN_VALUE,
+    
+    // Simple cache timestamp
+    val cachedAt: Long
 )
