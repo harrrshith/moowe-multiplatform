@@ -5,7 +5,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.harrrshith.moowe.data.local.entity.MovieEntity
-import com.harrrshith.moowe.domain.model.Genre
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -20,7 +19,7 @@ interface MooweDao {
     fun getAllMoviesFlow(): Flow<List<MovieEntity>>
 
     @Query("SELECT * FROM movies")
-    fun getAllMovies(): List<MovieEntity>
+    suspend fun getAllMovies(): List<MovieEntity>
 
     @Query("SELECT * FROM movies WHERE genre = :id")
     fun getMoviesByGenre(id: Int): Flow<List<MovieEntity>>
@@ -36,4 +35,8 @@ interface MooweDao {
     
     @Query("SELECT COUNT(*) FROM movies")
     suspend fun getMovieCount(): Int
+    
+    // Simple cache cleanup
+    @Query("DELETE FROM movies WHERE cachedAt < :expirationThreshold")
+    suspend fun deleteExpiredMovies(expirationThreshold: Long)
 }

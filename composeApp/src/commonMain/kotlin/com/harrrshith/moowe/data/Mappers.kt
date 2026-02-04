@@ -33,6 +33,7 @@ fun MovieDto.toEntity() : MovieEntity {
         popularity = this.popularity,
         adult = this.adult,
         genreIds = this.genreIds,
+        cachedAt = 0L // Will be set when inserting into DB
     )
 }
 

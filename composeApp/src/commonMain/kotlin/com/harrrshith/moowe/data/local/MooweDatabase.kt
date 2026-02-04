@@ -13,7 +13,7 @@ import kotlinx.coroutines.IO
 
 @Database(
     entities = [MovieEntity::class],
-    version = 1
+    version = 2
 )
 @ConstructedBy(MooweDatabaseConstructor::class)
 @TypeConverters(Converters::class)
@@ -28,6 +28,7 @@ fun getMovieDatabase(builder: RoomDatabase.Builder<MooweDatabase>): MooweDatabas
     return builder
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
+        .fallbackToDestructiveMigration(dropAllTables = true)
         .build()
 }
 

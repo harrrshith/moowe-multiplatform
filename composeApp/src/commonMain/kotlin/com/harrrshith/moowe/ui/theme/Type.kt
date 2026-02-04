@@ -5,16 +5,13 @@ import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import moowe.composeapp.generated.resources.Res
-import moowe.composeapp.generated.resources.inter_variable_font
-import org.jetbrains.compose.resources.Font
 
 
 val interFont: FontFamily
     @Composable
-    get() = FontFamily(
-        Font(resource = Res.font.inter_variable_font, weight = FontWeight.Normal)
-    )
+    get() = FontFamily.Default // Temporarily using system font until iOS resources are configured
+    // TODO: Re-enable custom font once iOS resource bundling is fixed
+    // FontFamily(Font(resource = Res.font.inter_variable_font, weight = FontWeight.Normal))
 
 @Composable
 fun AppTypography(): Typography {

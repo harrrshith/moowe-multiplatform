@@ -24,74 +24,72 @@ class MovieRepositoryImpl(
 ) : MovieRepository {
 
     override fun getTrendingMovies(): Flow<Result<List<Movie>>> = flow {
-        val response = api.getTrendingMovies()
-        val entities = response.movies.map { it.toEntity().copy(genre = Genre.TRENDING.id) }
-        dao.insertMovies(entities)
-        emitAll(
-            dao.getMoviesByGenre(id = Genre.TRENDING.id)
-                .map { list ->
-                    Result.Success(
-                        list.map { it.toDomain() }
-                            .distinctBy { it.id }
-                            .sortedWith(
-                                compareByDescending<Movie> { it.popularity }
-                                    .thenByDescending { it.voteAverage }
-                            )
-                    )
-                }
-        )
-    }.catch { e ->
-        emit(
-            handleError(e as Exception) {
+        try {
+            // Fetch from network
+            val response = api.getTrendingMovies()
+            val entities = response.movies.map { 
+                it.toEntity().copy(
+                    genre = Genre.TRENDING.id,
+                    cachedAt = 0L
+                )
+            }
+            dao.insertMovies(entities)
+            
+            // Emit from cache
+            emitAll(
                 dao.getMoviesByGenre(id = Genre.TRENDING.id)
-                    .firstOrNull()
-                    ?.map { it.toDomain() } ?: emptyList()
-            } as Result.Success<List<Movie>>
-        )
-    }
-
-    override fun getMoviesByGenre(genre: Genre): Flow<Result<List<Movie>>> = flow {
-        val response = api.getMoviesByGenre(genreId = genre.id)
-        val entities = response.movies.map { it.toEntity().copy(genre = genre.id) }
-        dao.insertMovies(entities)
-        // ✅ Emits live DB updates automatically
-        emitAll(
-            dao.getMoviesByGenre(id = genre.id)
-                .map { list ->
-                    Result.Success(
-                        list.map { it.toDomain() }
-                            .distinctBy { it.id }
-                            .sortedWith(
-                                compareByDescending<Movie> { it.popularity }
-                                    .thenByDescending { it.voteAverage }
-                            )
-                    )
-                }
-        )
+                    .map { Result.Success(processMovies(it)) }
+            )
+        } catch (e: Exception) {
+            // On error, try to use cached data
+            val cachedMovies = dao.getMoviesByGenre(id = Genre.TRENDING.id).firstOrNull()
+            if (!cachedMovies.isNullOrEmpty()) {
+                emit(Result.Success(processMovies(cachedMovies)))
+            } else {
+                emit(Result.Error(e.message ?: "No cached data available", Int.MAX_VALUE))
+            }
+        }
     }.catch { e ->
-        emit(
-            handleError(e as Exception) {
-                dao.getMoviesByGenre(id = genre.id)
-                    .firstOrNull()
-                    ?.map { it.toDomain() } ?: emptyList()
-            } as Result.Success<List<Movie>>
-        )
+        emit(Result.Error(e.message ?: "Unknown error", Int.MAX_VALUE))
     }.flowOn(Dispatchers.IO)
 
-    private suspend fun handleError(
-        exception: Exception,
-        fallback: suspend () -> List<Movie>
-    ): Result<List<Movie>> {
-        return try {
-            val cachedMovies = fallback()
-            if (cachedMovies.isNotEmpty()) {
-                Result.Success(cachedMovies)
-            } else {
-                Result.Error(exception.message ?: "No cached data available", Int.MAX_VALUE)
+    override fun getMoviesByGenre(genre: Genre): Flow<Result<List<Movie>>> = flow {
+        try {
+            // Fetch from network
+            val response = api.getMoviesByGenre(genreId = genre.id)
+            val entities = response.movies.map { 
+                it.toEntity().copy(
+                    genre = genre.id,
+                    cachedAt = 0L
+                )
             }
-        } catch (exception: Exception) {
-            Result.Error(exception.message ?: "Unknown error occurred", Int.MAX_VALUE)
+            dao.insertMovies(entities)
+            
+            // Emit from cache
+            emitAll(
+                dao.getMoviesByGenre(id = genre.id)
+                    .map { Result.Success(processMovies(it)) }
+            )
+        } catch (e: Exception) {
+            // On error, try to use cached data
+            val cachedMovies = dao.getMoviesByGenre(id = genre.id).firstOrNull()
+            if (!cachedMovies.isNullOrEmpty()) {
+                emit(Result.Success(processMovies(cachedMovies)))
+            } else {
+                emit(Result.Error(e.message ?: "No cached data available", Int.MAX_VALUE))
+            }
         }
+    }.catch { e ->
+        emit(Result.Error(e.message ?: "Unknown error", Int.MAX_VALUE))
+    }.flowOn(Dispatchers.IO)
+
+    private fun processMovies(entities: List<com.harrrshith.moowe.data.local.entity.MovieEntity>): List<Movie> {
+        return entities.map { it.toDomain() }
+            .distinctBy { it.id }
+            .sortedWith(
+                compareByDescending<Movie> { it.popularity }
+                    .thenByDescending { it.voteAverage }
+            )
     }
 
     // Additional methods for local database operations
