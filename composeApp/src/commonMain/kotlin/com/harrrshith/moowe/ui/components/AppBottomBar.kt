@@ -3,6 +3,7 @@ package com.harrrshith.moowe.ui.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -41,7 +42,8 @@ fun AppBottomBar(
     if (currentDestination.isTopLevelDestination()) {
         Box(
             modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 20.dp)
+                .navigationBarsPadding()
+                .padding(start = 16.dp, end = 16.dp, bottom = 10.dp)
                 .clip(RoundedCornerShape(24.dp))
         ){
             BottomBar(
