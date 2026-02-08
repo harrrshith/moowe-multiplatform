@@ -50,7 +50,6 @@ fun LazyListScope.trendingList(
         ImageCarousel(
             modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
             state = carouselState,
-            carouselWidth = carouselWidth,
             itemHeight = screenWidth * 0.5f,
             itemWidthFraction = itemWidthFraction,
             spacing = 32.dp,

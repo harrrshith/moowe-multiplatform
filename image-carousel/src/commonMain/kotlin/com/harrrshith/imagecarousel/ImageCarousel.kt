@@ -12,14 +12,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.harrrshith.imagecarousel.utils.screenWidth
 
 @Composable
 fun ImageCarousel(
-
     modifier: Modifier = Modifier,
     state: LazyListState = rememberLazyListState(),
-    carouselWidth: Dp = screenWidth,
+    screenWidth: Dp = com.harrrshith.imagecarousel.utils.screenWidth,
     itemHeight: Dp? = null,
     itemWidthFraction: Float = 0.8f,
     spacing: Dp = 2.dp,
@@ -41,7 +39,7 @@ fun ImageCarousel(
         val scope = ImageCarouselScopeImpl(
             lazyListScope = this,
             state = state,
-            screenWidth = carouselWidth,
+            screenWidth = screenWidth,
             itemHeight = itemHeight,
             itemWidthFraction = itemWidthFraction,
         )
