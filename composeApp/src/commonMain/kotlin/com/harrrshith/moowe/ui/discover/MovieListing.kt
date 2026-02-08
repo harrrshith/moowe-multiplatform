@@ -23,7 +23,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import com.harrrshith.imagecarousel.ImageCarousel
-import com.harrrshith.imagecarousel.items
 import com.harrrshith.imagecarousel.utils.screenWidth
 import com.harrrshith.moowe.Constants.IMAGE_BASE_URL
 import com.harrrshith.moowe.domain.model.Genre
@@ -35,31 +34,27 @@ fun LazyListScope.trendingList(
     onClick: (Int) -> Unit,
 ) {
     item {
-        val itemWidthFraction = 0.8f
+        val itemWidthFraction = 0.75f
         val carouselWidth = screenWidth
         val sidePadding = (carouselWidth - (carouselWidth * itemWidthFraction)) / 2
         val density = LocalDensity.current
         val sidePaddingPx = with(density) { sidePadding.roundToPx() }
 
-        // Create a large number of items for infinite scroll effect
-        val infiniteItemCount = movies.size * 1000
-        // Start from the middle to allow scrolling in both directions
+        val infiniteItemCount = Int.MAX_VALUE
         val startIndex = infiniteItemCount / 2
         val carouselState = rememberLazyListState(
-            initialFirstVisibleItemIndex = startIndex + 1, // +1 to account for the start spacer in ImageCarousel
+            initialFirstVisibleItemIndex = startIndex,
             initialFirstVisibleItemScrollOffset = -sidePaddingPx
         )
         
         ImageCarousel(
             modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
             state = carouselState,
-            carouselWidth = carouselWidth,
             itemHeight = screenWidth * 0.5f,
             itemWidthFraction = itemWidthFraction,
             spacing = 32.dp,
         ) {
             items(count = infiniteItemCount) { index ->
-                // Map the infinite index to actual movie index using modulo
                 val movieIndex = index % movies.size
                 val movie = movies[movieIndex]
                 ImageCard(
