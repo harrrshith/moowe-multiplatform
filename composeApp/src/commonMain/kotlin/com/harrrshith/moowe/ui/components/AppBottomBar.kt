@@ -1,8 +1,7 @@
 package com.harrrshith.moowe.ui.components
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -10,12 +9,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -39,12 +37,14 @@ fun AppBottomBar(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination?.route
     if (currentDestination.isTopLevelDestination()) {
-        Box(
+        Surface(
             modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 20.dp)
-                .clip(RoundedCornerShape(24.dp))
+                .navigationBarsPadding()
+                .padding(start = 12.dp, end = 12.dp, bottom = 10.dp),
+            shape = RoundedCornerShape(42.dp)
         ){
             BottomBar(
+                modifier = Modifier,
                 hazeState = hazeState,
                 tabs = tabs,
                 currentDestination = currentDestination,
@@ -67,41 +67,39 @@ fun AppBottomBar(
 @OptIn(ExperimentalHazeMaterialsApi::class)
 @Composable
 private fun BottomBar(
+    modifier: Modifier,
     hazeState: HazeState,
     tabs: List<TopLevelDestination>,
     currentDestination: String?,
     onTabItemClick: (TopLevelDestination) -> Unit
 ){
     NavigationBar(
-        modifier = Modifier
+        modifier = modifier
             .hazeEffect(
                 state = hazeState,
-                style = HazeMaterials.thick()){
+                style = HazeMaterials.thick()
+            ){
                 progressive = HazeProgressive.verticalGradient(startIntensity = 0.5f, endIntensity = 1f)
             }
-            .fillMaxWidth(),
+            .padding(horizontal = 12.dp),
         containerColor = Color.Transparent,
         windowInsets = WindowInsets(0, 0, 0, 0)
     ){
         tabs.forEach { tab ->
             val currentSelectedTab = currentDestination == tab.route::class.qualifiedName
             NavigationBarItem(
-                modifier = Modifier.scale(
-                    if (currentSelectedTab) 1.15f else 1f
-                ),
                 selected = currentSelectedTab,
                 icon = {
                     Icon(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
                         imageVector = tab.icon,
                         contentDescription = tab.name,
                     )
                 },
-                onClick = {
-                    onTabItemClick(tab)
-                },
+                onClick = { onTabItemClick(tab) },
                 colors =  NavigationBarItemDefaults.colors(
                     selectedIconColor = MaterialTheme.colorScheme.tertiary,
-                    indicatorColor = MaterialTheme.colorScheme.tertiary.copy(alpha = .2f)
+                    indicatorColor = MaterialTheme.colorScheme.tertiary.copy(alpha = .5f)
                 )
             )
         }
