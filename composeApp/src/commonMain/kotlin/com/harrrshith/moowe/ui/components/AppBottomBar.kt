@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -22,6 +21,7 @@ import com.harrrshith.moowe.ui.navigation.Destination
 import com.harrrshith.moowe.ui.navigation.TopLevelDestination
 import com.harrrshith.moowe.ui.navigation.isTopLevelDestination
 import com.harrrshith.moowe.ui.navigation.topLevelDestinations
+import com.harrrshith.moowe.ui.theme.AppTheme
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeEffect
@@ -98,8 +98,8 @@ private fun BottomBar(
                 },
                 onClick = { onTabItemClick(tab) },
                 colors =  NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.tertiary,
-                    indicatorColor = MaterialTheme.colorScheme.tertiary.copy(alpha = .5f)
+                    selectedIconColor = AppTheme.colorScheme.tertiary,
+                    indicatorColor = AppTheme.colorScheme.tertiary.copy(alpha = .5f)
                 )
             )
         }

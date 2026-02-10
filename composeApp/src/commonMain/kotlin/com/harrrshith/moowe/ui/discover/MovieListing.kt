@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -28,6 +27,7 @@ import com.harrrshith.moowe.Constants.IMAGE_BASE_URL
 import com.harrrshith.moowe.domain.model.Genre
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.ui.components.ImageCard
+import com.harrrshith.moowe.ui.theme.AppTheme
 
 fun LazyListScope.trendingList(
     movies: List<Movie>,
@@ -86,7 +86,7 @@ fun LazyListScope.movieList(
             Text(
                 modifier = Modifier.padding(start = 16.dp),
                 text = genre.displayName,
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                style = AppTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             )
             LazyRow(
                 modifier = Modifier

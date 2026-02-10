@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,6 +22,7 @@ import com.harrrshith.moowe.domain.model.Genre
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.ui.components.AppTopBar
 import com.harrrshith.moowe.ui.discover.mock.mockMovies
+import com.harrrshith.moowe.ui.theme.AppTheme
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
@@ -78,7 +78,7 @@ private fun LoadingScreen() {
             modifier = Modifier
                 .padding(16.dp)
                 .height(48.dp),
-            color = MaterialTheme.colorScheme.primary,
+            color = AppTheme.colorScheme.primary,
             strokeWidth = 4.dp
         )
     }

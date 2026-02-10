@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.rememberAsyncImagePainter
 import com.harrrshith.moowe.Constants.IMAGE_BASE_URL
+import com.harrrshith.moowe.ui.theme.AppTheme
 
 @Composable
 fun ImageCard(
@@ -62,7 +62,7 @@ fun ImageCard(
         Text(
             text = movieTitle,
             color = Color.White,
-            style = MaterialTheme.typography.titleMedium,
+            style = AppTheme.typography.titleMedium,
             maxLines = 1,
             letterSpacing = 1.25.sp,
             overflow = TextOverflow.Ellipsis,
