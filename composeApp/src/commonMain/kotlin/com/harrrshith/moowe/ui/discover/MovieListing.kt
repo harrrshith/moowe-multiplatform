@@ -125,10 +125,12 @@ fun LazyListScope.movieList(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .background(Color.Gray.copy(alpha = 0.5f))
-                                    .sharedElement(
+                                    .sharedBounds(
                                         sharedContentState = rememberSharedContentState(key = "movie-${movie.id}"),
-                                        animatedVisibilityScope = animatedContentScope
-                                    ),
+                                        animatedVisibilityScope = animatedContentScope,
+                                        clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(12.dp))
+                                    )
+                                    .clip(RoundedCornerShape(12.dp)),
                                 painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/${movie.posterPath}"),
                                 contentDescription = null,
                                 contentScale = ContentScale.FillBounds,

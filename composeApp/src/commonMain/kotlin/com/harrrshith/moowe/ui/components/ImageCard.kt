@@ -46,11 +46,12 @@ fun ImageCard(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(12.dp))
-                    .sharedElement(
+                    .sharedBounds(
                         sharedContentState = rememberSharedContentState(key = "movie-$movieId"),
-                        animatedVisibilityScope = animatedContentScope
+                        animatedVisibilityScope = animatedContentScope,
+                        clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(12.dp))
                     )
+                    .clip(RoundedCornerShape(12.dp))
             )
         }
 
