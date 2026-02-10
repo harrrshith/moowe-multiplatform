@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -138,7 +137,7 @@ private fun LazyListScope.title(
         Text(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             text = title,
-            style = MaterialTheme.typography.headlineLarge
+            style = AppTheme.typography.headlineLarge
         )
     }
 }
@@ -150,7 +149,7 @@ private fun LazyListScope.description(
         Text(
             modifier = Modifier.padding(horizontal = 16.dp),
             text = description,
-            style = MaterialTheme.typography.bodyMedium
+            style = AppTheme.typography.bodyMedium
         )
     }
 }
@@ -166,14 +165,14 @@ private fun MooweTopAppBar(
 ) {
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface.copy(alpha),
+            containerColor = AppTheme.colorScheme.surface.copy(alpha),
         ),
         navigationIcon = {
             IconButton(onClick = onBackPressed) {
                 Image(
                     imageVector = ArrowBackIcon,
                     contentDescription = "Back",
-                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSurface)
+                    colorFilter = ColorFilter.tint(color = AppTheme.colorScheme.onSurface)
                 )
             }
         },
@@ -181,7 +180,7 @@ private fun MooweTopAppBar(
             if (alpha > 0.8f) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = AppTheme.typography.titleMedium,
                     maxLines = 1
                 )
             }
@@ -191,14 +190,14 @@ private fun MooweTopAppBar(
                 Image(
                     imageVector = LikeIcon,
                     contentDescription = "Like",
-                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSurface)
+                    colorFilter = ColorFilter.tint(color = AppTheme.colorScheme.onSurface)
                 )
             }
             IconButton(onClick = { onShareClicked(0) }) {
                 Image(
                     imageVector = ShareIcon,
                     contentDescription = "Share",
-                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onSurface)
+                    colorFilter = ColorFilter.tint(color = AppTheme.colorScheme.onSurface)
                 )
             }
         }
