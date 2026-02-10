@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -36,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -91,21 +93,28 @@ private fun DetailScreen(
     val posterWidth = screenWidth * 0.35f
     val posterHeight = posterWidth * 1.5f
     val posterTopOffset = backdropHeight - (posterHeight * 0.4f)
+    
+    // Top bar should only start appearing after scrolling most of the backdrop
+    val topBarStartThreshold = with(density) { (backdropHeight - 100.dp).toPx() }
+    val topBarTransitionRange = with(density) { 100.dp.toPx() }
 
     val scrollOffset by remember {
         derivedStateOf {
             if (scrollState.firstVisibleItemIndex == 0) {
                 scrollState.firstVisibleItemScrollOffset.toFloat()
             } else {
-                with(density) { backdropHeight.toPx() }
+                with(density) { (backdropHeight + 100.dp).toPx() }
             }
         }
     }
 
     val topBarAlpha by remember {
         derivedStateOf {
-            val collapsedHeight = with(density) { backdropHeight.toPx() }
-            (scrollOffset / collapsedHeight).coerceIn(0f, 1f)
+            when {
+                scrollState.firstVisibleItemIndex > 0 -> 1f
+                scrollOffset < topBarStartThreshold -> 0f
+                else -> ((scrollOffset - topBarStartThreshold) / topBarTransitionRange).coerceIn(0f, 1f)
+            }
         }
     }
 
@@ -356,21 +365,35 @@ private fun MooweTopAppBar(
     onLikeClicked: (Int) -> Unit,
     onShareClicked: (Int) -> Unit
 ) {
+    // Icon background appears when top bar is transparent for better visibility
+    val iconBackgroundAlpha = (1f - alpha).coerceIn(0f, 0.6f)
+    
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = AppTheme.colorScheme.surface.copy(alpha),
         ),
         navigationIcon = {
-            IconButton(onClick = onBackPressed) {
-                Image(
-                    imageVector = ArrowBackIcon,
-                    contentDescription = "Back",
-                    colorFilter = ColorFilter.tint(color = AppTheme.colorScheme.onSurface)
-                )
+            Box(
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(Color.Black.copy(alpha = iconBackgroundAlpha)),
+                contentAlignment = Alignment.Center
+            ) {
+                IconButton(onClick = onBackPressed) {
+                    Image(
+                        imageVector = ArrowBackIcon,
+                        contentDescription = "Back",
+                        colorFilter = ColorFilter.tint(
+                            color = if (alpha < 0.5f) Color.White else AppTheme.colorScheme.onSurface
+                        )
+                    )
+                }
             }
         },
         title = {
-            if (alpha > 0.8f) {
+            if (alpha > 0.7f) {
                 Text(
                     text = title,
                     style = AppTheme.typography.titleMedium,
@@ -379,19 +402,40 @@ private fun MooweTopAppBar(
             }
         },
         actions = {
-            IconButton(onClick = { onLikeClicked(0) }) {
-                Image(
-                    imageVector = LikeIcon,
-                    contentDescription = "Like",
-                    colorFilter = ColorFilter.tint(color = AppTheme.colorScheme.onSurface)
-                )
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(Color.Black.copy(alpha = iconBackgroundAlpha)),
+                contentAlignment = Alignment.Center
+            ) {
+                IconButton(onClick = { onLikeClicked(0) }) {
+                    Image(
+                        imageVector = LikeIcon,
+                        contentDescription = "Like",
+                        colorFilter = ColorFilter.tint(
+                            color = if (alpha < 0.5f) Color.White else AppTheme.colorScheme.onSurface
+                        )
+                    )
+                }
             }
-            IconButton(onClick = { onShareClicked(0) }) {
-                Image(
-                    imageVector = ShareIcon,
-                    contentDescription = "Share",
-                    colorFilter = ColorFilter.tint(color = AppTheme.colorScheme.onSurface)
-                )
+            Box(
+                modifier = Modifier
+                    .padding(end = 8.dp)
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(Color.Black.copy(alpha = iconBackgroundAlpha)),
+                contentAlignment = Alignment.Center
+            ) {
+                IconButton(onClick = { onShareClicked(0) }) {
+                    Image(
+                        imageVector = ShareIcon,
+                        contentDescription = "Share",
+                        colorFilter = ColorFilter.tint(
+                            color = if (alpha < 0.5f) Color.White else AppTheme.colorScheme.onSurface
+                        )
+                    )
+                }
             }
         }
     )
