@@ -1,5 +1,6 @@
 package com.harrrshith.moowe.ui.navigation
 
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
@@ -19,51 +20,58 @@ fun NavigationGraph(
     navController: NavHostController
 ) {
     val startDestination = Destination.Home
-    NavHost(
-        modifier = modifier,
-        navController = navController,
-        startDestination = startDestination
-    ){
-        navigation<Destination.Home>(
-            startDestination = Destination.Home.Discover
+    
+    SharedTransitionLayout {
+        NavHost(
+            modifier = modifier,
+            navController = navController,
+            startDestination = startDestination
         ){
-            composable<Destination.Home.Discover> {
-                DiscoverRoute(
-                    navigateToDetail = { id ->
-                        navController.navigate(Destination.Detail(id))
+            navigation<Destination.Home>(
+                startDestination = Destination.Home.Discover
+            ){
+                composable<Destination.Home.Discover> {
+                    DiscoverRoute(
+                        animatedContentScope = this@composable,
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        navigateToDetail = { id ->
+                            navController.navigate(Destination.Detail(id))
+                        }
+                    )
+                }
+                composable<Destination.Home.Trending> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ){
+                        Text("Trending")
                     }
+                }
+                composable<Destination.Home.Search> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ){
+                        Text("Search")
+                    }
+                }
+                composable<Destination.Home.Yours> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ){
+                        Text("Yours")
+                    }
+                }
+            }
+
+            composable<Destination.Detail> {
+                DetailRoute(
+                    animatedContentScope = this@composable,
+                    sharedTransitionScope = this@SharedTransitionLayout,
+                    onBackPressed = { navController.popBackStack() }
                 )
             }
-            composable<Destination.Home.Trending> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ){
-                    Text("Trending")
-                }
-            }
-            composable<Destination.Home.Search> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ){
-                    Text("Search")
-                }
-            }
-            composable<Destination.Home.Yours> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ){
-                    Text("Yours")
-                }
-            }
-        }
-
-        composable<Destination.Detail> {
-            DetailRoute(
-                onBackPressed = { navController.popBackStack() }
-            )
         }
     }
 }

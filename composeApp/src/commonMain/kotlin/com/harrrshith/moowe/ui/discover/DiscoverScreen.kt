@@ -1,7 +1,10 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 package com.harrrshith.moowe.ui.discover
 
+import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -28,8 +31,11 @@ import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.rememberHazeState
 import org.koin.compose.viewmodel.koinViewModel
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun DiscoverRoute(
+    animatedContentScope: AnimatedContentScope,
+    sharedTransitionScope: SharedTransitionScope,
     viewModel: DiscoverViewModel = koinViewModel(),
     navigateToDetail: (Int) -> Unit
 ) {
@@ -55,6 +61,8 @@ fun DiscoverRoute(
                 DiscoverScreen(
                     modifier = Modifier
                         .fillMaxSize(),
+                    animatedContentScope = animatedContentScope,
+                    sharedTransitionScope = sharedTransitionScope,
                     hazeState = hazeState,
                     trendingMovies = uiState.trendingMovies,
                     actionMovies = uiState.actionMovies,
@@ -84,9 +92,12 @@ private fun LoadingScreen() {
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun DiscoverScreen(
     modifier: Modifier = Modifier,
+    animatedContentScope: AnimatedContentScope,
+    sharedTransitionScope: SharedTransitionScope,
     hazeState: HazeState,
     trendingMovies: List<Movie>? = null,
     actionMovies: List<Movie>? = null,
@@ -120,6 +131,8 @@ private fun DiscoverScreen(
         ) {
             trendingMovies?.takeIf { it.isNotEmpty() }?.let { movies ->
                 trendingList(
+                    animatedContentScope = animatedContentScope,
+                    sharedTransitionScope = sharedTransitionScope,
                     movies = movies,
                     onClick = {id ->
                         onClick(id)
@@ -129,6 +142,8 @@ private fun DiscoverScreen(
 
             actionMovies?.takeIf { it.isNotEmpty() }?.let { movies ->
                 movieList(
+                    animatedContentScope = animatedContentScope,
+                    sharedTransitionScope = sharedTransitionScope,
                     genre = Genre.ACTION,
                     movies = movies,
                     lazyListState = actionListState,
@@ -142,6 +157,8 @@ private fun DiscoverScreen(
 
             adventureMovies?.takeIf { it.isNotEmpty() }?.let { movies ->
                 movieList(
+                    animatedContentScope = animatedContentScope,
+                    sharedTransitionScope = sharedTransitionScope,
                     genre = Genre.ADVENTURE,
                     movies = movies,
                     lazyListState = adventureListState,
@@ -155,6 +172,8 @@ private fun DiscoverScreen(
 
             fantasyMovies?.takeIf { it.isNotEmpty() }?.let { movies ->
                 movieList(
+                    animatedContentScope = animatedContentScope,
+                    sharedTransitionScope = sharedTransitionScope,
                     genre = Genre.FANTASY,
                     movies = movies,
                     lazyListState = romanceListState,
@@ -168,6 +187,8 @@ private fun DiscoverScreen(
 
             documentaries?.takeIf { it.isNotEmpty() }?.let { movies ->
                 movieList(
+                    animatedContentScope = animatedContentScope,
+                    sharedTransitionScope = sharedTransitionScope,
                     genre = Genre.DOCUMENTARY,
                     movies = movies,
                     lazyListState = documentaryListState,
@@ -183,14 +204,15 @@ private fun DiscoverScreen(
 }
 
 
-@Preview()
-@Composable
-private fun DiscoverScreenPreview() {
-    val fakeHazeState = rememberHazeState()
-    DiscoverScreen(
-        hazeState = fakeHazeState,
-        trendingMovies = mockMovies,
-        actionMovies = mockMovies,
-        onClick = { }
-    )
-}
+// Preview disabled due to shared element transitions requiring navigation scope
+// @Preview()
+// @Composable
+// private fun DiscoverScreenPreview() {
+//     val fakeHazeState = rememberHazeState()
+//     DiscoverScreen(
+//         hazeState = fakeHazeState,
+//         trendingMovies = mockMovies,
+//         actionMovies = mockMovies,
+//         onClick = { }
+//     )
+// }

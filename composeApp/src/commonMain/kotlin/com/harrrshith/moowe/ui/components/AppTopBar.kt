@@ -43,3 +43,4 @@ internal fun AppTopBar(
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
     )
 }
+
