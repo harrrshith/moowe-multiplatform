@@ -15,9 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -30,7 +30,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.rememberAsyncImagePainter
@@ -41,7 +40,6 @@ import com.harrrshith.moowe.ui.components.composeVectors.ArrowBackIcon
 import com.harrrshith.moowe.ui.components.composeVectors.LikeIcon
 import com.harrrshith.moowe.ui.components.composeVectors.ShareIcon
 import com.harrrshith.moowe.ui.components.modifierExtensions.bottomGradientOverlay
-import com.harrrshith.moowe.ui.detail.mock.mockMovie
 import com.harrrshith.moowe.ui.theme.AppTheme
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -100,9 +98,10 @@ private fun DetailScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(headerHeight)
-                        .sharedElement(
+                        .sharedBounds(
                             sharedContentState = rememberSharedContentState(key = "movie-${movie.id}"),
-                            animatedVisibilityScope = animatedContentScope
+                            animatedVisibilityScope = animatedContentScope,
+                            clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(0.dp))
                         )
                         .graphicsLayer {
                             translationY = -headerScrollOffset / 2f
