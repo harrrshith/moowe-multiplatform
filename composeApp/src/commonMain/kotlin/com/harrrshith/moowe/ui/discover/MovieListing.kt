@@ -70,7 +70,7 @@ fun LazyListScope.trendingList(
                     movieId = movie.id,
                     animatedContentScope = animatedContentScope,
                     sharedTransitionScope = sharedTransitionScope,
-                    imageUrl = movie.backdropPath,
+                    imageUrl = movie.posterPath,
                     movieTitle = movie.title,
                     onClick = { onClick(movie.id) },
                 )
