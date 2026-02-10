@@ -1,5 +1,8 @@
 package com.harrrshith.moowe.ui.discover
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,7 +32,10 @@ import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.ui.components.ImageCard
 import com.harrrshith.moowe.ui.theme.AppTheme
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 fun LazyListScope.trendingList(
+    animatedContentScope: AnimatedContentScope,
+    sharedTransitionScope: SharedTransitionScope,
     movies: List<Movie>,
     onClick: (Int) -> Unit,
 ) {
@@ -61,6 +67,9 @@ fun LazyListScope.trendingList(
                     modifier = Modifier
                         .fillMaxSize()
                         .clip(RoundedCornerShape(24.dp)),
+                    movieId = movie.id,
+                    animatedContentScope = animatedContentScope,
+                    sharedTransitionScope = sharedTransitionScope,
                     imageUrl = movie.backdropPath,
                     movieTitle = movie.title,
                     onClick = { onClick(movie.id) },
@@ -70,7 +79,10 @@ fun LazyListScope.trendingList(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 fun LazyListScope.movieList(
+    animatedContentScope: AnimatedContentScope,
+    sharedTransitionScope: SharedTransitionScope,
     genre: Genre,
     movies: List<Movie>,
     lazyListState: LazyListState,
@@ -108,14 +120,20 @@ fun LazyListScope.movieList(
                                 onClick(movie.id)
                             }
                     ) {
-                        Image(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Gray.copy(alpha = 0.5f)),
-                            painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/${movie.posterPath}"),
-                            contentDescription = null,
-                            contentScale = ContentScale.FillBounds,
-                        )
+                        with(sharedTransitionScope) {
+                            Image(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color.Gray.copy(alpha = 0.5f))
+                                    .sharedElement(
+                                        sharedContentState = rememberSharedContentState(key = "movie-${movie.id}"),
+                                        animatedVisibilityScope = animatedContentScope
+                                    ),
+                                painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/${movie.posterPath}"),
+                                contentDescription = null,
+                                contentScale = ContentScale.FillBounds,
+                            )
+                        }
                     }
 
                 }

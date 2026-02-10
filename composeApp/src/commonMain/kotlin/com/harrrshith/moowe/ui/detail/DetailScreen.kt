@@ -1,6 +1,9 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 package com.harrrshith.moowe.ui.detail
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -42,22 +45,30 @@ import com.harrrshith.moowe.ui.detail.mock.mockMovie
 import com.harrrshith.moowe.ui.theme.AppTheme
 import org.koin.compose.viewmodel.koinViewModel
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun DetailRoute(
+    animatedContentScope: AnimatedContentScope,
+    sharedTransitionScope: SharedTransitionScope,
     viewModel: DetailScreenViewModel = koinViewModel(),
     onBackPressed: () -> Unit
 ){
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     uiState.movie?.let { movie ->
         DetailScreen(
+            animatedContentScope = animatedContentScope,
+            sharedTransitionScope = sharedTransitionScope,
             movie = movie,
             onBackPressed = onBackPressed
         )
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun DetailScreen(
+    animatedContentScope: AnimatedContentScope,
+    sharedTransitionScope: SharedTransitionScope,
     movie: Movie,
     onBackPressed: () -> Unit
 ){
@@ -84,19 +95,25 @@ private fun DetailScreen(
         }
 
         Box(modifier = Modifier.fillMaxSize()) {
-            Image(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(headerHeight)
-                    .graphicsLayer {
-                        translationY = -headerScrollOffset / 2f
-                        alpha = 1f - topBarAlpha
-                    }
-                    .bottomGradientOverlay(),
-                painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/${movie.backdropPath}"),
-                contentDescription = null,
-                contentScale = ContentScale.FillBounds
-            )
+            with(sharedTransitionScope) {
+                Image(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(headerHeight)
+                        .sharedElement(
+                            sharedContentState = rememberSharedContentState(key = "movie-${movie.id}"),
+                            animatedVisibilityScope = animatedContentScope
+                        )
+                        .graphicsLayer {
+                            translationY = -headerScrollOffset / 2f
+                            alpha = 1f - topBarAlpha
+                        }
+                        .bottomGradientOverlay(),
+                    painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/${movie.backdropPath}"),
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds
+                )
+            }
 
             LazyColumn(
                 state = scrollState,
@@ -204,15 +221,16 @@ private fun MooweTopAppBar(
     )
 }
 
-@Preview
-@Composable
-fun PreviewDetailScreen() {
-    AppTheme {
-        Surface {
-            DetailScreen(
-                movie = mockMovie,
-                onBackPressed = { }
-            )
-        }
-    }
-}
+// Preview disabled due to shared element transitions requiring navigation scope
+// @Preview
+// @Composable
+// fun PreviewDetailScreen() {
+//     AppTheme {
+//         Surface {
+//             DetailScreen(
+//                 movie = mockMovie,
+//                 onBackPressed = { }
+//             )
+//         }
+//     }
+// }

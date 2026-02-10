@@ -1,5 +1,8 @@
 package com.harrrshith.moowe.ui.components
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,9 +23,13 @@ import coil3.compose.rememberAsyncImagePainter
 import com.harrrshith.moowe.Constants.IMAGE_BASE_URL
 import com.harrrshith.moowe.ui.theme.AppTheme
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun ImageCard(
     modifier: Modifier,
+    movieId: Int,
+    animatedContentScope: AnimatedContentScope,
+    sharedTransitionScope: SharedTransitionScope,
     imageUrl: String,
     movieTitle: String,
     onClick: () -> Unit,
@@ -31,15 +38,21 @@ fun ImageCard(
         modifier = modifier
             .clickable(onClick = onClick)
     ) {
-        // Main image
-        Image(
-            painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/$imageUrl"),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxSize()
-                .clip(RoundedCornerShape(12.dp))
-        )
+        // Main image with shared element transition
+        with(sharedTransitionScope) {
+            Image(
+                painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/$imageUrl"),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(12.dp))
+                    .sharedElement(
+                        sharedContentState = rememberSharedContentState(key = "movie-$movieId"),
+                        animatedVisibilityScope = animatedContentScope
+                    )
+            )
+        }
 
         Box(
             modifier = Modifier
