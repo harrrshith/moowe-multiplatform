@@ -1,5 +1,8 @@
 package com.harrrshith.moowe.ui.discover
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,7 +13,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -28,8 +30,12 @@ import com.harrrshith.moowe.Constants.IMAGE_BASE_URL
 import com.harrrshith.moowe.domain.model.Genre
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.ui.components.ImageCard
+import com.harrrshith.moowe.ui.theme.AppTheme
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 fun LazyListScope.trendingList(
+    animatedContentScope: AnimatedContentScope,
+    sharedTransitionScope: SharedTransitionScope,
     movies: List<Movie>,
     onClick: (Int) -> Unit,
 ) {
@@ -61,7 +67,10 @@ fun LazyListScope.trendingList(
                     modifier = Modifier
                         .fillMaxSize()
                         .clip(RoundedCornerShape(24.dp)),
-                    imageUrl = movie.backdropPath,
+                    movieId = movie.id,
+                    animatedContentScope = animatedContentScope,
+                    sharedTransitionScope = sharedTransitionScope,
+                    imageUrl = movie.posterPath,
                     movieTitle = movie.title,
                     onClick = { onClick(movie.id) },
                 )
@@ -70,7 +79,10 @@ fun LazyListScope.trendingList(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 fun LazyListScope.movieList(
+    animatedContentScope: AnimatedContentScope,
+    sharedTransitionScope: SharedTransitionScope,
     genre: Genre,
     movies: List<Movie>,
     lazyListState: LazyListState,
@@ -86,7 +98,7 @@ fun LazyListScope.movieList(
             Text(
                 modifier = Modifier.padding(start = 16.dp),
                 text = genre.displayName,
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                style = AppTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
             )
             LazyRow(
                 modifier = Modifier
@@ -108,14 +120,22 @@ fun LazyListScope.movieList(
                                 onClick(movie.id)
                             }
                     ) {
-                        Image(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Gray.copy(alpha = 0.5f)),
-                            painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/${movie.posterPath}"),
-                            contentDescription = null,
-                            contentScale = ContentScale.FillBounds,
-                        )
+                        with(sharedTransitionScope) {
+                            Image(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color.Gray.copy(alpha = 0.5f))
+                                    .sharedBounds(
+                                        sharedContentState = rememberSharedContentState(key = "movie-${movie.id}"),
+                                        animatedVisibilityScope = animatedContentScope,
+                                        clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(12.dp))
+                                    )
+                                    .clip(RoundedCornerShape(12.dp)),
+                                painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/${movie.posterPath}"),
+                                contentDescription = null,
+                                contentScale = ContentScale.FillBounds,
+                            )
+                        }
                     }
 
                 }
