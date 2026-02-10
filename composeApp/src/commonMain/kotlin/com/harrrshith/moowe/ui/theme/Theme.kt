@@ -23,7 +23,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 @Composable
 fun AppTheme(
     useDarkTheme: Boolean = isSystemInDarkTheme(),
-    typography: Typography = AppTypography(),
+    typography: Typography = appTypography(),
     content: @Composable () -> Unit
 ) {
     // Provide dark theme state through composition local
