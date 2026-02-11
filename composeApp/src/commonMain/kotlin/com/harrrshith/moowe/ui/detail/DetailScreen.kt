@@ -4,6 +4,8 @@ package com.harrrshith.moowe.ui.detail
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -57,6 +59,7 @@ import com.harrrshith.moowe.ui.components.composeVectors.ArrowBackIcon
 import com.harrrshith.moowe.ui.components.composeVectors.LikeIcon
 import com.harrrshith.moowe.ui.components.composeVectors.ShareIcon
 import com.harrrshith.moowe.ui.theme.AppTheme
+import com.harrrshith.moowe.utils.extensions.format
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -166,20 +169,27 @@ private fun DetailScreen(
                             modifier = Modifier
                                 .width(posterWidth)
                                 .height(posterHeight)
-                                .offset(x = 24.dp, y = posterTopOffset)
-                                .sharedBounds(
-                                    sharedContentState = rememberSharedContentState(key = "movie-${movie.id}"),
-                                    animatedVisibilityScope = animatedContentScope,
-                                    clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(16.dp))
-                                ),
-                            shape = RoundedCornerShape(16.dp),
+                                .offset(x = 24.dp, y = posterTopOffset),
+                            shape = RoundedCornerShape(12.dp),
                             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                         ) {
                             Image(
                                 painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/${movie.posterPath}"),
                                 contentDescription = movie.title,
                                 contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .sharedBounds(
+                                        sharedContentState = rememberSharedContentState(key = "movie-${movie.id}"),
+                                        animatedVisibilityScope = animatedContentScope,
+                                        clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(12.dp)),
+                                        boundsTransform = { _, _ ->
+                                            spring(
+                                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                                stiffness = Spring.StiffnessMediumLow
+                                            )
+                                        }
+                                    )
                             )
                         }
                     }
@@ -221,7 +231,7 @@ private fun DetailScreen(
                             )
                         }
                         Text(
-                            text = String.format("%.1f", movie.voteAverage),
+                            text = movie.voteAverage.format(1),
                             style = AppTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                             color = AppTheme.colorScheme.onSurface
                         )
@@ -299,7 +309,7 @@ private fun DetailScreen(
                         
                         Spacer(modifier = Modifier.height(16.dp))
                         
-                        DetailRow(label = "Popularity", value = String.format("%.1f", movie.popularity))
+                        DetailRow(label = "Popularity", value = movie.popularity.format(1))
                         
                         HorizontalDivider(
                             modifier = Modifier.padding(vertical = 12.dp),

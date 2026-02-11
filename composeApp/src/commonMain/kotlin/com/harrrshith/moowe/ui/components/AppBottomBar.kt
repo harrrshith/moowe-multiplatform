@@ -40,7 +40,7 @@ fun AppBottomBar(
         Surface(
             modifier = Modifier
                 .navigationBarsPadding()
-                .padding(start = 12.dp, end = 12.dp, bottom = 10.dp),
+                .padding(start = 12.dp, end = 12.dp),
             shape = RoundedCornerShape(42.dp)
         ){
             BottomBar(
