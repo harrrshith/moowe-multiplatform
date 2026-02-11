@@ -30,7 +30,12 @@ fun NavigationGraph(
             navigation<Destination.Home>(
                 startDestination = Destination.Home.Discover
             ){
-                composable<Destination.Home.Discover> {
+                composable<Destination.Home.Discover>(
+                    enterTransition = { NavigationTransitions.enterTransition },
+                    exitTransition = { NavigationTransitions.exitTransition },
+                    popEnterTransition = { NavigationTransitions.popEnterTransition },
+                    popExitTransition = { NavigationTransitions.popExitTransition }
+                ) {
                     DiscoverRoute(
                         animatedContentScope = this@composable,
                         sharedTransitionScope = this@SharedTransitionLayout,
@@ -65,7 +70,12 @@ fun NavigationGraph(
                 }
             }
 
-            composable<Destination.Detail> {
+            composable<Destination.Detail>(
+                enterTransition = { NavigationTransitions.enterTransition },
+                exitTransition = { NavigationTransitions.exitTransition },
+                popEnterTransition = { NavigationTransitions.popEnterTransition },
+                popExitTransition = { NavigationTransitions.popExitTransition }
+            ) {
                 DetailRoute(
                     animatedContentScope = this@composable,
                     sharedTransitionScope = this@SharedTransitionLayout,

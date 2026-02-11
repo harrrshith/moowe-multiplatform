@@ -3,6 +3,8 @@ package com.harrrshith.moowe.ui.discover
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -128,12 +130,17 @@ fun LazyListScope.movieList(
                                     .sharedBounds(
                                         sharedContentState = rememberSharedContentState(key = "movie-${movie.id}"),
                                         animatedVisibilityScope = animatedContentScope,
-                                        clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(12.dp))
-                                    )
-                                    .clip(RoundedCornerShape(12.dp)),
+                                        clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(12.dp)),
+                                        boundsTransform = { _, _ ->
+                                            spring(
+                                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                                stiffness = Spring.StiffnessMediumLow
+                                            )
+                                        }
+                                    ),
                                 painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/${movie.posterPath}"),
                                 contentDescription = null,
-                                contentScale = ContentScale.FillBounds,
+                                contentScale = ContentScale.Crop,
                             )
                         }
                     }

@@ -3,6 +3,8 @@ package com.harrrshith.moowe.ui.components
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -49,9 +51,14 @@ fun ImageCard(
                     .sharedBounds(
                         sharedContentState = rememberSharedContentState(key = "movie-$movieId"),
                         animatedVisibilityScope = animatedContentScope,
-                        clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(12.dp))
+                        clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(12.dp)),
+                        boundsTransform = { _, _ ->
+                            spring(
+                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                stiffness = Spring.StiffnessMediumLow
+                            )
+                        }
                     )
-                    .clip(RoundedCornerShape(12.dp))
             )
         }
 
