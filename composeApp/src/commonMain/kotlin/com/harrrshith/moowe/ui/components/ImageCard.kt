@@ -43,7 +43,7 @@ fun ImageCard(
             Image(
                 painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/$imageUrl"),
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.FillBounds,
                 modifier = Modifier
                     .fillMaxSize()
                     .sharedBounds(
