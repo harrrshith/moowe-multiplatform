@@ -18,7 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -28,6 +28,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -46,6 +47,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -117,7 +119,18 @@ private fun DetailScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Scaffold(
+        topBar = {
+            MooweTopAppBar(
+                title = movie.title,
+                alpha = topBarAlpha,
+                onBackPressed = onBackPressed,
+                onLikeClicked = { },
+                onShareClicked = { }
+            )
+        },
+        containerColor = AppTheme.colorScheme.surface
+    ) { _ ->
         LazyColumn(
             state = scrollState,
             modifier = Modifier.fillMaxSize()
@@ -158,34 +171,20 @@ private fun DetailScreen(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(posterHeight * 0.6f)
+                            .height(posterHeight * 0.5f)
                             .align(Alignment.BottomCenter)
                             .background(
                                 brush = Brush.verticalGradient(
                                     colors = listOf(
                                         Color.Transparent,
-                                        Color.Black.copy(alpha = 0.4f),
-                                        Color.Black.copy(alpha = 0.8f),
+                                        Color.Black.copy(alpha = 0.3f),
+                                        Color.Black.copy(alpha = 0.6f),
                                         AppTheme.colorScheme.surface
                                     ),
                                     startY = 0f,
                                     endY = Float.POSITIVE_INFINITY
                                 )
                             )
-                    )
-                    
-                    // Movie title at bottom of poster
-                    Text(
-                        text = movie.title,
-                        style = AppTheme.typography.displaySmall.copy(
-                            fontWeight = FontWeight.Bold,
-                            lineHeight = 40.sp
-                        ),
-                        color = Color.White,
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(horizontal = 24.dp, vertical = 32.dp)
-                            .fillMaxWidth()
                     )
                 }
             }
@@ -265,6 +264,7 @@ private fun DetailScreen(
                             lineHeight = 26.sp,
                             letterSpacing = 0.15.sp
                         ),
+                        textAlign = TextAlign.Justify,
                         color = AppTheme.colorScheme.onSurface.copy(alpha = 0.87f)
                     )
                 }
@@ -320,15 +320,6 @@ private fun DetailScreen(
                 Spacer(modifier = Modifier.height(100.dp))
             }
         }
-
-        // Top app bar that fades in on scroll
-        MooweTopAppBar(
-            title = movie.title,
-            alpha = topBarAlpha,
-            onBackPressed = onBackPressed,
-            onLikeClicked = { },
-            onShareClicked = { }
-        )
     }
 }
 
@@ -367,7 +358,6 @@ private fun MooweTopAppBar(
     val iconBackgroundAlpha = (1f - alpha).coerceIn(0f, 0.7f)
     
     TopAppBar(
-        modifier = Modifier.statusBarsPadding(),
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = AppTheme.colorScheme.surface.copy(alpha),
         ),
@@ -419,6 +409,7 @@ private fun MooweTopAppBar(
                     )
                 }
             }
+            Spacer(modifier = Modifier.width(10.dp))
             Box(
                 modifier = Modifier
                     .padding(end = 8.dp)
