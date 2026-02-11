@@ -16,10 +16,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -51,7 +50,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.rememberAsyncImagePainter
-import com.harrrshith.imagecarousel.utils.screenHeight
 import com.harrrshith.imagecarousel.utils.screenWidth
 import com.harrrshith.moowe.Constants.IMAGE_BASE_URL
 import com.harrrshith.moowe.domain.model.Movie
@@ -92,21 +90,19 @@ private fun DetailScreen(
     val scrollState = rememberLazyListState()
     val density = LocalDensity.current
     
-    val backdropHeight = screenHeight * 0.35f
-    val posterWidth = screenWidth * 0.35f
-    val posterHeight = posterWidth * 1.5f
-    val posterTopOffset = backdropHeight - (posterHeight * 0.4f)
+    // Calculate poster height based on aspect ratio (2:3 for movie posters)
+    val posterHeight = screenWidth * 1.4f // Show more of the poster
     
-    // Top bar should only start appearing after scrolling most of the backdrop
-    val topBarStartThreshold = with(density) { (backdropHeight - 100.dp).toPx() }
-    val topBarTransitionRange = with(density) { 100.dp.toPx() }
+    // Top bar appears after scrolling past most of the poster
+    val topBarStartThreshold = with(density) { (posterHeight - 120.dp).toPx() }
+    val topBarTransitionRange = with(density) { 120.dp.toPx() }
 
     val scrollOffset by remember {
         derivedStateOf {
             if (scrollState.firstVisibleItemIndex == 0) {
                 scrollState.firstVisibleItemScrollOffset.toFloat()
             } else {
-                with(density) { (backdropHeight + 100.dp).toPx() }
+                with(density) { (posterHeight + 100.dp).toPx() }
             }
         }
     }
@@ -126,135 +122,124 @@ private fun DetailScreen(
             state = scrollState,
             modifier = Modifier.fillMaxSize()
         ) {
+            // Hero Poster Section
             item {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(backdropHeight + posterHeight * 0.6f)
+                        .height(posterHeight)
                 ) {
-                    // Backdrop image with parallax
-                    Image(
-                        painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/${movie.backdropPath}"),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(backdropHeight)
-                            .graphicsLayer {
-                                translationY = scrollOffset * 0.5f
-                            }
-                    )
+                    // Poster image with parallax effect and shared element
+                    with(sharedTransitionScope) {
+                        Image(
+                            painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/${movie.posterPath}"),
+                            contentDescription = movie.title,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .graphicsLayer {
+                                    translationY = scrollOffset * 0.4f // Parallax effect
+                                }
+                                .sharedBounds(
+                                    sharedContentState = rememberSharedContentState(key = "movie-${movie.id}"),
+                                    animatedVisibilityScope = animatedContentScope,
+                                    clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(0.dp)),
+                                    boundsTransform = { _, _ ->
+                                        spring(
+                                            dampingRatio = Spring.DampingRatioNoBouncy,
+                                            stiffness = Spring.StiffnessMediumLow
+                                        )
+                                    }
+                                )
+                        )
+                    }
                     
-                    // Gradient overlay on backdrop
+                    // Gradient overlay at bottom
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(backdropHeight)
+                            .height(posterHeight * 0.6f)
+                            .align(Alignment.BottomCenter)
                             .background(
                                 brush = Brush.verticalGradient(
                                     colors = listOf(
                                         Color.Transparent,
-                                        Color.Black.copy(alpha = 0.3f),
-                                        AppTheme.colorScheme.surface.copy(alpha = 0.95f)
+                                        Color.Black.copy(alpha = 0.4f),
+                                        Color.Black.copy(alpha = 0.8f),
+                                        AppTheme.colorScheme.surface
                                     ),
                                     startY = 0f,
-                                    endY = with(density) { backdropHeight.toPx() }
+                                    endY = Float.POSITIVE_INFINITY
                                 )
                             )
                     )
-
-                    // Poster image with shared element
-                    with(sharedTransitionScope) {
-                        Card(
-                            modifier = Modifier
-                                .width(posterWidth)
-                                .height(posterHeight)
-                                .offset(x = 24.dp, y = posterTopOffset),
-                            shape = RoundedCornerShape(12.dp),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-                        ) {
-                            Image(
-                                painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/${movie.posterPath}"),
-                                contentDescription = movie.title,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .sharedBounds(
-                                        sharedContentState = rememberSharedContentState(key = "movie-${movie.id}"),
-                                        animatedVisibilityScope = animatedContentScope,
-                                        clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(12.dp)),
-                                        boundsTransform = { _, _ ->
-                                            spring(
-                                                dampingRatio = Spring.DampingRatioNoBouncy,
-                                                stiffness = Spring.StiffnessMediumLow
-                                            )
-                                        }
-                                    )
-                            )
-                        }
-                    }
+                    
+                    // Movie title at bottom of poster
+                    Text(
+                        text = movie.title,
+                        style = AppTheme.typography.displaySmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            lineHeight = 40.sp
+                        ),
+                        color = Color.White,
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(horizontal = 24.dp, vertical = 32.dp)
+                            .fillMaxWidth()
+                    )
                 }
             }
 
-            // Movie title and metadata
+            // Quick Info Section (Rating, Release Date)
             item {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = posterWidth + 48.dp, end = 24.dp, top = 16.dp)
+                        .background(AppTheme.colorScheme.surface)
+                        .padding(horizontal = 24.dp, vertical = 20.dp)
                 ) {
-                    Text(
-                        text = movie.title,
-                        style = AppTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            lineHeight = 28.sp
-                        ),
-                        color = AppTheme.colorScheme.onSurface
-                    )
-                    
-                    Spacer(modifier = Modifier.height(12.dp))
-                    
-                    // Rating
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
+                        // Rating chip
                         Surface(
-                            shape = CircleShape,
+                            shape = RoundedCornerShape(12.dp),
                             color = AppTheme.colorScheme.primaryContainer
                         ) {
-                            Text(
-                                text = "★",
-                                style = AppTheme.typography.titleMedium,
-                                color = AppTheme.colorScheme.primary,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                            ) {
+                                Text(
+                                    text = "★",
+                                    style = AppTheme.typography.titleMedium,
+                                    color = AppTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = movie.voteAverage.format(1),
+                                    style = AppTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                    color = AppTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
                         }
+                        
+                        // Release year
                         Text(
-                            text = movie.voteAverage.format(1),
-                            style = AppTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            color = AppTheme.colorScheme.onSurface
+                            text = movie.releaseDate.take(4), // Just the year
+                            style = AppTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium),
+                            color = AppTheme.colorScheme.onSurfaceVariant
                         )
+                        
+                        // Vote count
                         Text(
-                            text = "(${movie.voteCount} votes)",
-                            style = AppTheme.typography.bodySmall,
+                            text = "${movie.voteCount} reviews",
+                            style = AppTheme.typography.bodyMedium,
                             color = AppTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    // Release date
-                    Text(
-                        text = "Released ${movie.releaseDate}",
-                        style = AppTheme.typography.bodyMedium,
-                        color = AppTheme.colorScheme.onSurfaceVariant
-                    )
                 }
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(32.dp))
             }
 
             // Overview section
@@ -262,29 +247,31 @@ private fun DetailScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(AppTheme.colorScheme.surface)
                         .padding(horizontal = 24.dp)
+                        .padding(bottom = 24.dp)
                 ) {
-                        Text(
-                            text = "Overview",
-                            style = AppTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                            color = AppTheme.colorScheme.onSurface
-                        )
-                        
-                        Spacer(modifier = Modifier.height(12.dp))
-                        
-                        Text(
-                            text = movie.overview,
-                            style = AppTheme.typography.bodyLarge.copy(
-                                lineHeight = 24.sp,
-                                letterSpacing = 0.15.sp
-                            ),
-                            color = AppTheme.colorScheme.onSurface.copy(alpha = 0.87f)
-                        )
+                    Text(
+                        text = "Overview",
+                        style = AppTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        color = AppTheme.colorScheme.onSurface
+                    )
+                    
+                    Spacer(modifier = Modifier.height(12.dp))
+                    
+                    Text(
+                        text = movie.overview,
+                        style = AppTheme.typography.bodyLarge.copy(
+                            lineHeight = 26.sp,
+                            letterSpacing = 0.15.sp
+                        ),
+                        color = AppTheme.colorScheme.onSurface.copy(alpha = 0.87f)
+                    )
                 }
             }
 
             item {
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
             // Movie details card
@@ -294,36 +281,37 @@ private fun DetailScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = AppTheme.colorScheme.surfaceContainer
+                        containerColor = AppTheme.colorScheme.surfaceContainerHigh
                     ),
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                 ) {
                     Column(
-                        modifier = Modifier.padding(20.dp)
+                        modifier = Modifier.padding(24.dp)
                     ) {
                         Text(
                             text = "Details",
-                            style = AppTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            style = AppTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                             color = AppTheme.colorScheme.onSurface
                         )
                         
-                        Spacer(modifier = Modifier.height(16.dp))
-                        
-                        DetailRow(label = "Popularity", value = movie.popularity.format(1))
-                        
-                        HorizontalDivider(
-                            modifier = Modifier.padding(vertical = 12.dp),
-                            color = AppTheme.colorScheme.outlineVariant
-                        )
+                        Spacer(modifier = Modifier.height(20.dp))
                         
                         DetailRow(label = "Release Date", value = movie.releaseDate)
                         
                         HorizontalDivider(
-                            modifier = Modifier.padding(vertical = 12.dp),
-                            color = AppTheme.colorScheme.outlineVariant
+                            modifier = Modifier.padding(vertical = 16.dp),
+                            color = AppTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
                         )
                         
                         DetailRow(label = "Rating", value = "${movie.voteAverage}/10")
+                        
+                        HorizontalDivider(
+                            modifier = Modifier.padding(vertical = 16.dp),
+                            color = AppTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                        )
+                        
+                        DetailRow(label = "Popularity", value = movie.popularity.format(1))
                     }
                 }
             }
@@ -333,7 +321,7 @@ private fun DetailScreen(
             }
         }
 
-        // Top app bar
+        // Top app bar that fades in on scroll
         MooweTopAppBar(
             title = movie.title,
             alpha = topBarAlpha,
@@ -356,12 +344,12 @@ private fun DetailRow(
     ) {
         Text(
             text = label,
-            style = AppTheme.typography.bodyMedium,
+            style = AppTheme.typography.bodyLarge,
             color = AppTheme.colorScheme.onSurfaceVariant
         )
         Text(
             text = value,
-            style = AppTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+            style = AppTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
             color = AppTheme.colorScheme.onSurface
         )
     }
@@ -376,9 +364,10 @@ private fun MooweTopAppBar(
     onShareClicked: (Int) -> Unit
 ) {
     // Icon background appears when top bar is transparent for better visibility
-    val iconBackgroundAlpha = (1f - alpha).coerceIn(0f, 0.6f)
+    val iconBackgroundAlpha = (1f - alpha).coerceIn(0f, 0.7f)
     
     TopAppBar(
+        modifier = Modifier.statusBarsPadding(),
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = AppTheme.colorScheme.surface.copy(alpha),
         ),
@@ -396,7 +385,7 @@ private fun MooweTopAppBar(
                         imageVector = ArrowBackIcon,
                         contentDescription = "Back",
                         colorFilter = ColorFilter.tint(
-                            color = if (alpha < 0.5f) Color.White else AppTheme.colorScheme.onSurface
+                            color = Color.White
                         )
                     )
                 }
@@ -406,8 +395,9 @@ private fun MooweTopAppBar(
             if (alpha > 0.7f) {
                 Text(
                     text = title,
-                    style = AppTheme.typography.titleMedium,
-                    maxLines = 1
+                    style = AppTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    maxLines = 1,
+                    color = AppTheme.colorScheme.onSurface
                 )
             }
         },
@@ -424,7 +414,7 @@ private fun MooweTopAppBar(
                         imageVector = LikeIcon,
                         contentDescription = "Like",
                         colorFilter = ColorFilter.tint(
-                            color = if (alpha < 0.5f) Color.White else AppTheme.colorScheme.onSurface
+                            color = Color.White
                         )
                     )
                 }
@@ -442,7 +432,7 @@ private fun MooweTopAppBar(
                         imageVector = ShareIcon,
                         contentDescription = "Share",
                         colorFilter = ColorFilter.tint(
-                            color = if (alpha < 0.5f) Color.White else AppTheme.colorScheme.onSurface
+                            color = Color.White
                         )
                     )
                 }
@@ -450,17 +440,3 @@ private fun MooweTopAppBar(
         }
     )
 }
-
-// Preview disabled due to shared element transitions requiring navigation scope
-// @Preview
-// @Composable
-// fun PreviewDetailScreen() {
-//     AppTheme {
-//         Surface {
-//             DetailScreen(
-//                 movie = mockMovie,
-//                 onBackPressed = { }
-//             )
-//         }
-//     }
-// }
