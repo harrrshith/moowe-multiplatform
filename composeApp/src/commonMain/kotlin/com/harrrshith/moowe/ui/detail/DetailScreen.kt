@@ -8,7 +8,9 @@ import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -24,6 +26,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.harrrshith.imagecarousel.utils.screenWidth
 import com.harrrshith.moowe.domain.model.Movie
@@ -101,8 +104,9 @@ private fun DetailScreen(
         containerColor = AppTheme.colorScheme.surface
     ) { _ ->
         LazyColumn(
-            state = scrollState,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize(),
+            state = scrollState
         ) {
             detailImage(
                 movie = movie,
@@ -114,13 +118,26 @@ private fun DetailScreen(
 
             item {
                 Text(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .fillMaxWidth(),
                     text = movie.title,
-                    style = AppTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                    style = AppTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
                 )
             }
 
-            detailLineTwo(movie = movie)
-            detailOverview(movie = movie)
+            detailLineTwo(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 20.dp),
+                movie = movie
+            )
+
+
+            detailOverview(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 20.dp),
+                movie = movie
+            )
 
             item {
                 Spacer(modifier = Modifier.height(100.dp))
