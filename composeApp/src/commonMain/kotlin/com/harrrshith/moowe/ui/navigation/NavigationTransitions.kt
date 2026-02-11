@@ -13,13 +13,13 @@ import androidx.compose.animation.scaleOut
  * Uses subtle fade and scale effects that don't conflict with the shared element morphing.
  */
 object NavigationTransitions {
-    private const val DURATION = 400
+    private const val DURATION = 300
     
     // Detail screen enters with fade + slight scale
     val enterTransition: EnterTransition = fadeIn(
         animationSpec = tween(DURATION)
     ) + scaleIn(
-        initialScale = 0.95f,
+        initialScale = 0.97f,
         animationSpec = tween(DURATION)
     )
     
@@ -37,7 +37,7 @@ object NavigationTransitions {
     val popExitTransition: ExitTransition = fadeOut(
         animationSpec = tween(DURATION)
     ) + scaleOut(
-        targetScale = 0.95f,
+        targetScale = 0.97f,
         animationSpec = tween(DURATION)
     )
 }
