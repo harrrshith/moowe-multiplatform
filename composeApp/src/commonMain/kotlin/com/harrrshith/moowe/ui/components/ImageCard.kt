@@ -12,21 +12,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil3.compose.rememberAsyncImagePainter
 import com.harrrshith.moowe.Constants.IMAGE_BASE_URL
-import com.harrrshith.moowe.ui.theme.AppTheme
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -83,17 +78,19 @@ fun ImageCard(
                     )
                 )
         )
-        Text(
-            text = movieTitle,
-            color = Color.White,
-            style = AppTheme.typography.titleMedium,
-            maxLines = 1,
-            letterSpacing = 1.25.sp,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(vertical = 12.dp, horizontal = 16.dp)
-                .fillMaxWidth()
-        )
+//        Text(
+//            text = movieTitle,
+//            color = Color.White,
+//            style = AppTheme.typography.titleMedium,
+//            maxLines = 1,
+//            letterSpacing = 1.25.sp,
+//            overflow = TextOverflow.Ellipsis,
+//            modifier = Modifier
+//                .align(Alignment.BottomStart)
+//                .padding(vertical = 12.dp, horizontal = 16.dp)
+//                .fillMaxWidth()
+//        )
+
+        print("Movie title $movieTitle")
     }
 }
