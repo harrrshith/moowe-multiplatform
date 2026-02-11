@@ -264,22 +264,22 @@ private fun DetailScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 24.dp)
                 ) {
-                    Text(
-                        text = "Overview",
-                        style = AppTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        color = AppTheme.colorScheme.onSurface
-                    )
-                    
-                    Spacer(modifier = Modifier.height(12.dp))
-                    
-                    Text(
-                        text = movie.overview,
-                        style = AppTheme.typography.bodyLarge.copy(
-                            lineHeight = 24.sp,
-                            letterSpacing = 0.15.sp
-                        ),
-                        color = AppTheme.colorScheme.onSurface.copy(alpha = 0.87f)
-                    )
+                        Text(
+                            text = "Overview",
+                            style = AppTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                            color = AppTheme.colorScheme.onSurface
+                        )
+                        
+                        Spacer(modifier = Modifier.height(12.dp))
+                        
+                        Text(
+                            text = movie.overview,
+                            style = AppTheme.typography.bodyLarge.copy(
+                                lineHeight = 24.sp,
+                                letterSpacing = 0.15.sp
+                            ),
+                            color = AppTheme.colorScheme.onSurface.copy(alpha = 0.87f)
+                        )
                 }
             }
 
