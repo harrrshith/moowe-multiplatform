@@ -5,6 +5,7 @@ import com.harrrshith.moowe.data.remote.MooweApiHandler
 import com.harrrshith.moowe.data.toDomain
 import com.harrrshith.moowe.data.toEntity
 import com.harrrshith.moowe.domain.model.Genre
+import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.domain.repository.MovieRepository
 import com.harrrshith.moowe.domain.utility.Result
@@ -28,7 +29,7 @@ class MovieRepositoryImpl(
             // Fetch from network
             val response = api.getTrendingMovies()
             val entities = response.movies.map { 
-                it.toEntity().copy(
+                it.toEntity(mediaType = "movie", genreId = Genre.TRENDING.id).copy(
                     genre = Genre.TRENDING.id,
                     cachedAt = 0L
                 )
@@ -37,12 +38,12 @@ class MovieRepositoryImpl(
             
             // Emit from cache
             emitAll(
-                dao.getMoviesByGenre(id = Genre.TRENDING.id)
+                dao.getMoviesByGenreAndType(id = Genre.TRENDING.id, mediaType = "movie")
                     .map { Result.Success(processMovies(it)) }
             )
         } catch (e: Exception) {
             // On error, try to use cached data
-            val cachedMovies = dao.getMoviesByGenre(id = Genre.TRENDING.id).firstOrNull()
+            val cachedMovies = dao.getMoviesByGenreAndType(id = Genre.TRENDING.id, mediaType = "movie").firstOrNull()
             if (!cachedMovies.isNullOrEmpty()) {
                 emit(Result.Success(processMovies(cachedMovies)))
             } else {
@@ -58,7 +59,7 @@ class MovieRepositoryImpl(
             // Fetch from network
             val response = api.getMoviesByGenre(genreId = genre.id)
             val entities = response.movies.map { 
-                it.toEntity().copy(
+                it.toEntity(mediaType = "movie", genreId = genre.id).copy(
                     genre = genre.id,
                     cachedAt = 0L
                 )
@@ -67,12 +68,75 @@ class MovieRepositoryImpl(
             
             // Emit from cache
             emitAll(
-                dao.getMoviesByGenre(id = genre.id)
+                dao.getMoviesByGenreAndType(id = genre.id, mediaType = "movie")
                     .map { Result.Success(processMovies(it)) }
             )
         } catch (e: Exception) {
             // On error, try to use cached data
-            val cachedMovies = dao.getMoviesByGenre(id = genre.id).firstOrNull()
+            val cachedMovies = dao.getMoviesByGenreAndType(id = genre.id, mediaType = "movie").firstOrNull()
+            if (!cachedMovies.isNullOrEmpty()) {
+                emit(Result.Success(processMovies(cachedMovies)))
+            } else {
+                emit(Result.Error(e.message ?: "No cached data available", Int.MAX_VALUE))
+            }
+        }
+    }.catch { e ->
+        emit(Result.Error(e.message ?: "Unknown error", Int.MAX_VALUE))
+    }.flowOn(Dispatchers.IO)
+
+    override fun getTrendingMedia(mediaType: MediaType): Flow<Result<List<Movie>>> = flow {
+        try {
+            // Fetch from network
+            val response = api.getTrendingMedia(mediaType = mediaType.apiValue)
+            val entities = response.movies.map { 
+                it.toEntity(mediaType = mediaType.apiValue, genreId = Genre.TRENDING.id).copy(
+                    genre = Genre.TRENDING.id,
+                    cachedAt = 0L
+                )
+            }
+            dao.insertMovies(entities)
+            
+            // Emit from cache
+            emitAll(
+                dao.getMoviesByGenreAndType(id = Genre.TRENDING.id, mediaType = mediaType.apiValue)
+                    .map { Result.Success(processMovies(it)) }
+            )
+        } catch (e: Exception) {
+            // On error, try to use cached data
+            val cachedMovies = dao.getMoviesByGenreAndType(id = Genre.TRENDING.id, mediaType = mediaType.apiValue).firstOrNull()
+            if (!cachedMovies.isNullOrEmpty()) {
+                emit(Result.Success(processMovies(cachedMovies)))
+            } else {
+                emit(Result.Error(e.message ?: "No cached data available", Int.MAX_VALUE))
+            }
+        }
+    }.catch { e ->
+        emit(Result.Error(e.message ?: "Unknown error", Int.MAX_VALUE))
+    }.flowOn(Dispatchers.IO)
+
+    override fun getMediaByGenre(mediaType: MediaType, genre: Genre): Flow<Result<List<Movie>>> = flow {
+        try {
+            // Use the correct genre ID for the media type
+            val genreIdForApi = genre.getIdForMediaType(mediaType)
+            
+            // Fetch from network
+            val response = api.getMediaByGenre(mediaType = mediaType.apiValue, genreId = genreIdForApi)
+            val entities = response.movies.map { 
+                it.toEntity(mediaType = mediaType.apiValue, genreId = genre.id).copy(
+                    genre = genre.id,
+                    cachedAt = 0L
+                )
+            }
+            dao.insertMovies(entities)
+            
+            // Emit from cache
+            emitAll(
+                dao.getMoviesByGenreAndType(id = genre.id, mediaType = mediaType.apiValue)
+                    .map { Result.Success(processMovies(it)) }
+            )
+        } catch (e: Exception) {
+            // On error, try to use cached data
+            val cachedMovies = dao.getMoviesByGenreAndType(id = genre.id, mediaType = mediaType.apiValue).firstOrNull()
             if (!cachedMovies.isNullOrEmpty()) {
                 emit(Result.Success(processMovies(cachedMovies)))
             } else {

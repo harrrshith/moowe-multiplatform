@@ -61,11 +61,13 @@ fun DiscoverRoute(
                     animatedContentScope = animatedContentScope,
                     sharedTransitionScope = sharedTransitionScope,
                     hazeState = hazeState,
+                    selectedMediaType = uiState.selectedMediaType,
                     trendingMovies = uiState.trendingMovies,
                     actionMovies = uiState.actionMovies,
                     adventureMovies = uiState.adventureMovies,
                     fantasyMovies = uiState.fantasyMovies,
                     documentaries = uiState.documentaries,
+                    onMediaTypeChanged = viewModel::onMediaTypeChanged,
                     onClick = viewModel::onMovieClick
                 )
             }
@@ -96,11 +98,13 @@ private fun DiscoverScreen(
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     hazeState: HazeState,
+    selectedMediaType: com.harrrshith.moowe.domain.model.MediaType,
     trendingMovies: List<Movie>? = null,
     actionMovies: List<Movie>? = null,
     adventureMovies: List<Movie>? = null,
     fantasyMovies: List<Movie>? = null,
     documentaries: List<Movie>? = null,
+    onMediaTypeChanged: (com.harrrshith.moowe.domain.model.MediaType) -> Unit,
     onClick: (Int) -> Unit
 ) {
     val width = screenWidth
@@ -113,7 +117,9 @@ private fun DiscoverScreen(
         topBar = {
             AppTopBar(
                 title = "moowe",
-                hazeState = hazeState
+                hazeState = hazeState,
+                selectedMediaType = selectedMediaType,
+                onMediaTypeSelected = onMediaTypeChanged
             )
         }
     ) { innerPadding ->

@@ -13,7 +13,7 @@ import kotlinx.coroutines.IO
 
 @Database(
     entities = [MovieEntity::class],
-    version = 2
+    version = 3
 )
 @ConstructedBy(MooweDatabaseConstructor::class)
 @TypeConverters(Converters::class)
