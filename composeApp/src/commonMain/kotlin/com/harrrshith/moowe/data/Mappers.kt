@@ -20,8 +20,9 @@ fun MovieDto.toDomain(): Movie {
     )
 } // This goes later
 
-fun MovieDto.toEntity() : MovieEntity {
+fun MovieDto.toEntity(mediaType: String = "movie", genreId: Int = 0) : MovieEntity {
     return MovieEntity(
+        cacheKey = "$mediaType-$genreId-${this.id}",
         id = this.id,
         title = this.title,
         overview = this.overview,
@@ -33,6 +34,7 @@ fun MovieDto.toEntity() : MovieEntity {
         popularity = this.popularity,
         adult = this.adult,
         genreIds = this.genreIds,
+        mediaType = mediaType,
         cachedAt = 0L // Will be set when inserting into DB
     )
 }

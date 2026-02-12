@@ -6,9 +6,10 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-@Entity(tableName = "movies")
+@Entity(tableName = "movies", primaryKeys = ["cacheKey"])
 data class MovieEntity(
-    @PrimaryKey val id: Int,
+    val cacheKey: String, // Composite key: "mediaType-genre-id"
+    val id: Int,
     val title: String,
     val overview: String,
     @SerialName("poster_path") val posterPath: String? = null,
@@ -20,6 +21,7 @@ data class MovieEntity(
     val adult: Boolean = false,
     @SerialName("genre_ids") val genreIds: List<Int> = emptyList(),
     @SerialName("genre") var genre: Int? = Int.MIN_VALUE,
+    val mediaType: String = "movie", // "movie" or "tv"
     
     // Simple cache timestamp
     val cachedAt: Long
