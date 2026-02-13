@@ -26,7 +26,15 @@ class DiscoverViewModel(
 
     private fun fetchAllMedia(mediaType: MediaType) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            // Only show loading if we don't have any data yet (first load)
+            // This implements local-first: cached data shows immediately without loader
+            val shouldShowLoading = _uiState.value.trendingMovies.isNullOrEmpty() &&
+                                   _uiState.value.actionMovies.isNullOrEmpty()
+            
+            if (shouldShowLoading) {
+                _uiState.update { it.copy(isLoading = true) }
+            }
+            
             try {
                 combine(
                     repository.getTrendingMedia(mediaType),
@@ -37,7 +45,7 @@ class DiscoverViewModel(
                 ) { trendingMovies, actionMovies, adventureMovies, fantasyMovies, documentaries ->
                     _uiState.update {
                         it.copy(
-                            isLoading = false,
+                            isLoading = false,  // Hide loading once we have data (cached or fresh)
                             selectedMediaType = mediaType,
                             trendingMovies = trendingMovies.successOrEmpty().take(10),
                             actionMovies = actionMovies.successOrEmpty(),
