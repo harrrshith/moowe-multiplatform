@@ -1,16 +1,12 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 package com.harrrshith.moowe.ui.discover
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -139,18 +135,10 @@ private fun DiscoverScreen(
             onRefresh = onRefresh,
             state = pullToRefreshState,
         ) {
-            AnimatedContent(
+            Crossfade(
                 targetState = selectedMediaType,
+                animationSpec = tween(durationMillis = 400, easing = EaseInOut),
                 modifier = Modifier.fillMaxSize(),
-                transitionSpec = {
-                    (fadeIn(animationSpec = tween(durationMillis = 300)) +
-                        slideInVertically(
-                            animationSpec = tween(durationMillis = 300),
-                            initialOffsetY = { fullHeight -> fullHeight / 12 }
-                        )).togetherWith(
-                        fadeOut(animationSpec = tween(durationMillis = 200))
-                    )
-                },
                 label = "media_type_content_transition"
             ) { _ ->
                 val actionListState = rememberLazyListState()
