@@ -24,28 +24,32 @@ class DiscoverViewModel(
         fetchAllMedia(MediaType.MOVIE)
     }
 
-    private fun fetchAllMedia(mediaType: MediaType) {
+    private fun fetchAllMedia(mediaType: MediaType, forceRefresh: Boolean = false) {
         viewModelScope.launch {
-            // Only show loading if we don't have any data yet (first load)
-            // This implements local-first: cached data shows immediately without loader
-            val shouldShowLoading = _uiState.value.trendingMovies.isNullOrEmpty() &&
+            // Show full-screen loader only on first ever load (no cached data at all)
+            val shouldShowLoading = !forceRefresh &&
+                                   _uiState.value.trendingMovies.isNullOrEmpty() &&
                                    _uiState.value.actionMovies.isNullOrEmpty()
-            
-            if (shouldShowLoading) {
-                _uiState.update { it.copy(isLoading = true) }
+
+            _uiState.update {
+                it.copy(
+                    isLoading = shouldShowLoading,
+                    isRefreshing = forceRefresh
+                )
             }
-            
+
             try {
                 combine(
-                    repository.getTrendingMedia(mediaType),
-                    repository.getMediaByGenre(mediaType, genre = Genre.ACTION),
-                    repository.getMediaByGenre(mediaType, genre = Genre.ADVENTURE),
-                    repository.getMediaByGenre(mediaType, genre = Genre.FANTASY),
-                    repository.getMediaByGenre(mediaType, genre = Genre.DOCUMENTARY)
+                    repository.getTrendingMedia(mediaType, forceRefresh),
+                    repository.getMediaByGenre(mediaType, genre = Genre.ACTION, forceRefresh),
+                    repository.getMediaByGenre(mediaType, genre = Genre.ADVENTURE, forceRefresh),
+                    repository.getMediaByGenre(mediaType, genre = Genre.FANTASY, forceRefresh),
+                    repository.getMediaByGenre(mediaType, genre = Genre.DOCUMENTARY, forceRefresh)
                 ) { trendingMovies, actionMovies, adventureMovies, fantasyMovies, documentaries ->
                     _uiState.update {
                         it.copy(
-                            isLoading = false,  // Hide loading once we have data (cached or fresh)
+                            isLoading = false,
+                            isRefreshing = false,
                             selectedMediaType = mediaType,
                             trendingMovies = trendingMovies.successOrEmpty().take(10),
                             actionMovies = actionMovies.successOrEmpty(),
@@ -65,6 +69,7 @@ class DiscoverViewModel(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
+                            isRefreshing = false,
                             errorMessage = e.message
                         )
                     }
@@ -73,6 +78,7 @@ class DiscoverViewModel(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
+                        isRefreshing = false,
                         errorMessage = e.message
                     )
                 }
@@ -82,8 +88,12 @@ class DiscoverViewModel(
 
     fun onMediaTypeChanged(mediaType: MediaType) {
         if (_uiState.value.selectedMediaType != mediaType) {
-            fetchAllMedia(mediaType)
+            fetchAllMedia(mediaType, forceRefresh = false)
         }
+    }
+
+    fun onRefresh() {
+        fetchAllMedia(_uiState.value.selectedMediaType, forceRefresh = true)
     }
 
     fun onMovieClick(id: Int) {
