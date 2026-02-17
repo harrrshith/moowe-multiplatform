@@ -136,11 +136,11 @@ class MovieRepositoryImpl(
     }
 
     // Additional methods for local database operations
-    fun getMoviesFlow(): Flow<List<Movie>> {
-        return dao.getAllMoviesFlow().map { entities ->
-            entities.map { it.toDomain() }
-        }
-    }
+//    fun getMoviesFlow(): Flow<List<Movie>> {
+//        return dao.getAllMoviesFlow().map { entities ->
+//            entities.map { it.toDomain() }
+//        }
+//    }
 
     override suspend fun getMovieById(id: Int): Result<Movie> {
         return try {
@@ -155,11 +155,11 @@ class MovieRepositoryImpl(
         }
     }
     
-    suspend fun clearCache() {
-        dao.clearAllMovies()
-    }
+//    suspend fun clearCache() {
+//        dao.clearAllMovies()
+//    }
     
-    suspend fun getCachedMovieCount(): Int {
-        return dao.getMovieCount()
-    }
+//    suspend fun getCachedMovieCount(): Int {
+//        return dao.getMovieCount()
+//    }
 }
