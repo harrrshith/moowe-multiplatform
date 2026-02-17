@@ -128,7 +128,7 @@ fun LazyListScope.movieList(
                                     .fillMaxSize()
                                     .background(Color.Gray.copy(alpha = 0.5f))
                                     .sharedBounds(
-                                        sharedContentState = rememberSharedContentState(key = "movie-${movie.id}"),
+                                        sharedContentState = rememberSharedContentState(key = "movie-${movie.id}-${genre.id}"),
                                         animatedVisibilityScope = animatedContentScope,
                                         clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(12.dp)),
                                         boundsTransform = { _, _ ->

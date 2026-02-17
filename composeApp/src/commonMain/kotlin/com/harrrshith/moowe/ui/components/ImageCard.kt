@@ -47,7 +47,7 @@ fun ImageCard(
                 modifier = Modifier
                     .fillMaxSize()
                     .sharedBounds(
-                        sharedContentState = rememberSharedContentState(key = "movie-$movieId"),
+                        sharedContentState = rememberSharedContentState(key = "movie-$movieId-trending"),
                         animatedVisibilityScope = animatedContentScope,
                         clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(12.dp)),
                         boundsTransform = { _, _ ->

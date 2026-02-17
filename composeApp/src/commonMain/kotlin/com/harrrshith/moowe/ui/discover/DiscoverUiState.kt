@@ -13,5 +13,6 @@ data class DiscoverUiState(
     val documentaries: List<Movie> = emptyList(),
     val topRatedMovies: List<Movie> = emptyList(),
     val errorMessage: String? = null,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false
 )

@@ -11,9 +11,9 @@ interface MovieRepository {
 
     fun getMoviesByGenre(genre: Genre): Flow<Result<List<Movie>>>
 
-    fun getTrendingMedia(mediaType: MediaType): Flow<Result<List<Movie>>>
+    fun getTrendingMedia(mediaType: MediaType, forceRefresh: Boolean = false): Flow<Result<List<Movie>>>
 
-    fun getMediaByGenre(mediaType: MediaType, genre: Genre): Flow<Result<List<Movie>>>
+    fun getMediaByGenre(mediaType: MediaType, genre: Genre, forceRefresh: Boolean = false): Flow<Result<List<Movie>>>
 
     suspend fun getMovieById(id: Int): Result<Movie>
 }

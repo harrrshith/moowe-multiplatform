@@ -72,23 +72,26 @@ class MovieRepositoryImpl(
             }
             .flowOn(Dispatchers.IO)
 
-    override fun getTrendingMedia(mediaType: MediaType): Flow<Result<List<Movie>>> = 
+    override fun getTrendingMedia(mediaType: MediaType, forceRefresh: Boolean): Flow<Result<List<Movie>>> =
         dao.getMoviesByGenreAndType(id = Genre.TRENDING.id, mediaType = mediaType.apiValue)
             .map { movies -> Result.Success(processMovies(movies)) as Result<List<Movie>> }
             .onStart {
-                // Fetch from network in background
-                try {
-                    val response = api.getTrendingMedia(mediaType = mediaType.apiValue)
-                    val entities = response.movies.map { 
-                        it.toEntity(mediaType = mediaType.apiValue, genreId = Genre.TRENDING.id).copy(
-                            genre = Genre.TRENDING.id,
-                            cachedAt = 0L
-                        )
+                val hasCachedData = dao.getMoviesByGenreAndType(
+                    id = Genre.TRENDING.id, mediaType = mediaType.apiValue
+                ).firstOrNull()?.isNotEmpty() == true
+                if (!hasCachedData || forceRefresh) {
+                    try {
+                        val response = api.getTrendingMedia(mediaType = mediaType.apiValue)
+                        val entities = response.movies.map {
+                            it.toEntity(mediaType = mediaType.apiValue, genreId = Genre.TRENDING.id).copy(
+                                genre = Genre.TRENDING.id,
+                                cachedAt = 0L
+                            )
+                        }
+                        dao.insertMovies(entities)
+                    } catch (e: Exception) {
+                        println("Error fetching trending media: ${e.message}")
                     }
-                    dao.insertMovies(entities) // This triggers the Flow to emit updated data
-                } catch (e: Exception) {
-                    // Silently fail - we're already showing cached data
-                    println("Error fetching trending media: ${e.message}")
                 }
             }
             .catch { e ->
@@ -96,24 +99,27 @@ class MovieRepositoryImpl(
             }
             .flowOn(Dispatchers.IO)
 
-    override fun getMediaByGenre(mediaType: MediaType, genre: Genre): Flow<Result<List<Movie>>> = 
+    override fun getMediaByGenre(mediaType: MediaType, genre: Genre, forceRefresh: Boolean): Flow<Result<List<Movie>>> =
         dao.getMoviesByGenreAndType(id = genre.id, mediaType = mediaType.apiValue)
             .map { movies -> Result.Success(processMovies(movies)) as Result<List<Movie>> }
             .onStart {
-                // Fetch from network in background
-                try {
-                    val genreIdForApi = genre.getIdForMediaType(mediaType)
-                    val response = api.getMediaByGenre(mediaType = mediaType.apiValue, genreId = genreIdForApi)
-                    val entities = response.movies.map { 
-                        it.toEntity(mediaType = mediaType.apiValue, genreId = genre.id).copy(
-                            genre = genre.id,
-                            cachedAt = 0L
-                        )
+                val hasCachedData = dao.getMoviesByGenreAndType(
+                    id = genre.id, mediaType = mediaType.apiValue
+                ).firstOrNull()?.isNotEmpty() == true
+                if (!hasCachedData || forceRefresh) {
+                    try {
+                        val genreIdForApi = genre.getIdForMediaType(mediaType)
+                        val response = api.getMediaByGenre(mediaType = mediaType.apiValue, genreId = genreIdForApi)
+                        val entities = response.movies.map {
+                            it.toEntity(mediaType = mediaType.apiValue, genreId = genre.id).copy(
+                                genre = genre.id,
+                                cachedAt = 0L
+                            )
+                        }
+                        dao.insertMovies(entities)
+                    } catch (e: Exception) {
+                        println("Error fetching media by genre: ${e.message}")
                     }
-                    dao.insertMovies(entities) // This triggers the Flow to emit updated data
-                } catch (e: Exception) {
-                    // Silently fail - we're already showing cached data
-                    println("Error fetching media by genre: ${e.message}")
                 }
             }
             .catch { e ->
