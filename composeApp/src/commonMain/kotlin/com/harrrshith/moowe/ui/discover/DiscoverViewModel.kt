@@ -7,8 +7,6 @@ import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.domain.repository.MovieRepository
 import com.harrrshith.moowe.domain.utility.Result
 import com.harrrshith.moowe.ui.utility.successOrEmpty
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -28,8 +26,8 @@ class DiscoverViewModel(
         viewModelScope.launch {
             // Show full-screen loader only on first ever load (no cached data at all)
             val shouldShowLoading = !forceRefresh &&
-                                   _uiState.value.trendingMovies.isNullOrEmpty() &&
-                                   _uiState.value.actionMovies.isNullOrEmpty()
+                                   _uiState.value.trendingMovies.isEmpty() &&
+                                   _uiState.value.actionMovies.isEmpty()
 
             _uiState.update {
                 it.copy(
