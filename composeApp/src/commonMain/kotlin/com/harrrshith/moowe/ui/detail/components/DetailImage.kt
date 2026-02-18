@@ -1,6 +1,7 @@
 package com.harrrshith.moowe.ui.detail.components
 
 import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -62,24 +63,33 @@ fun LazyListScope.detailImage(
                         )
                 )
             }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(posterHeight * 0.5f)
-                    .align(Alignment.BottomCenter)
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color.Black.copy(alpha = 0.3f),
-                                Color.Black.copy(alpha = 0.6f),
-                                AppTheme.colorScheme.surface
-                            ),
-                            startY = 0f,
-                            endY = Float.POSITIVE_INFINITY
+            with(sharedTransitionScope) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(posterHeight * 0.5f)
+                        .align(Alignment.BottomCenter)
+                        .renderInSharedTransitionScopeOverlay(
+                            renderInOverlay = {
+                                isTransitionActive &&
+                                animatedContentScope.transition.targetState == EnterExitState.Visible
+                            },
+                            zIndexInOverlay = 1f,
                         )
-                    )
-            )
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color.Black.copy(alpha = 0.3f),
+                                    Color.Black.copy(alpha = 0.6f),
+                                    AppTheme.colorScheme.surface
+                                ),
+                                startY = 0f,
+                                endY = Float.POSITIVE_INFINITY
+                            )
+                        )
+                )
+            }
         }
     }
 }

@@ -33,10 +33,12 @@ fun DetailTopAppBar(
     alpha: Float,
     onBackPressed: () -> Unit,
     onLikeClicked: (Int) -> Unit,
-    onShareClicked: (Int) -> Unit
+    onShareClicked: (Int) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val iconBackgroundAlpha = (1f - alpha).coerceIn(0f, 0.7f)
     TopAppBar(
+        modifier = modifier,
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = AppTheme.colorScheme.surface.copy(alpha),
         ),

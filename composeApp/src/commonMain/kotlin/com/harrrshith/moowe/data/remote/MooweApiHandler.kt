@@ -1,6 +1,7 @@
 package com.harrrshith.moowe.data.remote
 
 import com.harrrshith.moowe.data.remote.dto.MoviesResponse
+import com.harrrshith.moowe.data.remote.dto.ReviewsResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -49,4 +50,15 @@ class MooweApiHandler(
         language: String = "en-IN",
         region: String = "IN"
     ): MoviesResponse = getMediaByGenre("movie", genreId, language, region)
+
+    suspend fun getMovieReviews(
+        movieId: Int,
+        language: String = "en-US",
+        page: Int = 1,
+    ): ReviewsResponse {
+        return client.get("movie/$movieId/reviews") {
+            parameter("language", language)
+            parameter("page", page)
+        }.body()
+    }
 }
