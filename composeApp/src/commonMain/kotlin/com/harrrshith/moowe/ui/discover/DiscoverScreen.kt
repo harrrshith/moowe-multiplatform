@@ -5,12 +5,16 @@ import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,7 +38,7 @@ fun DiscoverRoute(
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     viewModel: DiscoverViewModel = koinViewModel(),
-    navigateToDetail: (Int) -> Unit
+    navigateToDetail: (Int, String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val hazeState = LocalHazeState.current
@@ -43,7 +47,7 @@ fun DiscoverRoute(
         viewModel.uiEvents.collect { event ->
             when (event) {
                 is DiscoverUiEvent.NavigateToDetail -> {
-                    navigateToDetail(event.id)
+                    navigateToDetail(event.id, event.sharedKey)
                 }
                 is DiscoverUiEvent.ShowError -> {}
             }
@@ -61,12 +65,16 @@ fun DiscoverRoute(
                     animatedContentScope = animatedContentScope,
                     sharedTransitionScope = sharedTransitionScope,
                     hazeState = hazeState,
+                    selectedMediaType = uiState.selectedMediaType,
                     trendingMovies = uiState.trendingMovies,
                     actionMovies = uiState.actionMovies,
                     adventureMovies = uiState.adventureMovies,
                     fantasyMovies = uiState.fantasyMovies,
                     documentaries = uiState.documentaries,
-                    onClick = viewModel::onMovieClick
+                    isRefreshing = uiState.isRefreshing,
+                    onMediaTypeChanged = viewModel::onMediaTypeChanged,
+                    onRefresh = viewModel::onRefresh,
+                    onClick = { id, sharedKey -> viewModel.onMovieClick(id, sharedKey) }
                 )
             }
         }
@@ -89,112 +97,136 @@ private fun LoadingScreen() {
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun DiscoverScreen(
     modifier: Modifier = Modifier,
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     hazeState: HazeState,
+    selectedMediaType: com.harrrshith.moowe.domain.model.MediaType,
     trendingMovies: List<Movie>? = null,
     actionMovies: List<Movie>? = null,
     adventureMovies: List<Movie>? = null,
     fantasyMovies: List<Movie>? = null,
     documentaries: List<Movie>? = null,
-    onClick: (Int) -> Unit
+    isRefreshing: Boolean = false,
+    onMediaTypeChanged: (com.harrrshith.moowe.domain.model.MediaType) -> Unit,
+    onRefresh: () -> Unit = {},
+    onClick: (Int, String) -> Unit
 ) {
     val width = screenWidth
-    val actionListState = rememberLazyListState()
-    val adventureListState = rememberLazyListState()
-    val romanceListState = rememberLazyListState()
-    val documentaryListState = rememberLazyListState()
     Scaffold(
         modifier = modifier,
         topBar = {
             AppTopBar(
                 title = "moowe",
-                hazeState = hazeState
+                hazeState = hazeState,
+                selectedMediaType = selectedMediaType,
+                onMediaTypeSelected = onMediaTypeChanged
             )
         }
     ) { innerPadding ->
-        LazyColumn(
-            modifier = modifier
-                .hazeSource(state = hazeState),
-            contentPadding = PaddingValues(
-                top = innerPadding.calculateTopPadding(),
-                bottom = 120.dp
-            ),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+        val pullToRefreshState = rememberPullToRefreshState()
+        PullToRefreshBox(
+            modifier = Modifier
+                .fillMaxSize(),
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
+            state = pullToRefreshState,
         ) {
-            trendingMovies?.takeIf { it.isNotEmpty() }?.let { movies ->
-                trendingList(
-                    animatedContentScope = animatedContentScope,
-                    sharedTransitionScope = sharedTransitionScope,
-                    movies = movies,
-                    onClick = {id ->
-                        onClick(id)
-                    }
-                )
-            }
+            Crossfade(
+                targetState = selectedMediaType,
+                animationSpec = tween(durationMillis = 400, easing = EaseInOut),
+                modifier = Modifier.fillMaxSize(),
+                label = "media_type_content_transition"
+            ) { _ ->
+                val actionListState = rememberLazyListState()
+                val adventureListState = rememberLazyListState()
+                val romanceListState = rememberLazyListState()
+                val documentaryListState = rememberLazyListState()
 
-            actionMovies?.takeIf { it.isNotEmpty() }?.let { movies ->
-                movieList(
-                    animatedContentScope = animatedContentScope,
-                    sharedTransitionScope = sharedTransitionScope,
-                    genre = Genre.ACTION,
-                    movies = movies,
-                    lazyListState = actionListState,
-                    itemsTobeDisplayed = 3,
-                    screenWidth = width,
-                    onClick = {id ->
-                        onClick(id)
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .hazeSource(state = hazeState),
+                    contentPadding = PaddingValues(
+                        top = innerPadding.calculateTopPadding(),
+                        bottom = 120.dp
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    trendingMovies?.takeIf { it.isNotEmpty() }?.let { movies ->
+                        trendingList(
+                            animatedContentScope = animatedContentScope,
+                            sharedTransitionScope = sharedTransitionScope,
+                            movies = movies,
+                            onClick = { id, sharedKey ->
+                                onClick(id, sharedKey)
+                            }
+                        )
                     }
-                )
-            }
 
-            adventureMovies?.takeIf { it.isNotEmpty() }?.let { movies ->
-                movieList(
-                    animatedContentScope = animatedContentScope,
-                    sharedTransitionScope = sharedTransitionScope,
-                    genre = Genre.ADVENTURE,
-                    movies = movies,
-                    lazyListState = adventureListState,
-                    itemsTobeDisplayed = 3,
-                    screenWidth = width,
-                    onClick = {id ->
-                        onClick(id)
+                    actionMovies?.takeIf { it.isNotEmpty() }?.let { movies ->
+                        movieList(
+                            animatedContentScope = animatedContentScope,
+                            sharedTransitionScope = sharedTransitionScope,
+                            genre = Genre.ACTION,
+                            movies = movies,
+                            lazyListState = actionListState,
+                            itemsTobeDisplayed = 3,
+                            screenWidth = width,
+                            onClick = { id, sharedKey ->
+                                onClick(id, sharedKey)
+                            }
+                        )
                     }
-                )
-            }
 
-            fantasyMovies?.takeIf { it.isNotEmpty() }?.let { movies ->
-                movieList(
-                    animatedContentScope = animatedContentScope,
-                    sharedTransitionScope = sharedTransitionScope,
-                    genre = Genre.FANTASY,
-                    movies = movies,
-                    lazyListState = romanceListState,
-                    itemsTobeDisplayed = 3,
-                    screenWidth = width,
-                    onClick = {id ->
-                        onClick(id)
+                    adventureMovies?.takeIf { it.isNotEmpty() }?.let { movies ->
+                        movieList(
+                            animatedContentScope = animatedContentScope,
+                            sharedTransitionScope = sharedTransitionScope,
+                            genre = Genre.ADVENTURE,
+                            movies = movies,
+                            lazyListState = adventureListState,
+                            itemsTobeDisplayed = 3,
+                            screenWidth = width,
+                            onClick = { id, sharedKey ->
+                                onClick(id, sharedKey)
+                            }
+                        )
                     }
-                )
-            }
 
-            documentaries?.takeIf { it.isNotEmpty() }?.let { movies ->
-                movieList(
-                    animatedContentScope = animatedContentScope,
-                    sharedTransitionScope = sharedTransitionScope,
-                    genre = Genre.DOCUMENTARY,
-                    movies = movies,
-                    lazyListState = documentaryListState,
-                    itemsTobeDisplayed = 3,
-                    screenWidth = width,
-                    onClick = {id ->
-                        onClick(id)
+                    fantasyMovies?.takeIf { it.isNotEmpty() }?.let { movies ->
+                        movieList(
+                            animatedContentScope = animatedContentScope,
+                            sharedTransitionScope = sharedTransitionScope,
+                            genre = Genre.FANTASY,
+                            movies = movies,
+                            lazyListState = romanceListState,
+                            itemsTobeDisplayed = 3,
+                            screenWidth = width,
+                            onClick = { id, sharedKey ->
+                                onClick(id, sharedKey)
+                            }
+                        )
                     }
-                )
+
+                    documentaries?.takeIf { it.isNotEmpty() }?.let { movies ->
+                        movieList(
+                            animatedContentScope = animatedContentScope,
+                            sharedTransitionScope = sharedTransitionScope,
+                            genre = Genre.DOCUMENTARY,
+                            movies = movies,
+                            lazyListState = documentaryListState,
+                            itemsTobeDisplayed = 3,
+                            screenWidth = width,
+                            onClick = { id, sharedKey ->
+                                onClick(id, sharedKey)
+                            }
+                        )
+                    }
+                }
             }
         }
     }
