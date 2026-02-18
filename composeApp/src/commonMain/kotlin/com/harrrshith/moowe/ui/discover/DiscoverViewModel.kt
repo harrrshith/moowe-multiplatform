@@ -3,11 +3,10 @@ package com.harrrshith.moowe.ui.discover
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.harrrshith.moowe.domain.model.Genre
+import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.domain.repository.MovieRepository
 import com.harrrshith.moowe.domain.utility.Result
 import com.harrrshith.moowe.ui.utility.successOrEmpty
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -20,23 +19,36 @@ class DiscoverViewModel(
     val uiEvents: SharedFlow<DiscoverUiEvent> = _uiEvents.asSharedFlow()
 
     init {
-        fetchAllMovies()
+        fetchAllMedia(MediaType.MOVIE)
     }
 
-    private fun fetchAllMovies() {
+    private fun fetchAllMedia(mediaType: MediaType, forceRefresh: Boolean = false) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            // Show full-screen loader only on first ever load (no cached data at all)
+            val shouldShowLoading = !forceRefresh &&
+                                   _uiState.value.trendingMovies.isEmpty() &&
+                                   _uiState.value.actionMovies.isEmpty()
+
+            _uiState.update {
+                it.copy(
+                    isLoading = shouldShowLoading,
+                    isRefreshing = forceRefresh
+                )
+            }
+
             try {
                 combine(
-                    repository.getTrendingMovies(),
-                    repository.getMoviesByGenre(genre = Genre.ACTION),
-                    repository.getMoviesByGenre(genre = Genre.ADVENTURE),
-                    repository.getMoviesByGenre(genre = Genre.FANTASY),
-                    repository.getMoviesByGenre(genre = Genre.DOCUMENTARY)
+                    repository.getTrendingMedia(mediaType, forceRefresh),
+                    repository.getMediaByGenre(mediaType, genre = Genre.ACTION, forceRefresh),
+                    repository.getMediaByGenre(mediaType, genre = Genre.ADVENTURE, forceRefresh),
+                    repository.getMediaByGenre(mediaType, genre = Genre.FANTASY, forceRefresh),
+                    repository.getMediaByGenre(mediaType, genre = Genre.DOCUMENTARY, forceRefresh)
                 ) { trendingMovies, actionMovies, adventureMovies, fantasyMovies, documentaries ->
                     _uiState.update {
                         it.copy(
                             isLoading = false,
+                            isRefreshing = false,
+                            selectedMediaType = mediaType,
                             trendingMovies = trendingMovies.successOrEmpty().take(10),
                             actionMovies = actionMovies.successOrEmpty(),
                             adventureMovies = adventureMovies.successOrEmpty(),
@@ -55,6 +67,7 @@ class DiscoverViewModel(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
+                            isRefreshing = false,
                             errorMessage = e.message
                         )
                     }
@@ -63,6 +76,7 @@ class DiscoverViewModel(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
+                        isRefreshing = false,
                         errorMessage = e.message
                     )
                 }
@@ -70,9 +84,19 @@ class DiscoverViewModel(
         }
     }
 
-    fun onMovieClick(id: Int) {
+    fun onMediaTypeChanged(mediaType: MediaType) {
+        if (_uiState.value.selectedMediaType != mediaType) {
+            fetchAllMedia(mediaType, forceRefresh = false)
+        }
+    }
+
+    fun onRefresh() {
+        fetchAllMedia(_uiState.value.selectedMediaType, forceRefresh = true)
+    }
+
+    fun onMovieClick(id: Int, sharedKey: String) {
         viewModelScope.launch {
-            _uiEvents.emit(DiscoverUiEvent.NavigateToDetail(id))
+            _uiEvents.emit(DiscoverUiEvent.NavigateToDetail(id, sharedKey))
         }
     }
 }

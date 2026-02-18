@@ -3,25 +3,25 @@ package com.harrrshith.moowe.ui.components
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil3.compose.rememberAsyncImagePainter
 import com.harrrshith.moowe.Constants.IMAGE_BASE_URL
-import com.harrrshith.moowe.ui.theme.AppTheme
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -43,15 +43,20 @@ fun ImageCard(
             Image(
                 painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/$imageUrl"),
                 contentDescription = null,
-                contentScale = ContentScale.Crop,
+                contentScale = ContentScale.FillBounds,
                 modifier = Modifier
                     .fillMaxSize()
                     .sharedBounds(
-                        sharedContentState = rememberSharedContentState(key = "movie-$movieId"),
+                        sharedContentState = rememberSharedContentState(key = "movie-$movieId-trending"),
                         animatedVisibilityScope = animatedContentScope,
-                        clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(12.dp))
+                        clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(24.dp)),
+                        boundsTransform = { _, _ ->
+                            spring(
+                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                stiffness = Spring.StiffnessMediumLow
+                            )
+                        }
                     )
-                    .clip(RoundedCornerShape(12.dp))
             )
         }
 
@@ -73,17 +78,19 @@ fun ImageCard(
                     )
                 )
         )
-        Text(
-            text = movieTitle,
-            color = Color.White,
-            style = AppTheme.typography.titleMedium,
-            maxLines = 1,
-            letterSpacing = 1.25.sp,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .align(Alignment.BottomStart)
-                .padding(vertical = 12.dp, horizontal = 16.dp)
-                .fillMaxWidth()
-        )
+//        Text(
+//            text = movieTitle,
+//            color = Color.White,
+//            style = AppTheme.typography.titleMedium,
+//            maxLines = 1,
+//            letterSpacing = 1.25.sp,
+//            overflow = TextOverflow.Ellipsis,
+//            modifier = Modifier
+//                .align(Alignment.BottomStart)
+//                .padding(vertical = 12.dp, horizontal = 16.dp)
+//                .fillMaxWidth()
+//        )
+
+        print("Movie title $movieTitle")
     }
 }

@@ -3,6 +3,8 @@ package com.harrrshith.moowe.ui.discover
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.Spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,10 +39,10 @@ fun LazyListScope.trendingList(
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     movies: List<Movie>,
-    onClick: (Int) -> Unit,
+    onClick: (Int, String) -> Unit,
 ) {
     item {
-        val itemWidthFraction = 0.75f
+        val itemWidthFraction = 0.6f
         val carouselWidth = screenWidth
         val sidePadding = (carouselWidth - (carouselWidth * itemWidthFraction)) / 2
         val density = LocalDensity.current
@@ -56,7 +58,7 @@ fun LazyListScope.trendingList(
         ImageCarousel(
             modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
             state = carouselState,
-            itemHeight = screenWidth * 0.5f,
+            itemHeight = screenWidth * 0.85f,
             itemWidthFraction = itemWidthFraction,
             spacing = 32.dp,
         ) {
@@ -72,7 +74,7 @@ fun LazyListScope.trendingList(
                     sharedTransitionScope = sharedTransitionScope,
                     imageUrl = movie.posterPath,
                     movieTitle = movie.title,
-                    onClick = { onClick(movie.id) },
+                    onClick = { onClick(movie.id, "movie-${movie.id}-trending") },
                 )
             }
         }
@@ -88,7 +90,7 @@ fun LazyListScope.movieList(
     lazyListState: LazyListState,
     itemsTobeDisplayed: Int,
     screenWidth: Dp,
-    onClick: (Int) -> Unit = {}
+    onClick: (Int, String) -> Unit = { _, _ -> }
 ) {
     item {
         val actualItemWidth = remember { screenWidth / (itemsTobeDisplayed + 0.5f) }
@@ -117,7 +119,7 @@ fun LazyListScope.movieList(
                             .aspectRatio(0.75f)
                             .clip(RoundedCornerShape(12.dp))
                             .clickable{
-                                onClick(movie.id)
+                                onClick(movie.id, "movie-${movie.id}-${genre.id}")
                             }
                     ) {
                         with(sharedTransitionScope) {
@@ -126,14 +128,19 @@ fun LazyListScope.movieList(
                                     .fillMaxSize()
                                     .background(Color.Gray.copy(alpha = 0.5f))
                                     .sharedBounds(
-                                        sharedContentState = rememberSharedContentState(key = "movie-${movie.id}"),
+                                        sharedContentState = rememberSharedContentState(key = "movie-${movie.id}-${genre.id}"),
                                         animatedVisibilityScope = animatedContentScope,
-                                        clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(12.dp))
-                                    )
-                                    .clip(RoundedCornerShape(12.dp)),
+                                        clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(12.dp)),
+                                        boundsTransform = { _, _ ->
+                                            spring(
+                                                dampingRatio = Spring.DampingRatioNoBouncy,
+                                                stiffness = Spring.StiffnessMediumLow
+                                            )
+                                        }
+                                    ),
                                 painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/${movie.posterPath}"),
                                 contentDescription = null,
-                                contentScale = ContentScale.FillBounds,
+                                contentScale = ContentScale.Crop,
                             )
                         }
                     }

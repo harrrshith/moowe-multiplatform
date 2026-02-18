@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.harrrshith.moowe.ui.components.AppBottomBar
 import com.harrrshith.moowe.ui.navigation.NavigationGraph
@@ -17,7 +16,6 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.rememberHazeState
 
 @Composable
-@Preview
 fun App() {
     val navController = rememberNavController()
     val hazeState = rememberHazeState(blurEnabled = true)

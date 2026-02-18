@@ -11,6 +11,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import androidx.navigation.toRoute
 import com.harrrshith.moowe.ui.detail.DetailRoute
 import com.harrrshith.moowe.ui.discover.DiscoverRoute
 
@@ -30,12 +31,17 @@ fun NavigationGraph(
             navigation<Destination.Home>(
                 startDestination = Destination.Home.Discover
             ){
-                composable<Destination.Home.Discover> {
+                composable<Destination.Home.Discover>(
+                    enterTransition = { NavigationTransitions.enterTransition },
+                    exitTransition = { NavigationTransitions.exitTransition },
+                    popEnterTransition = { NavigationTransitions.popEnterTransition },
+                    popExitTransition = { NavigationTransitions.popExitTransition }
+                ) {
                     DiscoverRoute(
                         animatedContentScope = this@composable,
                         sharedTransitionScope = this@SharedTransitionLayout,
-                        navigateToDetail = { id ->
-                            navController.navigate(Destination.Detail(id))
+                        navigateToDetail = { id, sharedKey ->
+                            navController.navigate(Destination.Detail(id, sharedKey))
                         }
                     )
                 }
@@ -65,8 +71,15 @@ fun NavigationGraph(
                 }
             }
 
-            composable<Destination.Detail> {
+            composable<Destination.Detail>(
+                enterTransition = { NavigationTransitions.enterTransition },
+                exitTransition = { NavigationTransitions.exitTransition },
+                popEnterTransition = { NavigationTransitions.popEnterTransition },
+                popExitTransition = { NavigationTransitions.popExitTransition }
+            ) {
+                val sharedKey = it.toRoute<Destination.Detail>().sharedKey
                 DetailRoute(
+                    sharedKey = sharedKey,
                     animatedContentScope = this@composable,
                     sharedTransitionScope = this@SharedTransitionLayout,
                     onBackPressed = { navController.popBackStack() }
