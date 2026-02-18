@@ -14,5 +14,5 @@ sealed class Destination{
         data object Yours: Destination()
     }
     @Serializable
-    data class Detail(val id: Int): Destination()
+    data class Detail(val id: Int, val sharedKey: String): Destination()
 }

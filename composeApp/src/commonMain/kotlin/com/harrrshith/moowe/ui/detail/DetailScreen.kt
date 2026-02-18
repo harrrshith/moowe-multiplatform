@@ -41,6 +41,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun DetailRoute(
+    sharedKey: String,
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     viewModel: DetailScreenViewModel = koinViewModel(),
@@ -49,6 +50,7 @@ fun DetailRoute(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     uiState.movie?.let { movie ->
         DetailScreen(
+            sharedKey = sharedKey,
             animatedContentScope = animatedContentScope,
             sharedTransitionScope = sharedTransitionScope,
             movie = movie,
@@ -60,6 +62,7 @@ fun DetailRoute(
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun DetailScreen(
+    sharedKey: String,
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     movie: Movie,
@@ -112,6 +115,7 @@ private fun DetailScreen(
                 movie = movie,
                 scrollOffset = scrollOffset,
                 posterHeight = posterHeight,
+                sharedKey = sharedKey,
                 animatedContentScope = animatedContentScope,
                 sharedTransitionScope = sharedTransitionScope
             )
@@ -158,6 +162,7 @@ fun DetailScreenPreview() {
                     label = "preview"
                 ) { movie ->
                     DetailScreen(
+                        sharedKey = "movie-${movie.id}",
                         animatedContentScope = this,
                         sharedTransitionScope = this@SharedTransitionLayout,
                         movie = movie,

@@ -11,6 +11,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import androidx.navigation.toRoute
 import com.harrrshith.moowe.ui.detail.DetailRoute
 import com.harrrshith.moowe.ui.discover.DiscoverRoute
 
@@ -39,8 +40,8 @@ fun NavigationGraph(
                     DiscoverRoute(
                         animatedContentScope = this@composable,
                         sharedTransitionScope = this@SharedTransitionLayout,
-                        navigateToDetail = { id ->
-                            navController.navigate(Destination.Detail(id))
+                        navigateToDetail = { id, sharedKey ->
+                            navController.navigate(Destination.Detail(id, sharedKey))
                         }
                     )
                 }
@@ -76,7 +77,9 @@ fun NavigationGraph(
                 popEnterTransition = { NavigationTransitions.popEnterTransition },
                 popExitTransition = { NavigationTransitions.popExitTransition }
             ) {
+                val sharedKey = it.toRoute<Destination.Detail>().sharedKey
                 DetailRoute(
+                    sharedKey = sharedKey,
                     animatedContentScope = this@composable,
                     sharedTransitionScope = this@SharedTransitionLayout,
                     onBackPressed = { navController.popBackStack() }

@@ -29,6 +29,7 @@ fun LazyListScope.detailImage(
     movie: Movie,
     scrollOffset: Float,
     posterHeight: Dp,
+    sharedKey: String,
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
 ) {
@@ -49,7 +50,7 @@ fun LazyListScope.detailImage(
                             translationY = scrollOffset * 0.4f
                         }
                         .sharedBounds(
-                            sharedContentState = rememberSharedContentState(key = "movie-${movie.id}"),
+                            sharedContentState = rememberSharedContentState(key = sharedKey),
                             animatedVisibilityScope = animatedContentScope,
                             clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(0.dp)),
                             boundsTransform = { _, _ ->
