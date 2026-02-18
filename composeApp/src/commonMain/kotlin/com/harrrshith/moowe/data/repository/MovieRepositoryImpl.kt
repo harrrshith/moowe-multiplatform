@@ -7,6 +7,7 @@ import com.harrrshith.moowe.data.toEntity
 import com.harrrshith.moowe.domain.model.Genre
 import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.domain.model.Movie
+import com.harrrshith.moowe.domain.model.Review
 import com.harrrshith.moowe.domain.repository.MovieRepository
 import com.harrrshith.moowe.domain.utility.Result
 import kotlinx.coroutines.Dispatchers
@@ -150,6 +151,15 @@ class MovieRepositoryImpl(
             } else {
                 Result.Error("Movie not found", status = 404)
             }
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Unknown error", status = 500)
+        }
+    }
+
+    override suspend fun getMovieReviews(movieId: Int): Result<List<Review>> {
+        return try {
+            val response = api.getMovieReviews(movieId = movieId)
+            Result.Success(response.results.map { it.toDomain() })
         } catch (e: Exception) {
             Result.Error(e.message ?: "Unknown error", status = 500)
         }

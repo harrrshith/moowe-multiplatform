@@ -3,6 +3,7 @@ package com.harrrshith.moowe.ui.detail
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
@@ -30,10 +31,12 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.harrrshith.imagecarousel.utils.screenWidth
 import com.harrrshith.moowe.domain.model.Movie
+import com.harrrshith.moowe.domain.model.Review
 import com.harrrshith.moowe.ui.detail.components.DetailTopAppBar
 import com.harrrshith.moowe.ui.detail.components.detailImage
 import com.harrrshith.moowe.ui.detail.components.detailLineTwo
 import com.harrrshith.moowe.ui.detail.components.detailOverview
+import com.harrrshith.moowe.ui.detail.components.detailReviews
 import com.harrrshith.moowe.ui.detail.mock.mockMovie
 import com.harrrshith.moowe.ui.theme.AppTheme
 import org.koin.compose.viewmodel.koinViewModel
@@ -54,6 +57,7 @@ fun DetailRoute(
             animatedContentScope = animatedContentScope,
             sharedTransitionScope = sharedTransitionScope,
             movie = movie,
+            reviews = uiState.reviews,
             onBackPressed = onBackPressed
         )
     }
@@ -66,6 +70,7 @@ private fun DetailScreen(
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     movie: Movie,
+    reviews: List<Review> = emptyList(),
     onBackPressed: () -> Unit
 ){
     val scrollState = rememberLazyListState()
@@ -96,13 +101,22 @@ private fun DetailScreen(
 
     Scaffold(
         topBar = {
-            DetailTopAppBar(
-                title = movie.title,
-                alpha = topBarAlpha,
-                onBackPressed = onBackPressed,
-                onLikeClicked = { },
-                onShareClicked = { }
-            )
+            with(sharedTransitionScope) {
+                DetailTopAppBar(
+                    title = movie.title,
+                    alpha = topBarAlpha,
+                    onBackPressed = onBackPressed,
+                    onLikeClicked = { },
+                    onShareClicked = { },
+                    modifier = Modifier.renderInSharedTransitionScopeOverlay(
+                        renderInOverlay = {
+                            isTransitionActive &&
+                            animatedContentScope.transition.targetState == EnterExitState.Visible
+                        },
+                        zIndexInOverlay = 2f,
+                    ),
+                )
+            }
         },
         containerColor = AppTheme.colorScheme.surface
     ) { _ ->
@@ -141,6 +155,13 @@ private fun DetailScreen(
                 modifier = Modifier
                     .padding(horizontal = 16.dp, vertical = 20.dp),
                 movie = movie
+            )
+
+            detailReviews(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(top = 20.dp, bottom = 8.dp),
+                reviews = reviews,
             )
 
             item {

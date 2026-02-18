@@ -49,7 +49,7 @@ fun ImageCard(
                     .sharedBounds(
                         sharedContentState = rememberSharedContentState(key = "movie-$movieId-trending"),
                         animatedVisibilityScope = animatedContentScope,
-                        clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(12.dp)),
+                        clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(24.dp)),
                         boundsTransform = { _, _ ->
                             spring(
                                 dampingRatio = Spring.DampingRatioNoBouncy,

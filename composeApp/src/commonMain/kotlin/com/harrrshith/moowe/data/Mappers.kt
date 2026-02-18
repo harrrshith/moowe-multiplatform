@@ -2,7 +2,9 @@ package com.harrrshith.moowe.data
 
 import com.harrrshith.moowe.data.local.entity.MovieEntity
 import com.harrrshith.moowe.data.remote.dto.MovieDto
+import com.harrrshith.moowe.data.remote.dto.ReviewDto
 import com.harrrshith.moowe.domain.model.Movie
+import com.harrrshith.moowe.domain.model.Review
 
 fun MovieDto.toDomain(): Movie {
     return Movie(
@@ -38,6 +40,16 @@ fun MovieDto.toEntity(mediaType: String = "movie", genreId: Int = 0) : MovieEnti
         cachedAt = 0L
     )
 }
+
+fun ReviewDto.toDomain(): Review = Review(
+    id = id,
+    author = author,
+    authorUsername = authorDetails.username,
+    avatarPath = authorDetails.avatarPath,
+    rating = authorDetails.rating,
+    content = content,
+    createdAt = createdAt,
+)
 
 fun MovieEntity.toDomain() : Movie {
     return Movie(
