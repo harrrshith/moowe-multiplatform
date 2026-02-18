@@ -158,9 +158,7 @@ private fun DetailScreen(
             )
 
             detailReviews(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(top = 20.dp, bottom = 8.dp),
+                modifier = Modifier.padding(top = 20.dp, bottom = 8.dp),
                 reviews = reviews,
             )
 

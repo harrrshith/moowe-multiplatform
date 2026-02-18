@@ -16,7 +16,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -54,20 +56,26 @@ fun LazyListScope.detailReviews(
 ) {
     if (reviews.isEmpty()) return
 
-    item(key = "reviews_header") {
-        ReviewsHeader(modifier = modifier, reviews = reviews)
-    }
-
-    items(
-        items = reviews,
-        key = { it.id },
-    ) { review ->
-        ReviewCard(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 12.dp),
-            review = review,
-        )
+    item(key = "reviews_section") {
+        Column(modifier = modifier.fillMaxWidth()) {
+            ReviewsHeader(reviews = reviews)
+            LazyRow(
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                items(
+                    items = reviews,
+                    key = { it.id },
+                ) { review ->
+                    ReviewCard(
+                        modifier = Modifier
+                            .width(280.dp)
+                            .wrapContentHeight(),
+                        review = review,
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -81,7 +89,7 @@ private fun ReviewsHeader(
     val ratingsWithValues = reviews.mapNotNull { it.rating }
     val averageRating = if (ratingsWithValues.isNotEmpty()) ratingsWithValues.average() else null
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -142,7 +150,7 @@ private fun ReviewCard(
     val isLong = remember(review.content) { review.content.length > 220 }
 
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier,
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = AppTheme.colorScheme.surfaceContainerHigh,
