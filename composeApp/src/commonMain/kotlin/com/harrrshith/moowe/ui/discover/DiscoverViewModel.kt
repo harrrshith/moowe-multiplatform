@@ -94,9 +94,9 @@ class DiscoverViewModel(
         fetchAllMedia(_uiState.value.selectedMediaType, forceRefresh = true)
     }
 
-    fun onMovieClick(id: Int) {
+    fun onMovieClick(id: Int, sharedKey: String) {
         viewModelScope.launch {
-            _uiEvents.emit(DiscoverUiEvent.NavigateToDetail(id))
+            _uiEvents.emit(DiscoverUiEvent.NavigateToDetail(id, sharedKey))
         }
     }
 }

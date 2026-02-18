@@ -38,7 +38,7 @@ fun DiscoverRoute(
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     viewModel: DiscoverViewModel = koinViewModel(),
-    navigateToDetail: (Int) -> Unit
+    navigateToDetail: (Int, String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val hazeState = LocalHazeState.current
@@ -47,7 +47,7 @@ fun DiscoverRoute(
         viewModel.uiEvents.collect { event ->
             when (event) {
                 is DiscoverUiEvent.NavigateToDetail -> {
-                    navigateToDetail(event.id)
+                    navigateToDetail(event.id, event.sharedKey)
                 }
                 is DiscoverUiEvent.ShowError -> {}
             }
@@ -74,7 +74,7 @@ fun DiscoverRoute(
                     isRefreshing = uiState.isRefreshing,
                     onMediaTypeChanged = viewModel::onMediaTypeChanged,
                     onRefresh = viewModel::onRefresh,
-                    onClick = viewModel::onMovieClick
+                    onClick = { id, sharedKey -> viewModel.onMovieClick(id, sharedKey) }
                 )
             }
         }
@@ -113,7 +113,7 @@ private fun DiscoverScreen(
     isRefreshing: Boolean = false,
     onMediaTypeChanged: (com.harrrshith.moowe.domain.model.MediaType) -> Unit,
     onRefresh: () -> Unit = {},
-    onClick: (Int) -> Unit
+    onClick: (Int, String) -> Unit
 ) {
     val width = screenWidth
     Scaffold(
@@ -161,8 +161,8 @@ private fun DiscoverScreen(
                             animatedContentScope = animatedContentScope,
                             sharedTransitionScope = sharedTransitionScope,
                             movies = movies,
-                            onClick = { id ->
-                                onClick(id)
+                            onClick = { id, sharedKey ->
+                                onClick(id, sharedKey)
                             }
                         )
                     }
@@ -176,8 +176,8 @@ private fun DiscoverScreen(
                             lazyListState = actionListState,
                             itemsTobeDisplayed = 3,
                             screenWidth = width,
-                            onClick = { id ->
-                                onClick(id)
+                            onClick = { id, sharedKey ->
+                                onClick(id, sharedKey)
                             }
                         )
                     }
@@ -191,8 +191,8 @@ private fun DiscoverScreen(
                             lazyListState = adventureListState,
                             itemsTobeDisplayed = 3,
                             screenWidth = width,
-                            onClick = { id ->
-                                onClick(id)
+                            onClick = { id, sharedKey ->
+                                onClick(id, sharedKey)
                             }
                         )
                     }
@@ -206,8 +206,8 @@ private fun DiscoverScreen(
                             lazyListState = romanceListState,
                             itemsTobeDisplayed = 3,
                             screenWidth = width,
-                            onClick = { id ->
-                                onClick(id)
+                            onClick = { id, sharedKey ->
+                                onClick(id, sharedKey)
                             }
                         )
                     }
@@ -221,8 +221,8 @@ private fun DiscoverScreen(
                             lazyListState = documentaryListState,
                             itemsTobeDisplayed = 3,
                             screenWidth = width,
-                            onClick = { id ->
-                                onClick(id)
+                            onClick = { id, sharedKey ->
+                                onClick(id, sharedKey)
                             }
                         )
                     }

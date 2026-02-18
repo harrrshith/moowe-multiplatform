@@ -39,7 +39,7 @@ fun LazyListScope.trendingList(
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     movies: List<Movie>,
-    onClick: (Int) -> Unit,
+    onClick: (Int, String) -> Unit,
 ) {
     item {
         val itemWidthFraction = 0.6f
@@ -74,7 +74,7 @@ fun LazyListScope.trendingList(
                     sharedTransitionScope = sharedTransitionScope,
                     imageUrl = movie.posterPath,
                     movieTitle = movie.title,
-                    onClick = { onClick(movie.id) },
+                    onClick = { onClick(movie.id, "movie-${movie.id}-trending") },
                 )
             }
         }
@@ -90,7 +90,7 @@ fun LazyListScope.movieList(
     lazyListState: LazyListState,
     itemsTobeDisplayed: Int,
     screenWidth: Dp,
-    onClick: (Int) -> Unit = {}
+    onClick: (Int, String) -> Unit = { _, _ -> }
 ) {
     item {
         val actualItemWidth = remember { screenWidth / (itemsTobeDisplayed + 0.5f) }
@@ -119,7 +119,7 @@ fun LazyListScope.movieList(
                             .aspectRatio(0.75f)
                             .clip(RoundedCornerShape(12.dp))
                             .clickable{
-                                onClick(movie.id)
+                                onClick(movie.id, "movie-${movie.id}-${genre.id}")
                             }
                     ) {
                         with(sharedTransitionScope) {
