@@ -60,7 +60,6 @@ fun LazyListScope.trendingList(
             state = carouselState,
             itemHeight = screenWidth * 0.85f,
             itemWidthFraction = itemWidthFraction,
-            spacing = 32.dp,
         ) {
             items(count = infiniteItemCount) { index ->
                 val movieIndex = index % movies.size
