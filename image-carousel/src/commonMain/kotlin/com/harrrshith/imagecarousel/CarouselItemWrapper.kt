@@ -51,7 +51,6 @@ fun CarouselItemWrapper(
                 scaleX = transformation.scale
                 scaleY = transformation.scale
                 alpha = transformation.alpha
-                translationX = transformation.translationX
             },
         contentAlignment = Alignment.Center
     ) {
@@ -61,15 +60,14 @@ fun CarouselItemWrapper(
 
 private data class ItemTransformation(
     val scale: Float,
-    val alpha: Float,
-    val translationX: Float
+    val alpha: Float
 )
 
 private fun calculateTransformation(
     itemInfo: LazyListItemInfo?,
     screenWidthPx: Float
 ): ItemTransformation {
-    if (itemInfo == null) return ItemTransformation(0.8f, 0.6f, 0f)
+    if (itemInfo == null) return ItemTransformation(0.8f, 0.6f)
 
     val center = screenWidthPx / 2f
     val itemCenter = itemInfo.offset + (itemInfo.size / 2f)
@@ -84,13 +82,5 @@ private fun calculateTransformation(
     // Alpha range 1.0 to 0.6
     val alpha = 0.6f + (0.4f * scaleCurve)
     
-    // Translation: pull side items towards center to ensure peeking
-    // When item is on the right (distance > 0), translation is negative (left)
-    // When item is on the left (distance < 0), translation is positive (right)
-    val translationX = if (absDistance > 10f) {
-        val pullStrength = screenWidthPx * 0.1f // Pull by 10% of screen width
-        -(distanceFromCenter / absDistance) * pullStrength * fraction
-    } else 0f
-
-    return ItemTransformation(scale, alpha, translationX)
+    return ItemTransformation(scale, alpha)
 }
