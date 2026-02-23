@@ -10,7 +10,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -24,6 +23,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.harrrshith.imagecarousel.utils.screenWidth
 import com.harrrshith.moowe.LocalHazeState
 import com.harrrshith.moowe.domain.model.Genre
+import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.ui.components.AppTopBar
 import dev.chrisbanes.haze.HazeState
@@ -81,7 +81,7 @@ private fun DiscoverScreen(
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     hazeState: HazeState,
-    selectedMediaType: com.harrrshith.moowe.domain.model.MediaType,
+    selectedMediaType: MediaType,
     trendingMovies: List<Movie>? = null,
     isTrendingLoading: Boolean = false,
     genreOrder: List<Genre> = emptyList(),
@@ -90,7 +90,7 @@ private fun DiscoverScreen(
     loadedGenres: Set<Genre> = emptySet(),
     isRefreshing: Boolean = false,
     onGenreVisible: (Genre) -> Unit,
-    onMediaTypeChanged: (com.harrrshith.moowe.domain.model.MediaType) -> Unit,
+    onMediaTypeChanged: (MediaType) -> Unit,
     onRefresh: () -> Unit = {},
     onClick: (Int, String, String, String) -> Unit
 ) {
@@ -120,17 +120,6 @@ private fun DiscoverScreen(
                 modifier = Modifier.fillMaxSize(),
                 label = "media_type_content_transition"
             ) { _ ->
-                val actionListState = rememberLazyListState()
-                val adventureListState = rememberLazyListState()
-                val romanceListState = rememberLazyListState()
-                val documentaryListState = rememberLazyListState()
-                val genreStates = listOf(
-                    actionListState,
-                    adventureListState,
-                    romanceListState,
-                    documentaryListState,
-                )
-
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
@@ -161,7 +150,7 @@ private fun DiscoverScreen(
                     itemsIndexed(
                         items = genreOrder,
                         key = { _, genre -> genre.name }
-                    ) { index, genre ->
+                    ) { _, genre ->
                         val movies = genreMovies[genre].orEmpty()
                         val isLoadingGenre = genre in loadingGenres
                         val isLoadedGenre = genre in loadedGenres
@@ -173,7 +162,6 @@ private fun DiscoverScreen(
                                     sharedTransitionScope = sharedTransitionScope,
                                     genre = genre,
                                     movies = movies,
-                                    lazyListState = genreStates[index % genreStates.size],
                                     itemsTobeDisplayed = 3,
                                     screenWidth = width,
                                     onSectionComposed = onGenreVisible,
