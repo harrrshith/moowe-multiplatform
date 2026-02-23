@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -97,7 +98,6 @@ fun LazyListScope.movieList(
     sharedTransitionScope: SharedTransitionScope,
     genre: Genre,
     movies: List<Movie>,
-    lazyListState: LazyListState,
     itemsTobeDisplayed: Int,
     screenWidth: Dp,
     onSectionComposed: (Genre) -> Unit = {},
@@ -109,7 +109,6 @@ fun LazyListScope.movieList(
             sharedTransitionScope = sharedTransitionScope,
             genre = genre,
             movies = movies,
-            lazyListState = lazyListState,
             itemsTobeDisplayed = itemsTobeDisplayed,
             screenWidth = screenWidth,
             onSectionComposed = onSectionComposed,
@@ -141,7 +140,6 @@ fun GenreMoviesSection(
     sharedTransitionScope: SharedTransitionScope,
     genre: Genre,
     movies: List<Movie>,
-    lazyListState: LazyListState,
     itemsTobeDisplayed: Int,
     screenWidth: Dp,
     onSectionComposed: (Genre) -> Unit = {},
@@ -149,6 +147,10 @@ fun GenreMoviesSection(
 ) {
     LaunchedEffect(genre) {
         onSectionComposed(genre)
+    }
+
+    val listState = rememberSaveable(genre, saver = LazyListState.Saver) {
+        LazyListState()
     }
 
     val actualItemWidth = remember { screenWidth / (itemsTobeDisplayed + 0.5f) }
@@ -160,7 +162,7 @@ fun GenreMoviesSection(
         )
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
-            state = lazyListState,
+            state = listState,
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
