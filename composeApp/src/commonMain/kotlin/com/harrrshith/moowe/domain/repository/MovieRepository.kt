@@ -2,6 +2,7 @@ package com.harrrshith.moowe.domain.repository
 
 import com.harrrshith.moowe.domain.model.Genre
 import com.harrrshith.moowe.domain.model.MediaType
+import com.harrrshith.moowe.domain.model.CastMember
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.domain.model.Review
 import com.harrrshith.moowe.domain.utility.Result
@@ -19,4 +20,8 @@ interface MovieRepository {
     suspend fun getMovieById(id: Int): Result<Movie>
 
     suspend fun getMovieReviews(movieId: Int): Result<List<Review>>
+
+    suspend fun getMovieCast(movieId: Int): Result<List<CastMember>>
+
+    suspend fun getRelatedMovies(movieId: Int): Result<List<Movie>>
 }
