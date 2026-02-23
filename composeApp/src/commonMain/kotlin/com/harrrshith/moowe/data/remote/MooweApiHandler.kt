@@ -15,12 +15,14 @@ class MooweApiHandler(
         mediaType: String = "movie",
         timeWindow: String = "day",
         language: String = "en-IN",
-        region: String = "IN"
+        region: String = "IN",
+        page: Int = 1,
     ): MoviesResponse {
         return client.get("trending/$mediaType/$timeWindow") {
             parameter("language", language)
             parameter("include_adult", false)
             parameter("region", region)
+            parameter("page", page)
         }.body()
     }
 
@@ -28,13 +30,15 @@ class MooweApiHandler(
         mediaType: String = "movie",
         genreId: Int,
         language: String = "en-IN",
-        region: String = "IN"
+        region: String = "IN",
+        page: Int = 1,
     ): MoviesResponse {
         return client.get("discover/$mediaType") {
             parameter("language", language)
             parameter("with_genres", genreId)
             parameter("include_adult", false)
             parameter("region", region)
+            parameter("page", page)
         }.body()
     }
 
@@ -43,14 +47,16 @@ class MooweApiHandler(
         mediaType: String = "movie",
         timeWindow: String = "day",
         language: String = "en-IN",
-        region: String = "IN"
-    ): MoviesResponse = getTrendingMedia(mediaType, timeWindow, language, region)
+        region: String = "IN",
+        page: Int = 1,
+    ): MoviesResponse = getTrendingMedia(mediaType, timeWindow, language, region, page)
 
     suspend fun getMoviesByGenre(
         genreId: Int,
         language: String = "en-IN",
-        region: String = "IN"
-    ): MoviesResponse = getMediaByGenre("movie", genreId, language, region)
+        region: String = "IN",
+        page: Int = 1,
+    ): MoviesResponse = getMediaByGenre("movie", genreId, language, region, page)
 
     suspend fun getMovieReviews(
         movieId: Int,
