@@ -35,6 +35,8 @@ fun LazyListScope.detailImage(
     sharedTransitionScope: SharedTransitionScope,
 ) {
     item {
+        val parallaxOffset = scrollOffset * 0.4f
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -48,7 +50,7 @@ fun LazyListScope.detailImage(
                     modifier = Modifier
                         .fillMaxSize()
                         .graphicsLayer {
-                            translationY = scrollOffset * 0.4f
+                            translationY = parallaxOffset
                         }
                         .sharedBounds(
                             sharedContentState = rememberSharedContentState(key = sharedKey),
@@ -67,8 +69,38 @@ fun LazyListScope.detailImage(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .height(140.dp)
+                        .align(Alignment.TopCenter)
+                        .graphicsLayer {
+                            translationY = parallaxOffset
+                        }
+                        .renderInSharedTransitionScopeOverlay(
+                            renderInOverlay = {
+                                isTransitionActive &&
+                                animatedContentScope.transition.targetState == EnterExitState.Visible
+                            },
+                            zIndexInOverlay = 1f,
+                        )
+                        .background(
+                            brush = Brush.verticalGradient(
+                                colors = listOf(
+                                    AppTheme.colorScheme.scrim.copy(alpha = 0.32f),
+                                    Color.Transparent,
+                                ),
+                            )
+                        )
+                )
+            }
+
+            with(sharedTransitionScope) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .height(posterHeight * 0.5f)
                         .align(Alignment.BottomCenter)
+                        .graphicsLayer {
+                            translationY = parallaxOffset
+                        }
                         .renderInSharedTransitionScopeOverlay(
                             renderInOverlay = {
                                 isTransitionActive &&
@@ -80,8 +112,8 @@ fun LazyListScope.detailImage(
                             brush = Brush.verticalGradient(
                                 colors = listOf(
                                     Color.Transparent,
-                                    Color.Black.copy(alpha = 0.3f),
-                                    Color.Black.copy(alpha = 0.6f),
+                                    AppTheme.colorScheme.surface.copy(alpha = 0.14f),
+                                    AppTheme.colorScheme.surface.copy(alpha = 0.5f),
                                     AppTheme.colorScheme.surface
                                 ),
                                 startY = 0f,

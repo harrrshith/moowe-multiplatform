@@ -1,5 +1,12 @@
 package com.harrrshith.moowe.ui.detail.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -19,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.harrrshith.moowe.ui.components.composeVectors.ArrowBackIcon
@@ -30,17 +38,39 @@ import com.harrrshith.moowe.ui.theme.AppTheme
 @Composable
 fun DetailTopAppBar(
     title: String,
-    alpha: Float,
+    collapseProgress: Float,
     onBackPressed: () -> Unit,
     onLikeClicked: (Int) -> Unit,
     onShareClicked: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val iconBackgroundAlpha = (1f - alpha).coerceIn(0f, 0.7f)
+    val progress = collapseProgress.coerceIn(0f, 1f)
+    val animatedProgress = animateFloatAsState(
+        targetValue = progress,
+        animationSpec = tween(durationMillis = 160),
+        label = "topBarProgress",
+    ).value
+
+    val containerColor = lerp(
+        start = Color.Transparent,
+        stop = AppTheme.colorScheme.surface,
+        fraction = animatedProgress,
+    )
+    val iconContainerColor = lerp(
+        start = AppTheme.colorScheme.surface.copy(alpha = 0.32f),
+        stop = AppTheme.colorScheme.surfaceContainerHigh,
+        fraction = animatedProgress,
+    )
+    val iconTint = lerp(
+        start = Color.White,
+        stop = AppTheme.colorScheme.onSurface,
+        fraction = animatedProgress,
+    )
+
     TopAppBar(
         modifier = modifier,
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = AppTheme.colorScheme.surface.copy(alpha),
+            containerColor = containerColor,
         ),
         navigationIcon = {
             Box(
@@ -48,7 +78,7 @@ fun DetailTopAppBar(
                     .padding(start = 8.dp)
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(Color.Black.copy(alpha = iconBackgroundAlpha)),
+                    .background(iconContainerColor),
                 contentAlignment = Alignment.Center
             ) {
                 IconButton(onClick = onBackPressed) {
@@ -56,14 +86,18 @@ fun DetailTopAppBar(
                         imageVector = ArrowBackIcon,
                         contentDescription = "Back",
                         colorFilter = ColorFilter.tint(
-                            color = Color.White
+                            color = iconTint
                         )
                     )
                 }
             }
         },
         title = {
-            if (alpha > 0.7f) {
+            AnimatedVisibility(
+                visible = animatedProgress > 0.64f,
+                enter = fadeIn(tween(140)) + slideInHorizontally(tween(180)) { it / 4 },
+                exit = fadeOut(tween(110)) + slideOutHorizontally(tween(110)) { it / 6 },
+            ) {
                 Text(
                     text = title,
                     style = AppTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
@@ -77,7 +111,7 @@ fun DetailTopAppBar(
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(Color.Black.copy(alpha = iconBackgroundAlpha)),
+                    .background(iconContainerColor),
                 contentAlignment = Alignment.Center
             ) {
                 IconButton(onClick = { onLikeClicked(0) }) {
@@ -85,7 +119,7 @@ fun DetailTopAppBar(
                         imageVector = LikeIcon,
                         contentDescription = "Like",
                         colorFilter = ColorFilter.tint(
-                            color = Color.White
+                            color = iconTint
                         )
                     )
                 }
@@ -96,7 +130,7 @@ fun DetailTopAppBar(
                     .padding(end = 8.dp)
                     .size(40.dp)
                     .clip(CircleShape)
-                    .background(Color.Black.copy(alpha = iconBackgroundAlpha)),
+                    .background(iconContainerColor),
                 contentAlignment = Alignment.Center
             ) {
                 IconButton(onClick = { onShareClicked(0) }) {
@@ -104,7 +138,7 @@ fun DetailTopAppBar(
                         imageVector = ShareIcon,
                         contentDescription = "Share",
                         colorFilter = ColorFilter.tint(
-                            color = Color.White
+                            color = iconTint
                         )
                     )
                 }

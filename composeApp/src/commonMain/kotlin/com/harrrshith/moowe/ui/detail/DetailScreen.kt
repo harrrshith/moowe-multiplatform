@@ -92,8 +92,8 @@ private fun DetailScreen(
     val scrollState = rememberLazyListState()
     val density = LocalDensity.current
     val posterHeight = screenWidth * 1.4f
-    val topBarStartThreshold = with(density) { (posterHeight - 120.dp).toPx() }
-    val topBarTransitionRange = with(density) { 120.dp.toPx() }
+    val topBarStartThreshold = with(density) { (posterHeight * 0.35f).toPx() }
+    val topBarTransitionRange = with(density) { (posterHeight * 0.25f).toPx() }
 
     val scrollOffset by remember {
         derivedStateOf {
@@ -105,7 +105,7 @@ private fun DetailScreen(
         }
     }
 
-    val topBarAlpha by remember {
+    val collapseProgress by remember {
         derivedStateOf {
             when {
                 scrollState.firstVisibleItemIndex > 0 -> 1f
@@ -120,7 +120,7 @@ private fun DetailScreen(
             with(sharedTransitionScope) {
                 DetailTopAppBar(
                     title = movie.title,
-                    alpha = topBarAlpha,
+                    collapseProgress = collapseProgress,
                     onBackPressed = onBackPressed,
                     onLikeClicked = { },
                     onShareClicked = { },
