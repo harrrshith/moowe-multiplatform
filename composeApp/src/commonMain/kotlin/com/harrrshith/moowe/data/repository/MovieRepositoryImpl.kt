@@ -148,7 +148,7 @@ class MovieRepositoryImpl(
             }
 
             PageResult(
-                items = response.movies.map { it.toDomain() }.distinctBy { it.id },
+                items = response.movies.map { it.toDomain() },
                 currentPage = response.page,
                 totalPages = response.totalPages,
             )

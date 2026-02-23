@@ -19,9 +19,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,6 +32,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -51,6 +52,7 @@ import com.harrrshith.moowe.ui.components.SegmentedAppTopBar
 import com.harrrshith.moowe.ui.theme.AppTheme
 import com.harrrshith.moowe.utils.posterUrl
 import dev.chrisbanes.haze.hazeSource
+import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -87,18 +89,39 @@ private fun TrendingScreen(
     navigateToDetail: (Int, String, String, String) -> Unit,
 ) {
     val hazeState = LocalHazeState.current
+    val gridState = rememberLazyStaggeredGridState()
+    val scope = rememberCoroutineScope()
+
+    fun changeMediaType(mediaType: com.harrrshith.moowe.domain.model.MediaType) {
+        scope.launch {
+            if (gridState.firstVisibleItemIndex > 0 || gridState.firstVisibleItemScrollOffset > 0) {
+                gridState.animateScrollToItem(0)
+            }
+            onMediaTypeSelected(mediaType)
+        }
+    }
+
+    fun changeGenre(genre: Genre) {
+        scope.launch {
+            if (gridState.firstVisibleItemIndex > 0 || gridState.firstVisibleItemScrollOffset > 0) {
+                gridState.animateScrollToItem(0)
+            }
+            onGenreSelected(genre)
+        }
+    }
+
     Scaffold(
         topBar = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 SegmentedAppTopBar(
                     hazeState = hazeState,
                     selectedMediaType = uiState.selectedMediaType,
-                    onMediaTypeSelected = onMediaTypeSelected,
+                    onMediaTypeSelected = ::changeMediaType,
                 )
                 GenreChipsRow(
                     genres = uiState.genres,
                     selectedGenre = uiState.selectedGenre,
-                    onGenreSelected = onGenreSelected,
+                    onGenreSelected = ::changeGenre,
                 )
             }
         },
@@ -115,6 +138,7 @@ private fun TrendingScreen(
         } else {
             LazyVerticalStaggeredGrid(
                 columns = StaggeredGridCells.Fixed(2),
+                state = gridState,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
@@ -125,9 +149,13 @@ private fun TrendingScreen(
             ) {
                 items(
                     count = pagedMovies.itemCount,
-                    key = { index -> pagedMovies[index]?.id ?: index },
+                    key = { index -> "trend-${uiState.selectedMediaType.name}-${uiState.selectedGenre.id}-$index" },
                 ) { index ->
-                    val movie = pagedMovies[index] ?: return@items
+                    val movie = pagedMovies[index]
+                    if (movie == null) {
+                        TrendingShimmerCell(index = index)
+                        return@items
+                    }
                     val sharedKey = "trending-${uiState.selectedGenre.id}-${uiState.selectedMediaType.name}-${movie.id}"
                     TrendingMovieCard(
                         movie = movie,
@@ -140,11 +168,6 @@ private fun TrendingScreen(
                     )
                 }
 
-                if (pagedMovies.loadState.append is LoadState.Loading) {
-                    items(4) { index ->
-                        TrendingShimmerCell(index = index)
-                    }
-                }
             }
         }
     }
