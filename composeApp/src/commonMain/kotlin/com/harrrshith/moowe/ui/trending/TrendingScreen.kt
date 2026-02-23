@@ -141,9 +141,11 @@ private fun TrendingScreen(
                 state = gridState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
                     .hazeSource(hazeState),
-                contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 120.dp),
+                contentPadding = PaddingValues(
+                    top = innerPadding.calculateTopPadding(),
+                    bottom = innerPadding.calculateBottomPadding()
+                ),
                 verticalItemSpacing = 10.dp,
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
