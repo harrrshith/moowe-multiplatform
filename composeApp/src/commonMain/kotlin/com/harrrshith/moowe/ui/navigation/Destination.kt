@@ -14,5 +14,10 @@ sealed class Destination{
         data object Yours: Destination()
     }
     @Serializable
-    data class Detail(val id: Int, val sharedKey: String): Destination()
+    data class Detail(
+        val id: Int,
+        val sharedKey: String,
+        val title: String = "",
+        val posterPath: String = "",
+    ): Destination()
 }

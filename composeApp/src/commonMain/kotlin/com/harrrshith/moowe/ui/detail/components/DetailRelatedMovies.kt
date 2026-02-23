@@ -25,10 +25,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
-import com.harrrshith.moowe.Constants.IMAGE_BASE_URL
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.ui.theme.AppTheme
 import com.harrrshith.moowe.utils.extensions.format
+import com.harrrshith.moowe.utils.posterUrl
 
 fun LazyListScope.detailRelatedMovies(
     modifier: Modifier = Modifier,
@@ -62,7 +62,7 @@ private fun RelatedMovieCard(movie: Movie) {
     Column(modifier = Modifier.width(132.dp)) {
         Box {
             Image(
-                painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/${movie.posterPath}"),
+                painter = rememberAsyncImagePainter(posterUrl(movie.posterPath, size = "w342")),
                 contentDescription = movie.title,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

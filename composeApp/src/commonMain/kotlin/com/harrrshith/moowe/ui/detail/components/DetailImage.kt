@@ -1,7 +1,6 @@
 package com.harrrshith.moowe.ui.detail.components
 
 import androidx.compose.animation.AnimatedContentScope
-import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -22,9 +21,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
-import com.harrrshith.moowe.Constants.IMAGE_BASE_URL
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.ui.theme.AppTheme
+import com.harrrshith.moowe.utils.posterUrl
 
 fun LazyListScope.detailImage(
     movie: Movie,
@@ -43,10 +42,7 @@ fun LazyListScope.detailImage(
                 .height(posterHeight)
         ) {
             with(sharedTransitionScope) {
-                Image(
-                    painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/${movie.posterPath}"),
-                    contentDescription = movie.title,
-                    contentScale = ContentScale.Crop,
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .graphicsLayer {
@@ -59,68 +55,52 @@ fun LazyListScope.detailImage(
                             boundsTransform = { _, _ ->
                                 spring(
                                     dampingRatio = Spring.DampingRatioNoBouncy,
-                                    stiffness = Spring.StiffnessMediumLow
+                                    stiffness = Spring.StiffnessMedium
                                 )
                             }
                         )
-                )
-            }
-            with(sharedTransitionScope) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(140.dp)
-                        .align(Alignment.TopCenter)
-                        .graphicsLayer {
-                            translationY = parallaxOffset
-                        }
-                        .renderInSharedTransitionScopeOverlay(
-                            renderInOverlay = {
-                                isTransitionActive &&
-                                animatedContentScope.transition.targetState == EnterExitState.Visible
-                            },
-                            zIndexInOverlay = 1f,
-                        )
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    AppTheme.colorScheme.scrim.copy(alpha = 0.32f),
-                                    Color.Transparent,
-                                ),
-                            )
-                        )
-                )
-            }
+                ) {
+                    Image(
+                        painter = rememberAsyncImagePainter(posterUrl(movie.posterPath)),
+                        contentDescription = movie.title,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
+                    )
 
-            with(sharedTransitionScope) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(posterHeight * 0.5f)
-                        .align(Alignment.BottomCenter)
-                        .graphicsLayer {
-                            translationY = parallaxOffset
-                        }
-                        .renderInSharedTransitionScopeOverlay(
-                            renderInOverlay = {
-                                isTransitionActive &&
-                                animatedContentScope.transition.targetState == EnterExitState.Visible
-                            },
-                            zIndexInOverlay = 1f,
-                        )
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Transparent,
-                                    AppTheme.colorScheme.surface.copy(alpha = 0.14f),
-                                    AppTheme.colorScheme.surface.copy(alpha = 0.5f),
-                                    AppTheme.colorScheme.surface
-                                ),
-                                startY = 0f,
-                                endY = Float.POSITIVE_INFINITY
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(140.dp)
+                            .align(Alignment.TopCenter)
+                            .background(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        AppTheme.colorScheme.scrim.copy(alpha = 0.32f),
+                                        Color.Transparent,
+                                    ),
+                                )
                             )
-                        )
-                )
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(posterHeight * 0.5f)
+                            .align(Alignment.BottomCenter)
+                            .background(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        AppTheme.colorScheme.surface.copy(alpha = 0.14f),
+                                        AppTheme.colorScheme.surface.copy(alpha = 0.5f),
+                                        AppTheme.colorScheme.surface
+                                    ),
+                                    startY = 0f,
+                                    endY = Float.POSITIVE_INFINITY
+                                )
+                            )
+                    )
+                }
             }
         }
     }

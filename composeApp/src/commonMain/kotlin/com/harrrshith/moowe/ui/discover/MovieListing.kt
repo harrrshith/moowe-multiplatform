@@ -28,18 +28,18 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import com.harrrshith.imagecarousel.ImageCarousel
 import com.harrrshith.imagecarousel.utils.screenWidth
-import com.harrrshith.moowe.Constants.IMAGE_BASE_URL
 import com.harrrshith.moowe.domain.model.Genre
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.ui.components.ImageCard
 import com.harrrshith.moowe.ui.theme.AppTheme
+import com.harrrshith.moowe.utils.posterUrl
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 fun LazyListScope.trendingList(
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     movies: List<Movie>,
-    onClick: (Int, String) -> Unit,
+    onClick: (Int, String, String, String) -> Unit,
 ) {
     item {
         val itemWidthFraction = 0.6f
@@ -73,7 +73,9 @@ fun LazyListScope.trendingList(
                     sharedTransitionScope = sharedTransitionScope,
                     imageUrl = movie.posterPath,
                     movieTitle = movie.title,
-                    onClick = { onClick(movie.id, "movie-${movie.id}-trending") },
+                    onClick = {
+                        onClick(movie.id, "movie-${movie.id}-trending", movie.title, movie.posterPath)
+                    },
                 )
             }
         }
@@ -89,7 +91,7 @@ fun LazyListScope.movieList(
     lazyListState: LazyListState,
     itemsTobeDisplayed: Int,
     screenWidth: Dp,
-    onClick: (Int, String) -> Unit = { _, _ -> }
+    onClick: (Int, String, String, String) -> Unit = { _, _, _, _ -> }
 ) {
     item {
         val actualItemWidth = remember { screenWidth / (itemsTobeDisplayed + 0.5f) }
@@ -118,7 +120,12 @@ fun LazyListScope.movieList(
                             .aspectRatio(0.75f)
                             .clip(RoundedCornerShape(12.dp))
                             .clickable{
-                                onClick(movie.id, "movie-${movie.id}-${genre.id}")
+                                onClick(
+                                    movie.id,
+                                    "movie-${movie.id}-${genre.id}",
+                                    movie.title,
+                                    movie.posterPath,
+                                )
                             }
                     ) {
                         with(sharedTransitionScope) {
@@ -133,11 +140,11 @@ fun LazyListScope.movieList(
                                         boundsTransform = { _, _ ->
                                             spring(
                                                 dampingRatio = Spring.DampingRatioNoBouncy,
-                                                stiffness = Spring.StiffnessMediumLow
+                                                stiffness = Spring.StiffnessMedium
                                             )
                                         }
                                     ),
-                                painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/${movie.posterPath}"),
+                                painter = rememberAsyncImagePainter(posterUrl(movie.posterPath)),
                                 contentDescription = null,
                                 contentScale = ContentScale.Crop,
                             )

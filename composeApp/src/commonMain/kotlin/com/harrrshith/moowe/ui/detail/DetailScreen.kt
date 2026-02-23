@@ -57,24 +57,39 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun DetailRoute(
     sharedKey: String,
+    initialTitle: String,
+    initialPosterPath: String,
+    movieId: Int,
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     viewModel: DetailScreenViewModel = koinViewModel(),
     onBackPressed: () -> Unit
 ){
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    uiState.movie?.let { movie ->
-        DetailScreen(
-            sharedKey = sharedKey,
-            animatedContentScope = animatedContentScope,
-            sharedTransitionScope = sharedTransitionScope,
-            movie = movie,
-            reviews = uiState.reviews,
-            cast = uiState.cast,
-            relatedMovies = uiState.relatedMovies,
-            onBackPressed = onBackPressed
-        )
-    }
+    val movie = uiState.movie ?: Movie(
+        id = movieId,
+        title = initialTitle,
+        overview = "",
+        posterPath = initialPosterPath,
+        backdropPath = "",
+        releaseDate = "",
+        voteAverage = 0.0,
+        voteCount = 0,
+        popularity = 0.0,
+        adult = false,
+        genreIds = emptyList(),
+    )
+
+    DetailScreen(
+        sharedKey = sharedKey,
+        animatedContentScope = animatedContentScope,
+        sharedTransitionScope = sharedTransitionScope,
+        movie = movie,
+        reviews = uiState.reviews,
+        cast = uiState.cast,
+        relatedMovies = uiState.relatedMovies,
+        onBackPressed = onBackPressed
+    )
 }
 
 @OptIn(ExperimentalSharedTransitionApi::class)
