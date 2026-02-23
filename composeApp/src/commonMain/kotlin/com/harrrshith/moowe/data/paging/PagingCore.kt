@@ -17,18 +17,28 @@ class AppPagingSource<T : Any>(
     private val startPage: Int = 1,
     private val fetchPage: suspend (page: Int, pageSize: Int) -> PageResult<T>,
 ) : PagingSource<Int, T>() {
+    private val pageCache = mutableMapOf<Int, LoadResult.Page<Int, T>>()
+
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, T> {
         return try {
             val page = params.key ?: startPage
+            pageCache[page]?.let { return it }
+
             val response = fetchPage(page, params.loadSize)
             val prevKey = if (page == startPage) null else page - 1
-            val nextKey = if (response.currentPage >= response.totalPages) null else page + 1
+            val nextKey = when {
+                response.items.isEmpty() -> null
+                response.currentPage >= response.totalPages -> null
+                else -> page + 1
+            }
 
-            LoadResult.Page(
+            val result = LoadResult.Page(
                 data = response.items,
                 prevKey = prevKey,
                 nextKey = nextKey,
             )
+            pageCache[page] = result
+            result
         } catch (e: Exception) {
             LoadResult.Error(e)
         }
@@ -44,13 +54,15 @@ class AppPagingSource<T : Any>(
 fun <T : Any> createPagerFlow(
     pageSize: Int = 20,
     startPage: Int = 1,
-    prefetchDistance: Int = pageSize / 2,
+    initialLoadSize: Int = pageSize,
+    prefetchDistance: Int = 1,
     enablePlaceholders: Boolean = false,
     fetchPage: suspend (page: Int, pageSize: Int) -> PageResult<T>,
 ): Flow<PagingData<T>> {
     return Pager(
         config = PagingConfig(
             pageSize = pageSize,
+            initialLoadSize = initialLoadSize,
             prefetchDistance = prefetchDistance,
             enablePlaceholders = enablePlaceholders,
         ),
