@@ -1,6 +1,8 @@
 package com.harrrshith.moowe.ui.navigation
 
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hasRoute
 import com.harrrshith.moowe.ui.components.composeVectors.DiscoverIcon
 import com.harrrshith.moowe.ui.components.composeVectors.ForYouIcon
 import com.harrrshith.moowe.ui.components.composeVectors.SearchIcon
@@ -20,6 +22,7 @@ val topLevelDestinations: List<TopLevelDestination>
         TopLevelDestination.Search,
         TopLevelDestination.Yours
     )
-fun String?.isTopLevelDestination(): Boolean {
-    return this in topLevelDestinations.map { it.route::class.qualifiedName } //this is the currentRoute or screen we are currently in
+
+fun NavDestination?.isTopLevelDestination(): Boolean {
+    return topLevelDestinations.any { this?.hasRoute(it.route::class) == true }
 }

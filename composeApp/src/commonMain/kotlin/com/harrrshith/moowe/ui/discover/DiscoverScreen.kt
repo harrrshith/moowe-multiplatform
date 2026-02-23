@@ -125,7 +125,7 @@ private fun DiscoverScreen(
                         .hazeSource(state = hazeState),
                     contentPadding = PaddingValues(
                         top = innerPadding.calculateTopPadding(),
-                        bottom = 120.dp
+                        bottom = innerPadding.calculateBottomPadding()
                     ),
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
