@@ -1,8 +1,10 @@
 package com.harrrshith.moowe.data
 
 import com.harrrshith.moowe.data.local.entity.MovieEntity
+import com.harrrshith.moowe.data.remote.dto.CastDto
 import com.harrrshith.moowe.data.remote.dto.MovieDto
 import com.harrrshith.moowe.data.remote.dto.ReviewDto
+import com.harrrshith.moowe.domain.model.CastMember
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.domain.model.Review
 
@@ -49,6 +51,14 @@ fun ReviewDto.toDomain(): Review = Review(
     rating = authorDetails.rating,
     content = content,
     createdAt = createdAt,
+)
+
+fun CastDto.toDomain(): CastMember = CastMember(
+    id = id,
+    name = name,
+    character = character,
+    profilePath = profilePath,
+    order = order,
 )
 
 fun MovieEntity.toDomain() : Movie {

@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
-import com.harrrshith.moowe.Constants.IMAGE_BASE_URL
+import com.harrrshith.moowe.utils.posterUrl
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -31,7 +31,6 @@ fun ImageCard(
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     imageUrl: String,
-    movieTitle: String,
     onClick: () -> Unit,
 ) {
     Box(
@@ -41,9 +40,9 @@ fun ImageCard(
         // Main image with shared element transition
         with(sharedTransitionScope) {
             Image(
-                painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/$imageUrl"),
+                painter = rememberAsyncImagePainter(posterUrl(imageUrl)),
                 contentDescription = null,
-                contentScale = ContentScale.FillBounds,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()
                     .sharedBounds(
@@ -53,7 +52,7 @@ fun ImageCard(
                         boundsTransform = { _, _ ->
                             spring(
                                 dampingRatio = Spring.DampingRatioNoBouncy,
-                                stiffness = Spring.StiffnessMediumLow
+                                stiffness = Spring.StiffnessMedium
                             )
                         }
                     )
@@ -78,19 +77,5 @@ fun ImageCard(
                     )
                 )
         )
-//        Text(
-//            text = movieTitle,
-//            color = Color.White,
-//            style = AppTheme.typography.titleMedium,
-//            maxLines = 1,
-//            letterSpacing = 1.25.sp,
-//            overflow = TextOverflow.Ellipsis,
-//            modifier = Modifier
-//                .align(Alignment.BottomStart)
-//                .padding(vertical = 12.dp, horizontal = 16.dp)
-//                .fillMaxWidth()
-//        )
-
-        print("Movie title $movieTitle")
     }
 }

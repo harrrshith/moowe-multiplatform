@@ -3,8 +3,13 @@ package com.harrrshith.moowe.ui.discover
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,9 +21,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
@@ -28,18 +38,18 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import com.harrrshith.imagecarousel.ImageCarousel
 import com.harrrshith.imagecarousel.utils.screenWidth
-import com.harrrshith.moowe.Constants.IMAGE_BASE_URL
 import com.harrrshith.moowe.domain.model.Genre
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.ui.components.ImageCard
 import com.harrrshith.moowe.ui.theme.AppTheme
+import com.harrrshith.moowe.utils.posterUrl
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 fun LazyListScope.trendingList(
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     movies: List<Movie>,
-    onClick: (Int, String) -> Unit,
+    onClick: (Int, String, String, String) -> Unit,
 ) {
     item {
         val itemWidthFraction = 0.6f
@@ -60,7 +70,6 @@ fun LazyListScope.trendingList(
             state = carouselState,
             itemHeight = screenWidth * 0.85f,
             itemWidthFraction = itemWidthFraction,
-            spacing = 32.dp,
         ) {
             items(count = infiniteItemCount) { index ->
                 val movieIndex = index % movies.size
@@ -73,8 +82,9 @@ fun LazyListScope.trendingList(
                     animatedContentScope = animatedContentScope,
                     sharedTransitionScope = sharedTransitionScope,
                     imageUrl = movie.posterPath,
-                    movieTitle = movie.title,
-                    onClick = { onClick(movie.id, "movie-${movie.id}-trending") },
+                    onClick = {
+                        onClick(movie.id, "movie-${movie.id}-trending", movie.title, movie.posterPath)
+                    },
                 )
             }
         }
@@ -82,71 +92,151 @@ fun LazyListScope.trendingList(
 }
 
 @OptIn(ExperimentalSharedTransitionApi::class)
-fun LazyListScope.movieList(
+@Composable
+fun GenreMoviesSection(
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     genre: Genre,
     movies: List<Movie>,
-    lazyListState: LazyListState,
     itemsTobeDisplayed: Int,
     screenWidth: Dp,
-    onClick: (Int, String) -> Unit = { _, _ -> }
+    onSectionComposed: (Genre) -> Unit = {},
+    onClick: (Int, String, String, String) -> Unit = { _, _, _, _ -> },
 ) {
-    item {
-        val actualItemWidth = remember { screenWidth / (itemsTobeDisplayed + 0.5f) }
-        Column(
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+    LaunchedEffect(genre) {
+        onSectionComposed(genre)
+    }
+
+    val listState = rememberSaveable(genre, saver = LazyListState.Saver) {
+        LazyListState()
+    }
+
+    val actualItemWidth = remember { screenWidth / (itemsTobeDisplayed + 0.5f) }
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(
+            modifier = Modifier.padding(start = 16.dp),
+            text = genre.displayName,
+            style = AppTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+        )
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            state = listState,
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(
-                modifier = Modifier.padding(start = 16.dp),
-                text = genre.displayName,
-                style = AppTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-            )
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                state = lazyListState,
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(
-                    items = movies,
-                    key = {movie -> movie.id }
-                ) { movie ->
-                    Box(
-                        modifier = Modifier
-                            .width(actualItemWidth)
-                            .aspectRatio(0.75f)
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable{
-                                onClick(movie.id, "movie-${movie.id}-${genre.id}")
-                            }
-                    ) {
-                        with(sharedTransitionScope) {
-                            Image(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Color.Gray.copy(alpha = 0.5f))
-                                    .sharedBounds(
-                                        sharedContentState = rememberSharedContentState(key = "movie-${movie.id}-${genre.id}"),
-                                        animatedVisibilityScope = animatedContentScope,
-                                        clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(12.dp)),
-                                        boundsTransform = { _, _ ->
-                                            spring(
-                                                dampingRatio = Spring.DampingRatioNoBouncy,
-                                                stiffness = Spring.StiffnessMediumLow
-                                            )
-                                        }
-                                    ),
-                                painter = rememberAsyncImagePainter("$IMAGE_BASE_URL/${movie.posterPath}"),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
+            items(items = movies, key = { movie -> movie.id }) { movie ->
+                Box(
+                    modifier = Modifier
+                        .width(actualItemWidth)
+                        .aspectRatio(0.75f)
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable {
+                            onClick(
+                                movie.id,
+                                "movie-${movie.id}-${genre.id}",
+                                movie.title,
+                                movie.posterPath,
                             )
                         }
+                ) {
+                    with(sharedTransitionScope) {
+                        Image(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Gray.copy(alpha = 0.5f))
+                                .sharedBounds(
+                                    sharedContentState = rememberSharedContentState(key = "movie-${movie.id}-${genre.id}"),
+                                    animatedVisibilityScope = animatedContentScope,
+                                    clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(12.dp)),
+                                    boundsTransform = { _, _ ->
+                                        spring(
+                                            dampingRatio = Spring.DampingRatioNoBouncy,
+                                            stiffness = Spring.StiffnessMedium
+                                        )
+                                    }
+                                ),
+                            painter = rememberAsyncImagePainter(posterUrl(movie.posterPath)),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                        )
                     }
-
                 }
             }
         }
     }
+}
+
+@Composable
+fun GenreShimmerSection(
+    genre: Genre,
+    screenWidth: Dp,
+    itemsTobeDisplayed: Int,
+    onSectionComposed: (Genre) -> Unit,
+) {
+    LaunchedEffect(genre) {
+        onSectionComposed(genre)
+    }
+
+    val actualItemWidth = remember { screenWidth / (itemsTobeDisplayed + 0.5f) }
+    val shimmerBrush = rememberShimmerBrush()
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            modifier = Modifier.padding(start = 16.dp),
+            text = genre.displayName,
+            style = AppTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            repeat(itemsTobeDisplayed) {
+                Box(
+                    modifier = Modifier
+                        .width(actualItemWidth)
+                        .aspectRatio(0.75f)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(shimmerBrush),
+                )
+            }
+        }
+    }
+}
+
+fun LazyListScope.trendingShimmerList() {
+    item(key = "trending-shimmer") {
+        val shimmerBrush = rememberShimmerBrush()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp)
+                .height(screenWidth * 0.85f)
+                .clip(RoundedCornerShape(24.dp))
+                .background(shimmerBrush),
+        )
+    }
+}
+
+@Composable
+private fun rememberShimmerBrush(): Brush {
+    val transition = rememberInfiniteTransition(label = "shimmer")
+    val xShift = transition.animateFloat(
+        initialValue = -600f,
+        targetValue = 1200f,
+        animationSpec = infiniteRepeatable(animation = tween(1150, easing = LinearEasing)),
+        label = "shimmerX",
+    ).value
+
+    return Brush.linearGradient(
+        colors = listOf(
+            AppTheme.colorScheme.surfaceContainer.copy(alpha = 0.55f),
+            AppTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.95f),
+            AppTheme.colorScheme.surfaceContainer.copy(alpha = 0.55f),
+        ),
+        start = Offset(xShift - 420f, 0f),
+        end = Offset(xShift, 380f),
+    )
 }

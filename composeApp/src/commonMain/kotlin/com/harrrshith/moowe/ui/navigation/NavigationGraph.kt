@@ -14,6 +14,8 @@ import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.harrrshith.moowe.ui.detail.DetailRoute
 import com.harrrshith.moowe.ui.discover.DiscoverRoute
+import com.harrrshith.moowe.ui.search.SearchRoute
+import com.harrrshith.moowe.ui.trending.TrendingRoute
 
 @Composable
 fun NavigationGraph(
@@ -40,26 +42,36 @@ fun NavigationGraph(
                     DiscoverRoute(
                         animatedContentScope = this@composable,
                         sharedTransitionScope = this@SharedTransitionLayout,
-                        navigateToDetail = { id, sharedKey ->
-                            navController.navigate(Destination.Detail(id, sharedKey))
+                        navigateToDetail = { id, sharedKey, title, posterPath ->
+                            navController.navigate(
+                                Destination.Detail(
+                                    id = id,
+                                    sharedKey = sharedKey,
+                                    title = title,
+                                    posterPath = posterPath,
+                                )
+                            )
                         }
                     )
                 }
                 composable<Destination.Home.Trending> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ){
-                        Text("Trending")
-                    }
+                    TrendingRoute(
+                        animatedContentScope = this@composable,
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        navigateToDetail = { id, sharedKey, title, posterPath ->
+                            navController.navigate(
+                                Destination.Detail(
+                                    id = id,
+                                    sharedKey = sharedKey,
+                                    title = title,
+                                    posterPath = posterPath,
+                                )
+                            )
+                        }
+                    )
                 }
                 composable<Destination.Home.Search> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ){
-                        Text("Search")
-                    }
+                    SearchRoute(modifier = Modifier.fillMaxSize())
                 }
                 composable<Destination.Home.Yours> {
                     Box(
@@ -77,9 +89,12 @@ fun NavigationGraph(
                 popEnterTransition = { NavigationTransitions.popEnterTransition },
                 popExitTransition = { NavigationTransitions.popExitTransition }
             ) {
-                val sharedKey = it.toRoute<Destination.Detail>().sharedKey
+                val detailDestination = it.toRoute<Destination.Detail>()
                 DetailRoute(
-                    sharedKey = sharedKey,
+                    sharedKey = detailDestination.sharedKey,
+                    initialTitle = detailDestination.title,
+                    initialPosterPath = detailDestination.posterPath,
+                    movieId = detailDestination.id,
                     animatedContentScope = this@composable,
                     sharedTransitionScope = this@SharedTransitionLayout,
                     onBackPressed = { navController.popBackStack() }

@@ -8,12 +8,19 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -25,42 +32,64 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.harrrshith.imagecarousel.utils.screenWidth
+import com.harrrshith.moowe.domain.model.CastMember
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.domain.model.Review
+import com.harrrshith.moowe.ui.detail.components.detailCast
 import com.harrrshith.moowe.ui.detail.components.DetailTopAppBar
 import com.harrrshith.moowe.ui.detail.components.detailImage
 import com.harrrshith.moowe.ui.detail.components.detailLineTwo
 import com.harrrshith.moowe.ui.detail.components.detailOverview
+import com.harrrshith.moowe.ui.detail.components.detailRelatedMovies
 import com.harrrshith.moowe.ui.detail.components.detailReviews
 import com.harrrshith.moowe.ui.detail.mock.mockMovie
 import com.harrrshith.moowe.ui.theme.AppTheme
+import com.harrrshith.moowe.utils.extensions.format
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun DetailRoute(
     sharedKey: String,
+    initialTitle: String,
+    initialPosterPath: String,
+    movieId: Int,
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     viewModel: DetailScreenViewModel = koinViewModel(),
     onBackPressed: () -> Unit
 ){
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    uiState.movie?.let { movie ->
-        DetailScreen(
-            sharedKey = sharedKey,
-            animatedContentScope = animatedContentScope,
-            sharedTransitionScope = sharedTransitionScope,
-            movie = movie,
-            reviews = uiState.reviews,
-            onBackPressed = onBackPressed
-        )
-    }
+    val movie = uiState.movie ?: Movie(
+        id = movieId,
+        title = initialTitle,
+        overview = "",
+        posterPath = initialPosterPath,
+        backdropPath = "",
+        releaseDate = "",
+        voteAverage = 0.0,
+        voteCount = 0,
+        popularity = 0.0,
+        adult = false,
+        genreIds = emptyList(),
+    )
+
+    DetailScreen(
+        sharedKey = sharedKey,
+        animatedContentScope = animatedContentScope,
+        sharedTransitionScope = sharedTransitionScope,
+        movie = movie,
+        reviews = uiState.reviews,
+        cast = uiState.cast,
+        relatedMovies = uiState.relatedMovies,
+        onBackPressed = onBackPressed
+    )
 }
 
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -71,13 +100,15 @@ private fun DetailScreen(
     sharedTransitionScope: SharedTransitionScope,
     movie: Movie,
     reviews: List<Review> = emptyList(),
+    cast: List<CastMember> = emptyList(),
+    relatedMovies: List<Movie> = emptyList(),
     onBackPressed: () -> Unit
 ){
     val scrollState = rememberLazyListState()
     val density = LocalDensity.current
     val posterHeight = screenWidth * 1.4f
-    val topBarStartThreshold = with(density) { (posterHeight - 120.dp).toPx() }
-    val topBarTransitionRange = with(density) { 120.dp.toPx() }
+    val topBarStartThreshold = with(density) { (posterHeight * 0.35f).toPx() }
+    val topBarTransitionRange = with(density) { (posterHeight * 0.25f).toPx() }
 
     val scrollOffset by remember {
         derivedStateOf {
@@ -89,7 +120,7 @@ private fun DetailScreen(
         }
     }
 
-    val topBarAlpha by remember {
+    val collapseProgress by remember {
         derivedStateOf {
             when {
                 scrollState.firstVisibleItemIndex > 0 -> 1f
@@ -104,7 +135,7 @@ private fun DetailScreen(
             with(sharedTransitionScope) {
                 DetailTopAppBar(
                     title = movie.title,
-                    alpha = topBarAlpha,
+                    collapseProgress = collapseProgress,
                     onBackPressed = onBackPressed,
                     onLikeClicked = { },
                     onShareClicked = { },
@@ -135,18 +166,15 @@ private fun DetailScreen(
             )
 
             item {
-                Text(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth(),
-                    text = movie.title,
-                    style = AppTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold, letterSpacing = 0.5.sp)
+                DetailHeader(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    movie = movie,
                 )
             }
 
             detailLineTwo(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 20.dp),
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
                 movie = movie
             )
 
@@ -157,8 +185,18 @@ private fun DetailScreen(
                 movie = movie
             )
 
+            detailCast(
+                modifier = Modifier.padding(top = 8.dp),
+                cast = cast,
+            )
+
+            detailRelatedMovies(
+                modifier = Modifier.padding(top = 22.dp),
+                relatedMovies = relatedMovies,
+            )
+
             detailReviews(
-                modifier = Modifier.padding(top = 20.dp, bottom = 8.dp),
+                modifier = Modifier.padding(top = 24.dp, bottom = 8.dp),
                 reviews = reviews,
             )
 
@@ -166,6 +204,61 @@ private fun DetailScreen(
                 Spacer(modifier = Modifier.height(100.dp))
             }
         }
+    }
+}
+
+@Composable
+private fun DetailHeader(
+    modifier: Modifier = Modifier,
+    movie: Movie,
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = AppTheme.colorScheme.surfaceContainerLow,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Text(
+                text = movie.title,
+                style = AppTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = 0.3.sp,
+                ),
+                color = AppTheme.colorScheme.onSurface,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                HeaderPill(text = movie.releaseDate.take(4).ifBlank { "N/A" })
+                HeaderPill(text = "${movie.voteAverage.format(1)}/10")
+                HeaderPill(text = "TMDB")
+            }
+        }
+    }
+}
+
+@Composable
+private fun HeaderPill(text: String) {
+    Surface(
+        shape = RoundedCornerShape(100.dp),
+        color = AppTheme.colorScheme.surfaceContainerHigh,
+        modifier = Modifier.wrapContentWidth(),
+    ) {
+        Text(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+            text = text,
+            style = AppTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
+            color = AppTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
