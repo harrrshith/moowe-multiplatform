@@ -19,9 +19,19 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    signingConfigs {
+        create("release") {
+            storeFile = file("release.keystore")
+            storePassword = "moowe@2026"
+            keyAlias = "release"
+            keyPassword = "moowe@2026"
+        }
+    }
+
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {

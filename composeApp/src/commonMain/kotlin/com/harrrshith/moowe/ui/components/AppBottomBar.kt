@@ -15,6 +15,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.harrrshith.moowe.ui.navigation.Destination
@@ -35,7 +37,7 @@ fun AppBottomBar(
 ){
     val tabs = remember { topLevelDestinations }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination?.route
+    val currentDestination = navBackStackEntry?.destination
     if (currentDestination.isTopLevelDestination()) {
         Surface(
             modifier = Modifier
@@ -49,9 +51,9 @@ fun AppBottomBar(
                 tabs = tabs,
                 currentDestination = currentDestination,
                 onTabItemClick = { tab ->
-                    if (tab.route::class.qualifiedName != currentDestination) {
+                    if (currentDestination?.hasRoute(tab.route::class) == false) {
                         navController.navigate(tab.route) {
-                            popUpTo(Destination.Home.Discover::class.qualifiedName!!) {
+                            popUpTo(Destination.Home.Discover) {
                                 saveState = true
                             }
                             launchSingleTop = true
@@ -70,7 +72,7 @@ private fun BottomBar(
     modifier: Modifier,
     hazeState: HazeState,
     tabs: List<TopLevelDestination>,
-    currentDestination: String?,
+    currentDestination: NavDestination?,
     onTabItemClick: (TopLevelDestination) -> Unit
 ){
     NavigationBar(
@@ -86,7 +88,7 @@ private fun BottomBar(
         windowInsets = WindowInsets(0, 0, 0, 0)
     ){
         tabs.forEach { tab ->
-            val currentSelectedTab = currentDestination == tab.route::class.qualifiedName
+            val currentSelectedTab = currentDestination?.hasRoute(tab.route::class) == true
             NavigationBarItem(
                 selected = currentSelectedTab,
                 icon = {

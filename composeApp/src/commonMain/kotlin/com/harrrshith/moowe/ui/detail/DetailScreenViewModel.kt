@@ -37,5 +37,21 @@ class DetailScreenViewModel(
                 is Result.Loading -> { }
             }
         }
+
+        viewModelScope.launch {
+            when (val result = repository.getMovieCast(movieId = dest.id)) {
+                is Result.Success -> _uiState.update { it.copy(cast = result.data) }
+                is Result.Error -> { }
+                is Result.Loading -> { }
+            }
+        }
+
+        viewModelScope.launch {
+            when (val result = repository.getRelatedMovies(movieId = dest.id)) {
+                is Result.Success -> _uiState.update { it.copy(relatedMovies = result.data) }
+                is Result.Error -> { }
+                is Result.Loading -> { }
+            }
+        }
     }
 }

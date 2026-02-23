@@ -81,6 +81,8 @@ kotlin {
             implementation(libs.ui.tooling.preview)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
+            implementation(libs.app.cash.paging.common)
+            implementation(libs.app.cash.paging.compose)
             implementation(libs.navigation.compose)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
