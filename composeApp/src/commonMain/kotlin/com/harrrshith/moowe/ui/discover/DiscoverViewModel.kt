@@ -27,9 +27,11 @@ class DiscoverViewModel(
 
     private var trendingJob: Job? = null
     private val genreJobs: MutableMap<Genre, Job> = mutableMapOf()
+    
+    var selectedMediaType: MediaType = MediaType.MOVIE
 
     init {
-        loadFeed(MediaType.MOVIE, forceRefresh = false)
+        loadFeed(selectedMediaType, forceRefresh = false)
     }
 
     private fun loadFeed(mediaType: MediaType, forceRefresh: Boolean) {
@@ -50,7 +52,7 @@ class DiscoverViewModel(
 
         loadTrending(forceRefresh = forceRefresh)
 
-        _uiState.value.genreOrder.take(2).forEach { genre ->
+        _uiState.value.genreOrder.forEach { genre ->
             loadGenre(genre = genre, forceRefresh = forceRefresh)
         }
     }
@@ -59,7 +61,7 @@ class DiscoverViewModel(
         trendingJob?.cancel()
         trendingJob = viewModelScope.launch {
             repository.getTrendingMedia(
-                mediaType = _uiState.value.selectedMediaType,
+                mediaType = selectedMediaType,
                 forceRefresh = forceRefresh,
             ).collect { result ->
                 when (result) {
@@ -101,7 +103,7 @@ class DiscoverViewModel(
 
         genreJobs[genre] = viewModelScope.launch {
             repository.getMediaByGenre(
-                mediaType = _uiState.value.selectedMediaType,
+                mediaType = selectedMediaType,
                 genre = genre,
                 forceRefresh = forceRefresh,
             ).collect { result ->
@@ -147,12 +149,13 @@ class DiscoverViewModel(
 
     fun onMediaTypeChanged(mediaType: MediaType) {
         if (_uiState.value.selectedMediaType != mediaType) {
+            selectedMediaType = mediaType
             loadFeed(mediaType, forceRefresh = false)
         }
     }
 
     fun onRefresh() {
-        loadFeed(_uiState.value.selectedMediaType, forceRefresh = true)
+        loadFeed(selectedMediaType, forceRefresh = true)
     }
 
     fun onGenreVisible(genre: Genre) {
