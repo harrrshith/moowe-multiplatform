@@ -1,5 +1,6 @@
 package com.harrrshith.moowe.domain.repository
 
+import androidx.paging.PagingData
 import com.harrrshith.moowe.domain.model.Genre
 import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.domain.model.CastMember
@@ -16,6 +17,12 @@ interface MovieRepository {
     fun getTrendingMedia(mediaType: MediaType, forceRefresh: Boolean = false): Flow<Result<List<Movie>>>
 
     fun getMediaByGenre(mediaType: MediaType, genre: Genre, forceRefresh: Boolean = false): Flow<Result<List<Movie>>>
+
+    fun getTrendingPagedMedia(
+        mediaType: MediaType,
+        genre: Genre = Genre.TRENDING,
+        pageSize: Int = 20,
+    ): Flow<PagingData<Movie>>
 
     suspend fun getMovieById(id: Int): Result<Movie>
 

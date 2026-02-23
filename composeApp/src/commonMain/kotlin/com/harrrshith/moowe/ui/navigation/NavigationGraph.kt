@@ -14,6 +14,8 @@ import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.harrrshith.moowe.ui.detail.DetailRoute
 import com.harrrshith.moowe.ui.discover.DiscoverRoute
+import com.harrrshith.moowe.ui.search.SearchRoute
+import com.harrrshith.moowe.ui.trending.TrendingRoute
 
 @Composable
 fun NavigationGraph(
@@ -53,20 +55,23 @@ fun NavigationGraph(
                     )
                 }
                 composable<Destination.Home.Trending> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ){
-                        Text("Trending")
-                    }
+                    TrendingRoute(
+                        animatedContentScope = this@composable,
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        navigateToDetail = { id, sharedKey, title, posterPath ->
+                            navController.navigate(
+                                Destination.Detail(
+                                    id = id,
+                                    sharedKey = sharedKey,
+                                    title = title,
+                                    posterPath = posterPath,
+                                )
+                            )
+                        }
+                    )
                 }
                 composable<Destination.Home.Search> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ){
-                        Text("Search")
-                    }
+                    SearchRoute(modifier = Modifier.fillMaxSize())
                 }
                 composable<Destination.Home.Yours> {
                     Box(

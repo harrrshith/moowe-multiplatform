@@ -1,6 +1,9 @@
 package com.harrrshith.moowe.data.repository
 
+import androidx.paging.PagingData
 import com.harrrshith.moowe.data.local.MooweDao
+import com.harrrshith.moowe.data.paging.PageResult
+import com.harrrshith.moowe.data.paging.createPagerFlow
 import com.harrrshith.moowe.data.remote.MooweApiHandler
 import com.harrrshith.moowe.data.toDomain
 import com.harrrshith.moowe.data.toEntity
@@ -127,6 +130,30 @@ class MovieRepositoryImpl(
                 emit(Result.Error(e.message ?: "Unknown error", Int.MAX_VALUE))
             }
             .flowOn(Dispatchers.IO)
+
+    override fun getTrendingPagedMedia(
+        mediaType: MediaType,
+        genre: Genre,
+        pageSize: Int,
+    ): Flow<PagingData<Movie>> {
+        return createPagerFlow(pageSize = pageSize) { page, _ ->
+            val response = if (genre == Genre.TRENDING) {
+                api.getTrendingMedia(mediaType = mediaType.apiValue, page = page)
+            } else {
+                api.getMediaByGenre(
+                    mediaType = mediaType.apiValue,
+                    genreId = genre.getIdForMediaType(mediaType),
+                    page = page,
+                )
+            }
+
+            PageResult(
+                items = response.movies.map { it.toDomain() }.distinctBy { it.id },
+                currentPage = response.page,
+                totalPages = response.totalPages,
+            )
+        }
+    }
 
     private fun processMovies(entities: List<com.harrrshith.moowe.data.local.entity.MovieEntity>): List<Movie> {
         return entities.map { it.toDomain() }
