@@ -29,9 +29,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
-import com.harrrshith.moowe.Constants.IMAGE_BASE_URL
 import com.harrrshith.moowe.domain.model.CastMember
 import com.harrrshith.moowe.ui.theme.AppTheme
+import com.harrrshith.moowe.utils.profileUrl
 import kotlin.math.absoluteValue
 
 fun LazyListScope.detailCast(
@@ -76,7 +76,7 @@ private fun CastCard(member: CastMember) {
         ) {
             if (!member.profilePath.isNullOrBlank()) {
                 Image(
-                    painter = rememberAsyncImagePainter("$IMAGE_BASE_URL${member.profilePath}"),
+                    painter = rememberAsyncImagePainter(profileUrl(member.profilePath)),
                     contentDescription = member.name,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),

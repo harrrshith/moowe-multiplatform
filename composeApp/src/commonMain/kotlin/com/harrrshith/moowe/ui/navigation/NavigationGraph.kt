@@ -40,8 +40,15 @@ fun NavigationGraph(
                     DiscoverRoute(
                         animatedContentScope = this@composable,
                         sharedTransitionScope = this@SharedTransitionLayout,
-                        navigateToDetail = { id, sharedKey ->
-                            navController.navigate(Destination.Detail(id, sharedKey))
+                        navigateToDetail = { id, sharedKey, title, posterPath ->
+                            navController.navigate(
+                                Destination.Detail(
+                                    id = id,
+                                    sharedKey = sharedKey,
+                                    title = title,
+                                    posterPath = posterPath,
+                                )
+                            )
                         }
                     )
                 }
@@ -77,9 +84,12 @@ fun NavigationGraph(
                 popEnterTransition = { NavigationTransitions.popEnterTransition },
                 popExitTransition = { NavigationTransitions.popExitTransition }
             ) {
-                val sharedKey = it.toRoute<Destination.Detail>().sharedKey
+                val detailDestination = it.toRoute<Destination.Detail>()
                 DetailRoute(
-                    sharedKey = sharedKey,
+                    sharedKey = detailDestination.sharedKey,
+                    initialTitle = detailDestination.title,
+                    initialPosterPath = detailDestination.posterPath,
+                    movieId = detailDestination.id,
                     animatedContentScope = this@composable,
                     sharedTransitionScope = this@SharedTransitionLayout,
                     onBackPressed = { navController.popBackStack() }

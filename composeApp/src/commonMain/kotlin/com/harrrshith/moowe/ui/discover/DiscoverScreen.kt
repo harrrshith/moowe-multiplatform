@@ -38,7 +38,7 @@ fun DiscoverRoute(
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     viewModel: DiscoverViewModel = koinViewModel(),
-    navigateToDetail: (Int, String) -> Unit
+    navigateToDetail: (Int, String, String, String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val hazeState = LocalHazeState.current
@@ -47,7 +47,7 @@ fun DiscoverRoute(
         viewModel.uiEvents.collect { event ->
             when (event) {
                 is DiscoverUiEvent.NavigateToDetail -> {
-                    navigateToDetail(event.id, event.sharedKey)
+                    navigateToDetail(event.id, event.sharedKey, event.title, event.posterPath)
                 }
                 is DiscoverUiEvent.ShowError -> {}
             }
@@ -74,7 +74,9 @@ fun DiscoverRoute(
                     isRefreshing = uiState.isRefreshing,
                     onMediaTypeChanged = viewModel::onMediaTypeChanged,
                     onRefresh = viewModel::onRefresh,
-                    onClick = { id, sharedKey -> viewModel.onMovieClick(id, sharedKey) }
+                    onClick = { id, sharedKey, title, posterPath ->
+                        viewModel.onMovieClick(id, sharedKey, title, posterPath)
+                    }
                 )
             }
         }
@@ -113,7 +115,7 @@ private fun DiscoverScreen(
     isRefreshing: Boolean = false,
     onMediaTypeChanged: (com.harrrshith.moowe.domain.model.MediaType) -> Unit,
     onRefresh: () -> Unit = {},
-    onClick: (Int, String) -> Unit
+    onClick: (Int, String, String, String) -> Unit
 ) {
     val width = screenWidth
     Scaffold(
@@ -161,8 +163,8 @@ private fun DiscoverScreen(
                             animatedContentScope = animatedContentScope,
                             sharedTransitionScope = sharedTransitionScope,
                             movies = movies,
-                            onClick = { id, sharedKey ->
-                                onClick(id, sharedKey)
+                            onClick = { id, sharedKey, title, posterPath ->
+                                onClick(id, sharedKey, title, posterPath)
                             }
                         )
                     }
@@ -176,8 +178,8 @@ private fun DiscoverScreen(
                             lazyListState = actionListState,
                             itemsTobeDisplayed = 3,
                             screenWidth = width,
-                            onClick = { id, sharedKey ->
-                                onClick(id, sharedKey)
+                            onClick = { id, sharedKey, title, posterPath ->
+                                onClick(id, sharedKey, title, posterPath)
                             }
                         )
                     }
@@ -191,8 +193,8 @@ private fun DiscoverScreen(
                             lazyListState = adventureListState,
                             itemsTobeDisplayed = 3,
                             screenWidth = width,
-                            onClick = { id, sharedKey ->
-                                onClick(id, sharedKey)
+                            onClick = { id, sharedKey, title, posterPath ->
+                                onClick(id, sharedKey, title, posterPath)
                             }
                         )
                     }
@@ -206,8 +208,8 @@ private fun DiscoverScreen(
                             lazyListState = romanceListState,
                             itemsTobeDisplayed = 3,
                             screenWidth = width,
-                            onClick = { id, sharedKey ->
-                                onClick(id, sharedKey)
+                            onClick = { id, sharedKey, title, posterPath ->
+                                onClick(id, sharedKey, title, posterPath)
                             }
                         )
                     }
@@ -221,8 +223,8 @@ private fun DiscoverScreen(
                             lazyListState = documentaryListState,
                             itemsTobeDisplayed = 3,
                             screenWidth = width,
-                            onClick = { id, sharedKey ->
-                                onClick(id, sharedKey)
+                            onClick = { id, sharedKey, title, posterPath ->
+                                onClick(id, sharedKey, title, posterPath)
                             }
                         )
                     }
