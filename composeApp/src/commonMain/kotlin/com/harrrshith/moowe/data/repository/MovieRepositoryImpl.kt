@@ -4,6 +4,7 @@ import com.harrrshith.moowe.data.local.MooweDao
 import com.harrrshith.moowe.data.remote.MooweApiHandler
 import com.harrrshith.moowe.data.toDomain
 import com.harrrshith.moowe.data.toEntity
+import com.harrrshith.moowe.domain.model.CastMember
 import com.harrrshith.moowe.domain.model.Genre
 import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.domain.model.Movie
@@ -160,6 +161,29 @@ class MovieRepositoryImpl(
         return try {
             val response = api.getMovieReviews(movieId = movieId)
             Result.Success(response.results.map { it.toDomain() })
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Unknown error", status = 500)
+        }
+    }
+
+    override suspend fun getMovieCast(movieId: Int): Result<List<CastMember>> {
+        return try {
+            val response = api.getMovieCredits(movieId = movieId)
+            Result.Success(response.cast.sortedBy { it.order }.take(15).map { it.toDomain() })
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Unknown error", status = 500)
+        }
+    }
+
+    override suspend fun getRelatedMovies(movieId: Int): Result<List<Movie>> {
+        return try {
+            val response = api.getSimilarMovies(movieId = movieId)
+            Result.Success(
+                response.movies
+                    .map { it.toDomain() }
+                    .distinctBy { it.id }
+                    .take(15)
+            )
         } catch (e: Exception) {
             Result.Error(e.message ?: "Unknown error", status = 500)
         }

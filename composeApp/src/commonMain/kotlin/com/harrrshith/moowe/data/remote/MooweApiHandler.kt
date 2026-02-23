@@ -1,5 +1,6 @@
 package com.harrrshith.moowe.data.remote
 
+import com.harrrshith.moowe.data.remote.dto.CreditsResponse
 import com.harrrshith.moowe.data.remote.dto.MoviesResponse
 import com.harrrshith.moowe.data.remote.dto.ReviewsResponse
 import io.ktor.client.HttpClient
@@ -57,6 +58,26 @@ class MooweApiHandler(
         page: Int = 1,
     ): ReviewsResponse {
         return client.get("movie/$movieId/reviews") {
+            parameter("language", language)
+            parameter("page", page)
+        }.body()
+    }
+
+    suspend fun getMovieCredits(
+        movieId: Int,
+        language: String = "en-US",
+    ): CreditsResponse {
+        return client.get("movie/$movieId/credits") {
+            parameter("language", language)
+        }.body()
+    }
+
+    suspend fun getSimilarMovies(
+        movieId: Int,
+        language: String = "en-US",
+        page: Int = 1,
+    ): MoviesResponse {
+        return client.get("movie/$movieId/similar") {
             parameter("language", language)
             parameter("page", page)
         }.body()
