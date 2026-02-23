@@ -42,11 +42,10 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalHazeMaterialsApi::class)
 @Composable
-internal fun AppTopBar(
-    title: String,
+internal fun SegmentedAppTopBar(
     hazeState: HazeState,
-    selectedMediaType: MediaType? = null,
-    onMediaTypeSelected: ((MediaType) -> Unit)? = null
+    selectedMediaType: MediaType = MediaType.MOVIE,
+    onMediaTypeSelected: ((MediaType) -> Unit)
 ) {
     CenterAlignedTopAppBar(
         modifier = Modifier
@@ -58,20 +57,10 @@ internal fun AppTopBar(
             }
             .fillMaxWidth(),
         title = {
-            if (selectedMediaType != null && onMediaTypeSelected != null) {
-                MediaTypeSegmentedControl(
-                    selectedMediaType = selectedMediaType,
-                    onMediaTypeSelected = onMediaTypeSelected
-                )
-            } else {
-                Text(
-                    text = title,
-                    style = AppTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 0.5.sp
-                    )
-                )
-            }
+            MediaTypeSegmentedControl(
+                selectedMediaType = selectedMediaType,
+                onMediaTypeSelected = onMediaTypeSelected
+            )
         },
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
     )

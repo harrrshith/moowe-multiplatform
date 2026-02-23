@@ -25,7 +25,7 @@ import com.harrrshith.moowe.LocalHazeState
 import com.harrrshith.moowe.domain.model.Genre
 import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.domain.model.Movie
-import com.harrrshith.moowe.ui.components.AppTopBar
+import com.harrrshith.moowe.ui.components.SegmentedAppTopBar
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeSource
 import org.koin.compose.viewmodel.koinViewModel
@@ -98,8 +98,7 @@ private fun DiscoverScreen(
     Scaffold(
         modifier = modifier,
         topBar = {
-            AppTopBar(
-                title = "moowe",
+            SegmentedAppTopBar(
                 hazeState = hazeState,
                 selectedMediaType = selectedMediaType,
                 onMediaTypeSelected = onMediaTypeChanged

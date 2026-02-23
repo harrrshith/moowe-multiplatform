@@ -31,7 +31,6 @@ fun ImageCard(
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     imageUrl: String,
-    movieTitle: String,
     onClick: () -> Unit,
 ) {
     Box(
@@ -78,17 +77,5 @@ fun ImageCard(
                     )
                 )
         )
-//        Text(
-//            text = movieTitle,
-//            color = Color.White,
-//            style = AppTheme.typography.titleMedium,
-//            maxLines = 1,
-//            letterSpacing = 1.25.sp,
-//            overflow = TextOverflow.Ellipsis,
-//            modifier = Modifier
-//                .align(Alignment.BottomStart)
-//                .padding(vertical = 12.dp, horizontal = 16.dp)
-//                .fillMaxWidth()
-//        )
     }
 }

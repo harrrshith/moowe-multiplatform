@@ -82,54 +82,12 @@ fun LazyListScope.trendingList(
                     animatedContentScope = animatedContentScope,
                     sharedTransitionScope = sharedTransitionScope,
                     imageUrl = movie.posterPath,
-                    movieTitle = movie.title,
                     onClick = {
                         onClick(movie.id, "movie-${movie.id}-trending", movie.title, movie.posterPath)
                     },
                 )
             }
         }
-    }
-}
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-fun LazyListScope.movieList(
-    animatedContentScope: AnimatedContentScope,
-    sharedTransitionScope: SharedTransitionScope,
-    genre: Genre,
-    movies: List<Movie>,
-    itemsTobeDisplayed: Int,
-    screenWidth: Dp,
-    onSectionComposed: (Genre) -> Unit = {},
-    onClick: (Int, String, String, String) -> Unit = { _, _, _, _ -> }
-) {
-    item {
-        GenreMoviesSection(
-            animatedContentScope = animatedContentScope,
-            sharedTransitionScope = sharedTransitionScope,
-            genre = genre,
-            movies = movies,
-            itemsTobeDisplayed = itemsTobeDisplayed,
-            screenWidth = screenWidth,
-            onSectionComposed = onSectionComposed,
-            onClick = onClick,
-        )
-    }
-}
-
-fun LazyListScope.genreShimmerRow(
-    genre: Genre,
-    screenWidth: Dp,
-    itemsTobeDisplayed: Int,
-    onSectionComposed: (Genre) -> Unit,
-) {
-    item(key = "genre-shimmer-${genre.name}") {
-        GenreShimmerSection(
-            genre = genre,
-            screenWidth = screenWidth,
-            itemsTobeDisplayed = itemsTobeDisplayed,
-            onSectionComposed = onSectionComposed,
-        )
     }
 }
 
