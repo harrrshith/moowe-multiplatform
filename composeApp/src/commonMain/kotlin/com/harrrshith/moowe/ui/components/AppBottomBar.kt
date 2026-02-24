@@ -100,8 +100,8 @@ private fun BottomBar(
                 },
                 onClick = { onTabItemClick(tab) },
                 colors =  NavigationBarItemDefaults.colors(
-                    selectedIconColor = AppTheme.colorScheme.onPrimaryContainer,
-                    indicatorColor = AppTheme.colorScheme.primaryContainer.copy(alpha = 0.9f),
+                    selectedIconColor = AppTheme.colorScheme.primary,
+                    indicatorColor = Color.Transparent,
                     unselectedIconColor = AppTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                 )
             )
