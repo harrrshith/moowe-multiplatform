@@ -24,11 +24,11 @@ interface MovieRepository {
         pageSize: Int = 20,
     ): Flow<PagingData<Movie>>
 
-    suspend fun getMovieById(id: Int): Result<Movie>
+    suspend fun getMediaById(id: Int, mediaType: MediaType): Result<Movie>
 
-    suspend fun getMovieReviews(movieId: Int): Result<List<Review>>
+    suspend fun getMediaReviews(mediaId: Int, mediaType: MediaType): Result<List<Review>>
 
-    suspend fun getMovieCast(movieId: Int): Result<List<CastMember>>
+    suspend fun getMediaCast(mediaId: Int, mediaType: MediaType): Result<List<CastMember>>
 
-    suspend fun getRelatedMovies(movieId: Int): Result<List<Movie>>
+    suspend fun getRelatedMedia(mediaId: Int, mediaType: MediaType): Result<List<Movie>>
 }

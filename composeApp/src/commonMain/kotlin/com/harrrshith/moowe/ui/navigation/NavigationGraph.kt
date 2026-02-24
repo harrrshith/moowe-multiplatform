@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
+import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.ui.detail.DetailRoute
 import com.harrrshith.moowe.ui.discover.DiscoverRoute
 import com.harrrshith.moowe.ui.search.SearchRoute
@@ -34,18 +35,19 @@ fun NavigationGraph(
                 startDestination = Destination.Home.Discover
             ){
                 composable<Destination.Home.Discover>(
-                    enterTransition = { NavigationTransitions.enterTransition },
-                    exitTransition = { NavigationTransitions.exitTransition },
-                    popEnterTransition = { NavigationTransitions.popEnterTransition },
-                    popExitTransition = { NavigationTransitions.popExitTransition }
+                    enterTransition = { NavigationTransitions.topLevelEnter(this) },
+                    exitTransition = { NavigationTransitions.topLevelExit(this) },
+                    popEnterTransition = { NavigationTransitions.topLevelEnter(this) },
+                    popExitTransition = { NavigationTransitions.topLevelExit(this) }
                 ) {
                     DiscoverRoute(
                         animatedContentScope = this@composable,
                         sharedTransitionScope = this@SharedTransitionLayout,
-                        navigateToDetail = { id, sharedKey, title, posterPath ->
+                        navigateToDetail = { id, mediaType, sharedKey, title, posterPath ->
                             navController.navigate(
                                 Destination.Detail(
                                     id = id,
+                                    mediaType = mediaType.apiValue,
                                     sharedKey = sharedKey,
                                     title = title,
                                     posterPath = posterPath,
@@ -54,14 +56,20 @@ fun NavigationGraph(
                         }
                     )
                 }
-                composable<Destination.Home.Trending> {
+                composable<Destination.Home.Trending>(
+                    enterTransition = { NavigationTransitions.topLevelEnter(this) },
+                    exitTransition = { NavigationTransitions.topLevelExit(this) },
+                    popEnterTransition = { NavigationTransitions.topLevelEnter(this) },
+                    popExitTransition = { NavigationTransitions.topLevelExit(this) }
+                ) {
                     TrendingRoute(
                         animatedContentScope = this@composable,
                         sharedTransitionScope = this@SharedTransitionLayout,
-                        navigateToDetail = { id, sharedKey, title, posterPath ->
+                        navigateToDetail = { id, mediaType, sharedKey, title, posterPath ->
                             navController.navigate(
                                 Destination.Detail(
                                     id = id,
+                                    mediaType = mediaType.apiValue,
                                     sharedKey = sharedKey,
                                     title = title,
                                     posterPath = posterPath,
@@ -70,10 +78,20 @@ fun NavigationGraph(
                         }
                     )
                 }
-                composable<Destination.Home.Search> {
+                composable<Destination.Home.Search>(
+                    enterTransition = { NavigationTransitions.topLevelEnter(this) },
+                    exitTransition = { NavigationTransitions.topLevelExit(this) },
+                    popEnterTransition = { NavigationTransitions.topLevelEnter(this) },
+                    popExitTransition = { NavigationTransitions.topLevelExit(this) }
+                ) {
                     SearchRoute(modifier = Modifier.fillMaxSize())
                 }
-                composable<Destination.Home.Yours> {
+                composable<Destination.Home.Yours>(
+                    enterTransition = { NavigationTransitions.topLevelEnter(this) },
+                    exitTransition = { NavigationTransitions.topLevelExit(this) },
+                    popEnterTransition = { NavigationTransitions.topLevelEnter(this) },
+                    popExitTransition = { NavigationTransitions.topLevelExit(this) }
+                ) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
@@ -84,16 +102,17 @@ fun NavigationGraph(
             }
 
             composable<Destination.Detail>(
-                enterTransition = { NavigationTransitions.enterTransition },
-                exitTransition = { NavigationTransitions.exitTransition },
-                popEnterTransition = { NavigationTransitions.popEnterTransition },
-                popExitTransition = { NavigationTransitions.popExitTransition }
+                enterTransition = { NavigationTransitions.detailEnter() },
+                exitTransition = { NavigationTransitions.detailExit() },
+                popEnterTransition = { NavigationTransitions.detailPopEnter() },
+                popExitTransition = { NavigationTransitions.detailPopExit() }
             ) {
                 val detailDestination = it.toRoute<Destination.Detail>()
                 DetailRoute(
                     sharedKey = detailDestination.sharedKey,
                     initialTitle = detailDestination.title,
                     initialPosterPath = detailDestination.posterPath,
+                    mediaType = MediaType.fromApiValue(detailDestination.mediaType),
                     movieId = detailDestination.id,
                     animatedContentScope = this@composable,
                     sharedTransitionScope = this@SharedTransitionLayout,

@@ -27,8 +27,8 @@ interface MooweDao {
     @Query("SELECT * FROM movies WHERE genre = :id")
     fun getMoviesByGenre(id: Int): Flow<List<MovieEntity>>
     
-    @Query("SELECT * FROM movies WHERE id = :movieId")
-    suspend fun getMovieById(movieId: Int): MovieEntity?
+    @Query("SELECT * FROM movies WHERE id = :movieId AND mediaType = :mediaType")
+    suspend fun getMovieById(movieId: Int, mediaType: String): MovieEntity?
     
     @Query("DELETE FROM movies")
     suspend fun clearAllMovies()

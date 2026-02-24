@@ -2,13 +2,16 @@ package com.harrrshith.moowe.data
 
 import com.harrrshith.moowe.data.local.entity.MovieEntity
 import com.harrrshith.moowe.data.remote.dto.CastDto
+import com.harrrshith.moowe.data.remote.dto.MediaDetailDto
 import com.harrrshith.moowe.data.remote.dto.MovieDto
 import com.harrrshith.moowe.data.remote.dto.ReviewDto
 import com.harrrshith.moowe.domain.model.CastMember
+import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.domain.model.Review
+import com.harrrshith.moowe.domain.model.Season
 
-fun MovieDto.toDomain(): Movie {
+fun MovieDto.toDomain(mediaType: MediaType = MediaType.MOVIE): Movie {
     return Movie(
         id = id,
         title = name ?: title ?: "",
@@ -20,7 +23,38 @@ fun MovieDto.toDomain(): Movie {
         voteCount = voteCount,
         popularity = popularity,
         adult = adult,
-        genreIds = genreIds
+        genreIds = genreIds,
+        mediaType = mediaType,
+    )
+}
+
+fun MediaDetailDto.toDomain(mediaType: MediaType): Movie {
+    return Movie(
+        id = id,
+        title = name ?: title ?: "",
+        overview = overview ?: "",
+        posterPath = posterPath ?: "",
+        backdropPath = backdropPath ?: "",
+        releaseDate = firstAirDate ?: releaseDate ?: "",
+        voteAverage = voteAverage,
+        voteCount = voteCount,
+        popularity = popularity,
+        adult = adult,
+        genreIds = genres.map { it.id },
+        mediaType = mediaType,
+        numberOfSeasons = numberOfSeasons,
+        numberOfEpisodes = numberOfEpisodes,
+        seasons = seasons.map { season ->
+            Season(
+                id = season.id,
+                name = season.name ?: "",
+                seasonNumber = season.seasonNumber,
+                episodeCount = season.episodeCount,
+                airDate = season.airDate ?: "",
+                posterPath = season.posterPath ?: "",
+                overview = season.overview ?: "",
+            )
+        },
     )
 }
 
@@ -62,6 +96,12 @@ fun CastDto.toDomain(): CastMember = CastMember(
 )
 
 fun MovieEntity.toDomain() : Movie {
+    val mediaTypeValue = if (mediaType == MediaType.TV_SERIES.apiValue) {
+        MediaType.TV_SERIES
+    } else {
+        MediaType.MOVIE
+    }
+
     return Movie(
         id = id,
         title = title,
@@ -73,6 +113,7 @@ fun MovieEntity.toDomain() : Movie {
         voteCount = voteCount,
         popularity = popularity,
         adult = adult,
-        genreIds = genreIds
+        genreIds = genreIds,
+        mediaType = mediaTypeValue,
     )
 }

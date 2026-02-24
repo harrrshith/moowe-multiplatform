@@ -25,24 +25,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
-import com.harrrshith.moowe.domain.model.MediaType
-import com.harrrshith.moowe.domain.model.Movie
+import com.harrrshith.moowe.domain.model.Season
 import com.harrrshith.moowe.ui.theme.AppTheme
-import com.harrrshith.moowe.utils.extensions.format
 import com.harrrshith.moowe.utils.posterUrl
 
-fun LazyListScope.detailRelatedMovies(
+fun LazyListScope.detailSeasons(
     modifier: Modifier = Modifier,
-    relatedMovies: List<Movie>,
-    mediaType: MediaType,
+    seasons: List<Season>,
 ) {
-    if (relatedMovies.isEmpty()) return
+    if (seasons.isEmpty()) return
 
-    item(key = "related_movies_section") {
+    item(key = "seasons_section") {
         Column(modifier = modifier.fillMaxWidth()) {
             Text(
                 modifier = Modifier.padding(horizontal = 16.dp),
-                text = if (mediaType == MediaType.TV_SERIES) "related series" else "related movies",
+                text = "seasons",
                 style = AppTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                 color = AppTheme.colorScheme.onSurface,
             )
@@ -51,8 +48,8 @@ fun LazyListScope.detailRelatedMovies(
                 contentPadding = PaddingValues(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                items(items = relatedMovies, key = { it.id }) { movie ->
-                    RelatedMovieCard(movie = movie)
+                items(items = seasons, key = { it.id }) { season ->
+                    SeasonCard(season = season)
                 }
             }
         }
@@ -60,12 +57,12 @@ fun LazyListScope.detailRelatedMovies(
 }
 
 @Composable
-private fun RelatedMovieCard(movie: Movie) {
-    Column(modifier = Modifier.width(132.dp)) {
+private fun SeasonCard(season: Season) {
+    Column(modifier = Modifier.width(164.dp)) {
         Box {
             Image(
-                painter = rememberAsyncImagePainter(posterUrl(movie.posterPath, size = "w342")),
-                contentDescription = movie.title,
+                painter = rememberAsyncImagePainter(posterUrl(season.posterPath, size = "w342")),
+                contentDescription = season.name,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -80,7 +77,7 @@ private fun RelatedMovieCard(movie: Movie) {
                     .clip(RoundedCornerShape(8.dp))
                     .background(AppTheme.colorScheme.surface.copy(alpha = 0.9f))
                     .padding(horizontal = 6.dp, vertical = 3.dp),
-                text = movie.voteAverage.format(1),
+                text = "${season.episodeCount} eps",
                 style = AppTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
                 color = AppTheme.colorScheme.onSurface,
             )
@@ -88,14 +85,14 @@ private fun RelatedMovieCard(movie: Movie) {
 
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = movie.title,
+            text = season.name.ifBlank { "Season ${season.seasonNumber}" },
             style = AppTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
             color = AppTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
         Text(
-            text = movie.releaseDate.take(4),
+            text = season.airDate.take(4).ifBlank { "TBA" },
             style = AppTheme.typography.labelSmall,
             color = AppTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,

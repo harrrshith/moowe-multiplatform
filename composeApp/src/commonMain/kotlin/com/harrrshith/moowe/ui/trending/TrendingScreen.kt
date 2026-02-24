@@ -47,7 +47,9 @@ import app.cash.paging.compose.collectAsLazyPagingItems
 import coil3.compose.rememberAsyncImagePainter
 import com.harrrshith.moowe.LocalHazeState
 import com.harrrshith.moowe.domain.model.Genre
+import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.domain.model.Movie
+import com.harrrshith.moowe.ui.components.ListingCardScrim
 import com.harrrshith.moowe.ui.components.SegmentedAppTopBar
 import com.harrrshith.moowe.ui.theme.AppTheme
 import com.harrrshith.moowe.utils.posterUrl
@@ -61,7 +63,7 @@ fun TrendingRoute(
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     viewModel: TrendingViewModel = koinViewModel(),
-    navigateToDetail: (Int, String, String, String) -> Unit,
+    navigateToDetail: (Int, MediaType, String, String, String) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val movies = viewModel.pagedMovies.collectAsLazyPagingItems()
@@ -84,15 +86,15 @@ private fun TrendingScreen(
     sharedTransitionScope: SharedTransitionScope,
     uiState: TrendingUiState,
     pagedMovies: LazyPagingItems<Movie>,
-    onMediaTypeSelected: (com.harrrshith.moowe.domain.model.MediaType) -> Unit,
+    onMediaTypeSelected: (MediaType) -> Unit,
     onGenreSelected: (Genre) -> Unit,
-    navigateToDetail: (Int, String, String, String) -> Unit,
+    navigateToDetail: (Int, MediaType, String, String, String) -> Unit,
 ) {
     val hazeState = LocalHazeState.current
     val gridState = rememberLazyStaggeredGridState()
     val scope = rememberCoroutineScope()
 
-    fun changeMediaType(mediaType: com.harrrshith.moowe.domain.model.MediaType) {
+    fun changeMediaType(mediaType: MediaType) {
         scope.launch {
             if (gridState.firstVisibleItemIndex > 0 || gridState.firstVisibleItemScrollOffset > 0) {
                 gridState.animateScrollToItem(0)
@@ -165,7 +167,7 @@ private fun TrendingScreen(
                         animatedContentScope = animatedContentScope,
                         sharedTransitionScope = sharedTransitionScope,
                         onClick = {
-                            navigateToDetail(movie.id, sharedKey, movie.title, movie.posterPath)
+                            navigateToDetail(movie.id, movie.mediaType, sharedKey, movie.title, movie.posterPath)
                         },
                     )
                 }
@@ -253,19 +255,7 @@ private fun TrendingMovieCard(
             )
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            Color.Black.copy(alpha = 0.42f),
-                            Color.Black.copy(alpha = 0.74f),
-                        )
-                    )
-                )
-        )
+        ListingCardScrim()
 
         Text(
             text = movie.title,

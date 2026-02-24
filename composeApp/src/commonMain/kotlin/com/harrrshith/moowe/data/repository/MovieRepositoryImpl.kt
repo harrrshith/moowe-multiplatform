@@ -148,7 +148,7 @@ class MovieRepositoryImpl(
             }
 
             PageResult(
-                items = response.movies.map { it.toDomain() },
+                items = response.movies.map { it.toDomain(mediaType = mediaType) },
                 currentPage = response.page,
                 totalPages = response.totalPages,
             )
@@ -171,43 +171,44 @@ class MovieRepositoryImpl(
 //        }
 //    }
 
-    override suspend fun getMovieById(id: Int): Result<Movie> {
+    override suspend fun getMediaById(id: Int, mediaType: MediaType): Result<Movie> {
         return try {
-            val movie = dao.getMovieById(movieId = id)
-            if (movie != null) {
-                Result.Success(movie.toDomain())
+            val cachedMedia = dao.getMovieById(movieId = id, mediaType = mediaType.apiValue)
+            if (cachedMedia != null) {
+                Result.Success(cachedMedia.toDomain())
             } else {
-                Result.Error("Movie not found", status = 404)
+                val response = api.getMediaDetails(mediaType = mediaType.apiValue, mediaId = id)
+                Result.Success(response.toDomain(mediaType = mediaType))
             }
         } catch (e: Exception) {
             Result.Error(e.message ?: "Unknown error", status = 500)
         }
     }
 
-    override suspend fun getMovieReviews(movieId: Int): Result<List<Review>> {
+    override suspend fun getMediaReviews(mediaId: Int, mediaType: MediaType): Result<List<Review>> {
         return try {
-            val response = api.getMovieReviews(movieId = movieId)
+            val response = api.getMediaReviews(mediaType = mediaType.apiValue, mediaId = mediaId)
             Result.Success(response.results.map { it.toDomain() })
         } catch (e: Exception) {
             Result.Error(e.message ?: "Unknown error", status = 500)
         }
     }
 
-    override suspend fun getMovieCast(movieId: Int): Result<List<CastMember>> {
+    override suspend fun getMediaCast(mediaId: Int, mediaType: MediaType): Result<List<CastMember>> {
         return try {
-            val response = api.getMovieCredits(movieId = movieId)
+            val response = api.getMediaCredits(mediaType = mediaType.apiValue, mediaId = mediaId)
             Result.Success(response.cast.sortedBy { it.order }.take(15).map { it.toDomain() })
         } catch (e: Exception) {
             Result.Error(e.message ?: "Unknown error", status = 500)
         }
     }
 
-    override suspend fun getRelatedMovies(movieId: Int): Result<List<Movie>> {
+    override suspend fun getRelatedMedia(mediaId: Int, mediaType: MediaType): Result<List<Movie>> {
         return try {
-            val response = api.getSimilarMovies(movieId = movieId)
+            val response = api.getSimilarMedia(mediaType = mediaType.apiValue, mediaId = mediaId)
             Result.Success(
                 response.movies
-                    .map { it.toDomain() }
+                    .map { it.toDomain(mediaType = mediaType) }
                     .distinctBy { it.id }
                     .take(15)
             )
