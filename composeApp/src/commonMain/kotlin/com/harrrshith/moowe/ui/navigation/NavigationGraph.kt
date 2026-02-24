@@ -84,7 +84,20 @@ fun NavigationGraph(
                     popEnterTransition = { NavigationTransitions.topLevelEnter(this) },
                     popExitTransition = { NavigationTransitions.topLevelExit(this) }
                 ) {
-                    SearchRoute(modifier = Modifier.fillMaxSize())
+                    SearchRoute(
+                        modifier = Modifier.fillMaxSize(),
+                        navigateToDetail = { id, mediaType, sharedKey, title, posterPath ->
+                            navController.navigate(
+                                Destination.Detail(
+                                    id = id,
+                                    mediaType = mediaType.apiValue,
+                                    sharedKey = sharedKey,
+                                    title = title,
+                                    posterPath = posterPath,
+                                )
+                            )
+                        }
+                    )
                 }
                 composable<Destination.Home.Yours>(
                     enterTransition = { NavigationTransitions.topLevelEnter(this) },

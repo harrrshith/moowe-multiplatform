@@ -8,12 +8,13 @@ import androidx.room.TypeConverters
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.harrrshith.moowe.data.local.converters.Converters
 import com.harrrshith.moowe.data.local.entity.MovieEntity
+import com.harrrshith.moowe.data.local.entity.RecentSearchEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
 @Database(
-    entities = [MovieEntity::class],
-    version = 3
+    entities = [MovieEntity::class, RecentSearchEntity::class],
+    version = 4
 )
 @ConstructedBy(MooweDatabaseConstructor::class)
 @TypeConverters(Converters::class)

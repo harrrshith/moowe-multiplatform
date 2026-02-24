@@ -6,6 +6,7 @@ import com.harrrshith.moowe.data.paging.PageResult
 import com.harrrshith.moowe.data.paging.createPagerFlow
 import com.harrrshith.moowe.data.remote.MooweApiHandler
 import com.harrrshith.moowe.data.toDomain
+import com.harrrshith.moowe.data.toRecentSearchEntity
 import com.harrrshith.moowe.data.toEntity
 import com.harrrshith.moowe.domain.model.CastMember
 import com.harrrshith.moowe.domain.model.Genre
@@ -215,6 +216,29 @@ class MovieRepositoryImpl(
         } catch (e: Exception) {
             Result.Error(e.message ?: "Unknown error", status = 500)
         }
+    }
+
+    override suspend fun searchMedia(query: String, mediaType: MediaType): Result<List<Movie>> {
+        return try {
+            val response = api.searchMedia(mediaType = mediaType.apiValue, query = query)
+            Result.Success(
+                response.movies
+                    .map { it.toDomain(mediaType = mediaType) }
+                    .distinctBy { it.id }
+            )
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Unknown error", status = 500)
+        }
+    }
+
+    override fun getRecentSearches(limit: Int): Flow<List<Movie>> {
+        return dao.getRecentSearches(limit = limit)
+            .map { searches -> searches.map { it.toDomain() } }
+            .flowOn(Dispatchers.IO)
+    }
+
+    override suspend fun addRecentSearch(movie: Movie) {
+        dao.insertRecentSearch(movie.toRecentSearchEntity())
     }
     
 //    suspend fun clearCache() {

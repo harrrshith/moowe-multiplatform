@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.harrrshith.moowe.data.local.entity.MovieEntity
+import com.harrrshith.moowe.data.local.entity.RecentSearchEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -42,4 +43,10 @@ interface MooweDao {
     // Simple cache cleanup
     @Query("DELETE FROM movies WHERE cachedAt < :expirationThreshold")
     suspend fun deleteExpiredMovies(expirationThreshold: Long)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertRecentSearch(search: RecentSearchEntity)
+
+    @Query("SELECT * FROM recent_searches ORDER BY searchedAt DESC LIMIT :limit")
+    fun getRecentSearches(limit: Int): Flow<List<RecentSearchEntity>>
 }
