@@ -11,5 +11,9 @@ data class Movie(
     val voteCount: Int,
     val popularity: Double,
     val adult: Boolean,
-    val genreIds: List<Int>
+    val genreIds: List<Int>,
+    val mediaType: MediaType = MediaType.MOVIE,
+    val numberOfSeasons: Int? = null,
+    val numberOfEpisodes: Int? = null,
+    val seasons: List<Season> = emptyList(),
 )

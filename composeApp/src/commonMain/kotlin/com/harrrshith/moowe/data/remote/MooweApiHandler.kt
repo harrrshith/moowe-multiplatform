@@ -1,6 +1,7 @@
 package com.harrrshith.moowe.data.remote
 
 import com.harrrshith.moowe.data.remote.dto.CreditsResponse
+import com.harrrshith.moowe.data.remote.dto.MediaDetailDto
 import com.harrrshith.moowe.data.remote.dto.MoviesResponse
 import com.harrrshith.moowe.data.remote.dto.ReviewsResponse
 import io.ktor.client.HttpClient
@@ -58,33 +59,62 @@ class MooweApiHandler(
         page: Int = 1,
     ): MoviesResponse = getMediaByGenre("movie", genreId, language, region, page)
 
-    suspend fun getMovieReviews(
-        movieId: Int,
+    suspend fun getMediaDetails(
+        mediaType: String,
+        mediaId: Int,
+        language: String = "en-US",
+    ): MediaDetailDto {
+        return client.get("$mediaType/$mediaId") {
+            parameter("language", language)
+        }.body()
+    }
+
+    suspend fun getMediaReviews(
+        mediaType: String,
+        mediaId: Int,
         language: String = "en-US",
         page: Int = 1,
     ): ReviewsResponse {
-        return client.get("movie/$movieId/reviews") {
+        return client.get("$mediaType/$mediaId/reviews") {
             parameter("language", language)
             parameter("page", page)
         }.body()
     }
 
-    suspend fun getMovieCredits(
-        movieId: Int,
+    suspend fun getMediaCredits(
+        mediaType: String,
+        mediaId: Int,
         language: String = "en-US",
     ): CreditsResponse {
-        return client.get("movie/$movieId/credits") {
+        return client.get("$mediaType/$mediaId/credits") {
             parameter("language", language)
         }.body()
     }
 
-    suspend fun getSimilarMovies(
-        movieId: Int,
+    suspend fun getSimilarMedia(
+        mediaType: String,
+        mediaId: Int,
         language: String = "en-US",
         page: Int = 1,
     ): MoviesResponse {
-        return client.get("movie/$movieId/similar") {
+        return client.get("$mediaType/$mediaId/similar") {
             parameter("language", language)
+            parameter("page", page)
+        }.body()
+    }
+
+    suspend fun searchMedia(
+        mediaType: String = "movie",
+        query: String,
+        language: String = "en-US",
+        region: String = "IN",
+        page: Int = 1,
+    ): MoviesResponse {
+        return client.get("search/$mediaType") {
+            parameter("query", query)
+            parameter("language", language)
+            parameter("include_adult", false)
+            parameter("region", region)
             parameter("page", page)
         }.body()
     }

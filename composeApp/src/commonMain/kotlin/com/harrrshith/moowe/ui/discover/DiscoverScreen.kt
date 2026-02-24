@@ -36,7 +36,7 @@ fun DiscoverRoute(
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     viewModel: DiscoverViewModel = koinViewModel(),
-    navigateToDetail: (Int, String, String, String) -> Unit
+    navigateToDetail: (Int, MediaType, String, String, String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val hazeState = LocalHazeState.current
@@ -45,7 +45,7 @@ fun DiscoverRoute(
         viewModel.uiEvents.collect { event ->
             when (event) {
                 is DiscoverUiEvent.NavigateToDetail -> {
-                    navigateToDetail(event.id, event.sharedKey, event.title, event.posterPath)
+                    navigateToDetail(event.id, event.mediaType, event.sharedKey, event.title, event.posterPath)
                 }
                 is DiscoverUiEvent.ShowError -> {}
             }
@@ -68,8 +68,8 @@ fun DiscoverRoute(
         onGenreVisible = viewModel::onGenreVisible,
         onMediaTypeChanged = viewModel::onMediaTypeChanged,
         onRefresh = viewModel::onRefresh,
-        onClick = { id, sharedKey, title, posterPath ->
-            viewModel.onMovieClick(id, sharedKey, title, posterPath)
+        onClick = { id, mediaType, sharedKey, title, posterPath ->
+            viewModel.onMovieClick(id, mediaType, sharedKey, title, posterPath)
         }
     )
 }
@@ -92,7 +92,7 @@ private fun DiscoverScreen(
     onGenreVisible: (Genre) -> Unit,
     onMediaTypeChanged: (MediaType) -> Unit,
     onRefresh: () -> Unit = {},
-    onClick: (Int, String, String, String) -> Unit
+    onClick: (Int, MediaType, String, String, String) -> Unit
 ) {
     val width = screenWidth
     Scaffold(
@@ -139,8 +139,8 @@ private fun DiscoverScreen(
                                 animatedContentScope = animatedContentScope,
                                 sharedTransitionScope = sharedTransitionScope,
                                 movies = trendingMovies,
-                                onClick = { id, sharedKey, title, posterPath ->
-                                    onClick(id, sharedKey, title, posterPath)
+                                onClick = { id, mediaType, sharedKey, title, posterPath ->
+                                    onClick(id, mediaType, sharedKey, title, posterPath)
                                 }
                             )
                         }
@@ -164,8 +164,8 @@ private fun DiscoverScreen(
                                     itemsTobeDisplayed = 3,
                                     screenWidth = width,
                                     onSectionComposed = onGenreVisible,
-                                    onClick = { id, sharedKey, title, posterPath ->
-                                        onClick(id, sharedKey, title, posterPath)
+                                    onClick = { id, mediaType, sharedKey, title, posterPath ->
+                                        onClick(id, mediaType, sharedKey, title, posterPath)
                                     }
                                 )
                             }
