@@ -6,6 +6,7 @@ import com.harrrshith.moowe.data.paging.PageResult
 import com.harrrshith.moowe.data.paging.createPagerFlow
 import com.harrrshith.moowe.data.remote.MooweApiHandler
 import com.harrrshith.moowe.data.toDomain
+import com.harrrshith.moowe.data.toFavoriteEntity
 import com.harrrshith.moowe.data.toRecentSearchEntity
 import com.harrrshith.moowe.data.toEntity
 import com.harrrshith.moowe.domain.model.CastMember
@@ -239,6 +240,25 @@ class MovieRepositoryImpl(
 
     override suspend fun addRecentSearch(movie: Movie) {
         dao.insertRecentSearch(movie.toRecentSearchEntity())
+    }
+
+    override fun getFavorites(): Flow<List<Movie>> {
+        return dao.getFavoritesFlow()
+            .map { favorites -> favorites.map { it.toDomain() } }
+            .flowOn(Dispatchers.IO)
+    }
+
+    override fun isFavorite(movieId: Int, mediaType: MediaType): Flow<Boolean> {
+        return dao.isFavoriteFlow(movieId = movieId, mediaType = mediaType.apiValue)
+            .flowOn(Dispatchers.IO)
+    }
+
+    override suspend fun addFavorite(movie: Movie) {
+        dao.insertFavorite(movie.toFavoriteEntity())
+    }
+
+    override suspend fun removeFavorite(movieId: Int, mediaType: MediaType) {
+        dao.deleteFavorite(movieId = movieId, mediaType = mediaType.apiValue)
     }
     
 //    suspend fun clearCache() {

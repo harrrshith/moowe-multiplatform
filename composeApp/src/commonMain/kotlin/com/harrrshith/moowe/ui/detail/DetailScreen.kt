@@ -92,6 +92,8 @@ fun DetailRoute(
         reviews = uiState.reviews,
         cast = uiState.cast,
         relatedMovies = uiState.relatedMovies,
+        isLiked = uiState.isLiked,
+        onLikeClicked = viewModel::onLikeClicked,
         onBackPressed = onBackPressed
     )
 }
@@ -106,6 +108,8 @@ private fun DetailScreen(
     reviews: List<Review> = emptyList(),
     cast: List<CastMember> = emptyList(),
     relatedMovies: List<Movie> = emptyList(),
+    isLiked: Boolean,
+    onLikeClicked: () -> Unit,
     onBackPressed: () -> Unit
 ){
     val scrollState = rememberLazyListState()
@@ -141,7 +145,8 @@ private fun DetailScreen(
                     title = movie.title,
                     collapseProgress = collapseProgress,
                     onBackPressed = onBackPressed,
-                    onLikeClicked = { },
+                    isLiked = isLiked,
+                    onLikeClicked = onLikeClicked,
                     onShareClicked = { },
                     modifier = Modifier.renderInSharedTransitionScopeOverlay(
                         renderInOverlay = {
@@ -290,6 +295,8 @@ fun DetailScreenPreview() {
                         animatedContentScope = this,
                         sharedTransitionScope = this@SharedTransitionLayout,
                         movie = movie,
+                        isLiked = false,
+                        onLikeClicked = {},
                         onBackPressed = {}
                     )
                 }

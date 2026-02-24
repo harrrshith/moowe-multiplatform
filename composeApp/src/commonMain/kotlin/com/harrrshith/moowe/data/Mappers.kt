@@ -1,6 +1,7 @@
 package com.harrrshith.moowe.data
 
 import com.harrrshith.moowe.data.local.entity.MovieEntity
+import com.harrrshith.moowe.data.local.entity.FavoriteEntity
 import com.harrrshith.moowe.data.local.entity.RecentSearchEntity
 import com.harrrshith.moowe.data.remote.dto.CastDto
 import com.harrrshith.moowe.data.remote.dto.MediaDetailDto
@@ -145,6 +146,42 @@ fun RecentSearchEntity.toDomain(): Movie {
         popularity = 0.0,
         adult = false,
         genreIds = emptyList(),
+        mediaType = MediaType.fromApiValue(mediaType),
+    )
+}
+
+fun Movie.toFavoriteEntity(): FavoriteEntity {
+    return FavoriteEntity(
+        cacheKey = "${mediaType.apiValue}-$id",
+        id = id,
+        title = title,
+        overview = overview,
+        posterPath = posterPath,
+        backdropPath = backdropPath,
+        releaseDate = releaseDate,
+        voteAverage = voteAverage,
+        voteCount = voteCount,
+        popularity = popularity,
+        adult = adult,
+        genreIds = genreIds,
+        mediaType = mediaType.apiValue,
+        createdAt = Clock.System.now().toEpochMilliseconds(),
+    )
+}
+
+fun FavoriteEntity.toDomain(): Movie {
+    return Movie(
+        id = id,
+        title = title,
+        overview = overview,
+        posterPath = posterPath,
+        backdropPath = backdropPath,
+        releaseDate = releaseDate,
+        voteAverage = voteAverage,
+        voteCount = voteCount,
+        popularity = popularity,
+        adult = adult,
+        genreIds = genreIds,
         mediaType = MediaType.fromApiValue(mediaType),
     )
 }

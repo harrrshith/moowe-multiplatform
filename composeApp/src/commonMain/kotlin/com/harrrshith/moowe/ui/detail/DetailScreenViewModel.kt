@@ -26,6 +26,12 @@ class DetailScreenViewModel(
 
     init {
         viewModelScope.launch {
+            repository.isFavorite(movieId = dest.id, mediaType = mediaType).collect { favorite ->
+                _uiState.update { it.copy(isLiked = favorite) }
+            }
+        }
+
+        viewModelScope.launch {
             when (val result = repository.getMediaById(id = dest.id, mediaType = mediaType)) {
                 is Result.Success -> _uiState.update { it.copy(movie = result.data) }
                 is Result.Error -> _uiState.update { it.copy(error = result.message) }
@@ -53,6 +59,17 @@ class DetailScreenViewModel(
                 is Result.Success -> _uiState.update { it.copy(relatedMovies = result.data) }
                 is Result.Error -> { }
                 is Result.Loading -> { }
+            }
+        }
+    }
+
+    fun onLikeClicked() {
+        viewModelScope.launch {
+            val movie = _uiState.value.movie ?: return@launch
+            if (_uiState.value.isLiked) {
+                repository.removeFavorite(movieId = movie.id, mediaType = movie.mediaType)
+            } else {
+                repository.addFavorite(movie)
             }
         }
     }
