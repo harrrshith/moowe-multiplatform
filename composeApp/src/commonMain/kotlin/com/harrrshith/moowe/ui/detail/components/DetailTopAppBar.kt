@@ -40,7 +40,8 @@ fun DetailTopAppBar(
     title: String,
     collapseProgress: Float,
     onBackPressed: () -> Unit,
-    onLikeClicked: (Int) -> Unit,
+    isLiked: Boolean,
+    onLikeClicked: () -> Unit,
     onShareClicked: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -66,6 +67,7 @@ fun DetailTopAppBar(
         stop = AppTheme.colorScheme.onSurface,
         fraction = animatedProgress,
     )
+    val likeTint = if (isLiked) AppTheme.colorScheme.error else iconTint
 
     TopAppBar(
         modifier = modifier,
@@ -114,12 +116,12 @@ fun DetailTopAppBar(
                     .background(iconContainerColor),
                 contentAlignment = Alignment.Center
             ) {
-                IconButton(onClick = { onLikeClicked(0) }) {
+                IconButton(onClick = onLikeClicked) {
                     Image(
                         imageVector = LikeIcon,
                         contentDescription = "Like",
                         colorFilter = ColorFilter.tint(
-                            color = iconTint
+                            color = likeTint
                         )
                     )
                 }

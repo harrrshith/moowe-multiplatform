@@ -1,11 +1,8 @@
 package com.harrrshith.moowe.ui.navigation
 
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -17,6 +14,7 @@ import com.harrrshith.moowe.ui.detail.DetailRoute
 import com.harrrshith.moowe.ui.discover.DiscoverRoute
 import com.harrrshith.moowe.ui.search.SearchRoute
 import com.harrrshith.moowe.ui.trending.TrendingRoute
+import com.harrrshith.moowe.ui.yours.YoursRoute
 
 @Composable
 fun NavigationGraph(
@@ -105,12 +103,20 @@ fun NavigationGraph(
                     popEnterTransition = { NavigationTransitions.topLevelEnter(this) },
                     popExitTransition = { NavigationTransitions.topLevelExit(this) }
                 ) {
-                    Box(
+                    YoursRoute(
                         modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ){
-                        Text("Yours")
-                    }
+                        navigateToDetail = { id, mediaType, sharedKey, title, posterPath ->
+                            navController.navigate(
+                                Destination.Detail(
+                                    id = id,
+                                    mediaType = mediaType.apiValue,
+                                    sharedKey = sharedKey,
+                                    title = title,
+                                    posterPath = posterPath,
+                                )
+                            )
+                        }
+                    )
                 }
             }
 

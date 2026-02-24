@@ -37,4 +37,12 @@ interface MovieRepository {
     fun getRecentSearches(limit: Int = 10): Flow<List<Movie>>
 
     suspend fun addRecentSearch(movie: Movie)
+
+    fun getFavorites(): Flow<List<Movie>>
+
+    fun isFavorite(movieId: Int, mediaType: MediaType): Flow<Boolean>
+
+    suspend fun addFavorite(movie: Movie)
+
+    suspend fun removeFavorite(movieId: Int, mediaType: MediaType)
 }
