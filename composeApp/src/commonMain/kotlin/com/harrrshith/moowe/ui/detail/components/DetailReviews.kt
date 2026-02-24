@@ -48,8 +48,6 @@ import com.harrrshith.moowe.ui.theme.AppTheme
 import com.harrrshith.moowe.utils.extensions.format
 import kotlin.math.absoluteValue
 
-private val StarColor = Color(0xFFFFB300)
-
 fun LazyListScope.detailReviews(
     modifier: Modifier = Modifier,
     reviews: List<Review>,
@@ -88,6 +86,8 @@ private fun ReviewsHeader(
 ) {
     val ratingsWithValues = reviews.mapNotNull { it.rating }
     val averageRating = if (ratingsWithValues.isNotEmpty()) ratingsWithValues.average() else null
+    val badgeContainer = AppTheme.colorScheme.tertiaryContainer.copy(alpha = 0.52f)
+    val badgeColor = AppTheme.colorScheme.onTertiaryContainer
 
     Column(modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
         Row(
@@ -110,21 +110,21 @@ private fun ReviewsHeader(
                         horizontalArrangement = Arrangement.spacedBy(3.dp),
                         modifier = Modifier
                             .background(
-                                color = StarColor.copy(alpha = 0.12f),
+                                color = badgeContainer,
                                 shape = RoundedCornerShape(8.dp),
                             )
                             .padding(horizontal = 8.dp, vertical = 4.dp),
                     ) {
                         Text(
                             text = "\u2605",
-                            color = StarColor,
+                            color = badgeColor,
                             fontSize = 12.sp,
                             lineHeight = 16.sp,
                         )
                         Text(
                             text = averageRating.format(1),
                             style = AppTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                            color = StarColor,
+                            color = badgeColor,
                         )
                     }
                 }
@@ -300,26 +300,29 @@ private fun AuthorAvatar(
 
 @Composable
 private fun RatingBadge(rating: Double) {
+    val badgeContainer = AppTheme.colorScheme.tertiaryContainer.copy(alpha = 0.52f)
+    val badgeColor = AppTheme.colorScheme.onTertiaryContainer
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(3.dp),
         modifier = Modifier
             .background(
-                color = StarColor.copy(alpha = 0.12f),
+                color = badgeContainer,
                 shape = RoundedCornerShape(6.dp),
             )
             .padding(horizontal = 6.dp, vertical = 3.dp),
     ) {
         Text(
             text = "\u2605",
-            color = StarColor,
+            color = badgeColor,
             fontSize = 10.sp,
             lineHeight = 14.sp,
         )
         Text(
             text = rating.toInt().toString(),
             style = AppTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-            color = StarColor,
+            color = badgeColor,
         )
     }
 }

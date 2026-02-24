@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.harrrshith.imagecarousel.utils.screenWidth
 import com.harrrshith.moowe.domain.model.CastMember
+import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.domain.model.Review
 import com.harrrshith.moowe.ui.detail.components.detailCast
@@ -48,6 +49,7 @@ import com.harrrshith.moowe.ui.detail.components.detailLineTwo
 import com.harrrshith.moowe.ui.detail.components.detailOverview
 import com.harrrshith.moowe.ui.detail.components.detailRelatedMovies
 import com.harrrshith.moowe.ui.detail.components.detailReviews
+import com.harrrshith.moowe.ui.detail.components.detailSeasons
 import com.harrrshith.moowe.ui.detail.mock.mockMovie
 import com.harrrshith.moowe.ui.theme.AppTheme
 import com.harrrshith.moowe.utils.extensions.format
@@ -59,6 +61,7 @@ fun DetailRoute(
     sharedKey: String,
     initialTitle: String,
     initialPosterPath: String,
+    mediaType: MediaType,
     movieId: Int,
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
@@ -78,6 +81,7 @@ fun DetailRoute(
         popularity = 0.0,
         adult = false,
         genreIds = emptyList(),
+        mediaType = mediaType,
     )
 
     DetailScreen(
@@ -193,6 +197,12 @@ private fun DetailScreen(
             detailRelatedMovies(
                 modifier = Modifier.padding(top = 22.dp),
                 relatedMovies = relatedMovies,
+                mediaType = movie.mediaType,
+            )
+
+            detailSeasons(
+                modifier = Modifier.padding(top = 22.dp),
+                seasons = movie.seasons,
             )
 
             detailReviews(
@@ -240,7 +250,9 @@ private fun DetailHeader(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 HeaderPill(text = movie.releaseDate.take(4).ifBlank { "N/A" })
                 HeaderPill(text = "${movie.voteAverage.format(1)}/10")
-                HeaderPill(text = "TMDB")
+                if (movie.mediaType == MediaType.TV_SERIES && movie.numberOfSeasons != null) {
+                    HeaderPill(text = "${movie.numberOfSeasons} seasons")
+                }
             }
         }
     }

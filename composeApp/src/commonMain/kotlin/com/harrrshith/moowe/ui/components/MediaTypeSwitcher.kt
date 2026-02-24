@@ -30,7 +30,7 @@ fun MediaTypeSwitcher(
         Row(
             modifier = Modifier
                 .clip(RoundedCornerShape(12.dp))
-                .background(AppTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f))
+                .background(AppTheme.colorScheme.surfaceContainerHigh)
                 .clickable { expanded = true }
                 .padding(horizontal = 16.dp, vertical = 10.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -44,7 +44,7 @@ fun MediaTypeSwitcher(
             Icon(
                 imageVector = ArrowDropDownIcon,
                 contentDescription = "Expand",
-                tint = AppTheme.colorScheme.onSurface,
+                tint = AppTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -54,7 +54,7 @@ fun MediaTypeSwitcher(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             modifier = Modifier
-                .background(AppTheme.colorScheme.surface)
+                .background(AppTheme.colorScheme.surfaceContainerLow)
         ) {
             MediaType.entries.forEach { mediaType ->
                 DropdownMenuItem(
@@ -63,7 +63,7 @@ fun MediaTypeSwitcher(
                             text = mediaType.displayName,
                             style = AppTheme.typography.bodyLarge,
                             color = if (mediaType == selectedMediaType) {
-                                AppTheme.colorScheme.primary
+                                AppTheme.colorScheme.onPrimaryContainer
                             } else {
                                 AppTheme.colorScheme.onSurface
                             }
@@ -75,7 +75,7 @@ fun MediaTypeSwitcher(
                     },
                     modifier = Modifier.background(
                         if (mediaType == selectedMediaType) {
-                            AppTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                            AppTheme.colorScheme.primaryContainer.copy(alpha = 0.72f)
                         } else {
                             Color.Transparent
                         }
