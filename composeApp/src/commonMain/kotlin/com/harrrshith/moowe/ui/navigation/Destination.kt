@@ -16,6 +16,7 @@ sealed class Destination{
     @Serializable
     data class Detail(
         val id: Int,
+        val mediaType: String,
         val sharedKey: String,
         val title: String = "",
         val posterPath: String = "",

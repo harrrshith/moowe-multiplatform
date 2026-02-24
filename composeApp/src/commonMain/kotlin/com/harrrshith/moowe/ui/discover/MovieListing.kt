@@ -39,6 +39,7 @@ import coil3.compose.rememberAsyncImagePainter
 import com.harrrshith.imagecarousel.ImageCarousel
 import com.harrrshith.imagecarousel.utils.screenWidth
 import com.harrrshith.moowe.domain.model.Genre
+import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.ui.components.ImageCard
 import com.harrrshith.moowe.ui.theme.AppTheme
@@ -49,7 +50,7 @@ fun LazyListScope.trendingList(
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     movies: List<Movie>,
-    onClick: (Int, String, String, String) -> Unit,
+    onClick: (Int, MediaType, String, String, String) -> Unit,
 ) {
     item {
         val itemWidthFraction = 0.6f
@@ -83,7 +84,13 @@ fun LazyListScope.trendingList(
                     sharedTransitionScope = sharedTransitionScope,
                     imageUrl = movie.posterPath,
                     onClick = {
-                        onClick(movie.id, "movie-${movie.id}-trending", movie.title, movie.posterPath)
+                        onClick(
+                            movie.id,
+                            movie.mediaType,
+                            "movie-${movie.id}-trending",
+                            movie.title,
+                            movie.posterPath,
+                        )
                     },
                 )
             }
@@ -101,7 +108,7 @@ fun GenreMoviesSection(
     itemsTobeDisplayed: Int,
     screenWidth: Dp,
     onSectionComposed: (Genre) -> Unit = {},
-    onClick: (Int, String, String, String) -> Unit = { _, _, _, _ -> },
+    onClick: (Int, MediaType, String, String, String) -> Unit = { _, _, _, _, _ -> },
 ) {
     LaunchedEffect(genre) {
         onSectionComposed(genre)
@@ -133,6 +140,7 @@ fun GenreMoviesSection(
                         .clickable {
                             onClick(
                                 movie.id,
+                                movie.mediaType,
                                 "movie-${movie.id}-${genre.id}",
                                 movie.title,
                                 movie.posterPath,

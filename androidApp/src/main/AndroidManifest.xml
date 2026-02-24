@@ -7,11 +7,13 @@
     <application
         android:name="com.harrrshith.moowe.MooweApplication"
         android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="Moowe"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
         <activity
-            android:name="com.harrrshith.moowe.app.MainActivity"
+            android:name="com.harrrshith.moowe.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

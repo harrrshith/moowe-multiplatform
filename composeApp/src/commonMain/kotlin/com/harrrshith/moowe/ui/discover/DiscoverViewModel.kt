@@ -162,11 +162,18 @@ class DiscoverViewModel(
         loadGenre(genre = genre)
     }
 
-    fun onMovieClick(id: Int, sharedKey: String, title: String, posterPath: String) {
+    fun onMovieClick(
+        id: Int,
+        mediaType: MediaType,
+        sharedKey: String,
+        title: String,
+        posterPath: String,
+    ) {
         viewModelScope.launch {
             _uiEvents.emit(
                 DiscoverUiEvent.NavigateToDetail(
                     id = id,
+                    mediaType = mediaType,
                     sharedKey = sharedKey,
                     title = title,
                     posterPath = posterPath,

@@ -1,14 +1,20 @@
 package com.harrrshith.moowe.data
 
 import com.harrrshith.moowe.data.local.entity.MovieEntity
+import com.harrrshith.moowe.data.local.entity.FavoriteEntity
+import com.harrrshith.moowe.data.local.entity.RecentSearchEntity
 import com.harrrshith.moowe.data.remote.dto.CastDto
+import com.harrrshith.moowe.data.remote.dto.MediaDetailDto
 import com.harrrshith.moowe.data.remote.dto.MovieDto
 import com.harrrshith.moowe.data.remote.dto.ReviewDto
 import com.harrrshith.moowe.domain.model.CastMember
+import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.domain.model.Review
+import com.harrrshith.moowe.domain.model.Season
+import kotlin.time.Clock
 
-fun MovieDto.toDomain(): Movie {
+fun MovieDto.toDomain(mediaType: MediaType = MediaType.MOVIE): Movie {
     return Movie(
         id = id,
         title = name ?: title ?: "",
@@ -20,7 +26,38 @@ fun MovieDto.toDomain(): Movie {
         voteCount = voteCount,
         popularity = popularity,
         adult = adult,
-        genreIds = genreIds
+        genreIds = genreIds,
+        mediaType = mediaType,
+    )
+}
+
+fun MediaDetailDto.toDomain(mediaType: MediaType): Movie {
+    return Movie(
+        id = id,
+        title = name ?: title ?: "",
+        overview = overview ?: "",
+        posterPath = posterPath ?: "",
+        backdropPath = backdropPath ?: "",
+        releaseDate = firstAirDate ?: releaseDate ?: "",
+        voteAverage = voteAverage,
+        voteCount = voteCount,
+        popularity = popularity,
+        adult = adult,
+        genreIds = genres.map { it.id },
+        mediaType = mediaType,
+        numberOfSeasons = numberOfSeasons,
+        numberOfEpisodes = numberOfEpisodes,
+        seasons = seasons.map { season ->
+            Season(
+                id = season.id,
+                name = season.name ?: "",
+                seasonNumber = season.seasonNumber,
+                episodeCount = season.episodeCount,
+                airDate = season.airDate ?: "",
+                posterPath = season.posterPath ?: "",
+                overview = season.overview ?: "",
+            )
+        },
     )
 }
 
@@ -62,6 +99,12 @@ fun CastDto.toDomain(): CastMember = CastMember(
 )
 
 fun MovieEntity.toDomain() : Movie {
+    val mediaTypeValue = if (mediaType == MediaType.TV_SERIES.apiValue) {
+        MediaType.TV_SERIES
+    } else {
+        MediaType.MOVIE
+    }
+
     return Movie(
         id = id,
         title = title,
@@ -73,6 +116,72 @@ fun MovieEntity.toDomain() : Movie {
         voteCount = voteCount,
         popularity = popularity,
         adult = adult,
-        genreIds = genreIds
+        genreIds = genreIds,
+        mediaType = mediaTypeValue,
+    )
+}
+
+fun Movie.toRecentSearchEntity(): RecentSearchEntity {
+    return RecentSearchEntity(
+        cacheKey = "${mediaType.apiValue}-$id",
+        id = id,
+        title = title,
+        posterPath = posterPath,
+        releaseDate = releaseDate,
+        mediaType = mediaType.apiValue,
+        searchedAt = Clock.System.now().toEpochMilliseconds(),
+    )
+}
+
+fun RecentSearchEntity.toDomain(): Movie {
+    return Movie(
+        id = id,
+        title = title,
+        overview = "",
+        posterPath = posterPath,
+        backdropPath = "",
+        releaseDate = releaseDate,
+        voteAverage = 0.0,
+        voteCount = 0,
+        popularity = 0.0,
+        adult = false,
+        genreIds = emptyList(),
+        mediaType = MediaType.fromApiValue(mediaType),
+    )
+}
+
+fun Movie.toFavoriteEntity(): FavoriteEntity {
+    return FavoriteEntity(
+        cacheKey = "${mediaType.apiValue}-$id",
+        id = id,
+        title = title,
+        overview = overview,
+        posterPath = posterPath,
+        backdropPath = backdropPath,
+        releaseDate = releaseDate,
+        voteAverage = voteAverage,
+        voteCount = voteCount,
+        popularity = popularity,
+        adult = adult,
+        genreIds = genreIds,
+        mediaType = mediaType.apiValue,
+        createdAt = Clock.System.now().toEpochMilliseconds(),
+    )
+}
+
+fun FavoriteEntity.toDomain(): Movie {
+    return Movie(
+        id = id,
+        title = title,
+        overview = overview,
+        posterPath = posterPath,
+        backdropPath = backdropPath,
+        releaseDate = releaseDate,
+        voteAverage = voteAverage,
+        voteCount = voteCount,
+        popularity = popularity,
+        adult = adult,
+        genreIds = genreIds,
+        mediaType = MediaType.fromApiValue(mediaType),
     )
 }

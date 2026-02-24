@@ -6,6 +6,8 @@ import com.harrrshith.moowe.data.paging.PageResult
 import com.harrrshith.moowe.data.paging.createPagerFlow
 import com.harrrshith.moowe.data.remote.MooweApiHandler
 import com.harrrshith.moowe.data.toDomain
+import com.harrrshith.moowe.data.toFavoriteEntity
+import com.harrrshith.moowe.data.toRecentSearchEntity
 import com.harrrshith.moowe.data.toEntity
 import com.harrrshith.moowe.domain.model.CastMember
 import com.harrrshith.moowe.domain.model.Genre
@@ -148,7 +150,7 @@ class MovieRepositoryImpl(
             }
 
             PageResult(
-                items = response.movies.map { it.toDomain() },
+                items = response.movies.map { it.toDomain(mediaType = mediaType) },
                 currentPage = response.page,
                 totalPages = response.totalPages,
             )
@@ -171,49 +173,92 @@ class MovieRepositoryImpl(
 //        }
 //    }
 
-    override suspend fun getMovieById(id: Int): Result<Movie> {
+    override suspend fun getMediaById(id: Int, mediaType: MediaType): Result<Movie> {
         return try {
-            val movie = dao.getMovieById(movieId = id)
-            if (movie != null) {
-                Result.Success(movie.toDomain())
+            val cachedMedia = dao.getMovieById(movieId = id, mediaType = mediaType.apiValue)
+            if (cachedMedia != null) {
+                Result.Success(cachedMedia.toDomain())
             } else {
-                Result.Error("Movie not found", status = 404)
+                val response = api.getMediaDetails(mediaType = mediaType.apiValue, mediaId = id)
+                Result.Success(response.toDomain(mediaType = mediaType))
             }
         } catch (e: Exception) {
             Result.Error(e.message ?: "Unknown error", status = 500)
         }
     }
 
-    override suspend fun getMovieReviews(movieId: Int): Result<List<Review>> {
+    override suspend fun getMediaReviews(mediaId: Int, mediaType: MediaType): Result<List<Review>> {
         return try {
-            val response = api.getMovieReviews(movieId = movieId)
+            val response = api.getMediaReviews(mediaType = mediaType.apiValue, mediaId = mediaId)
             Result.Success(response.results.map { it.toDomain() })
         } catch (e: Exception) {
             Result.Error(e.message ?: "Unknown error", status = 500)
         }
     }
 
-    override suspend fun getMovieCast(movieId: Int): Result<List<CastMember>> {
+    override suspend fun getMediaCast(mediaId: Int, mediaType: MediaType): Result<List<CastMember>> {
         return try {
-            val response = api.getMovieCredits(movieId = movieId)
+            val response = api.getMediaCredits(mediaType = mediaType.apiValue, mediaId = mediaId)
             Result.Success(response.cast.sortedBy { it.order }.take(15).map { it.toDomain() })
         } catch (e: Exception) {
             Result.Error(e.message ?: "Unknown error", status = 500)
         }
     }
 
-    override suspend fun getRelatedMovies(movieId: Int): Result<List<Movie>> {
+    override suspend fun getRelatedMedia(mediaId: Int, mediaType: MediaType): Result<List<Movie>> {
         return try {
-            val response = api.getSimilarMovies(movieId = movieId)
+            val response = api.getSimilarMedia(mediaType = mediaType.apiValue, mediaId = mediaId)
             Result.Success(
                 response.movies
-                    .map { it.toDomain() }
+                    .map { it.toDomain(mediaType = mediaType) }
                     .distinctBy { it.id }
                     .take(15)
             )
         } catch (e: Exception) {
             Result.Error(e.message ?: "Unknown error", status = 500)
         }
+    }
+
+    override suspend fun searchMedia(query: String, mediaType: MediaType): Result<List<Movie>> {
+        return try {
+            val response = api.searchMedia(mediaType = mediaType.apiValue, query = query)
+            Result.Success(
+                response.movies
+                    .map { it.toDomain(mediaType = mediaType) }
+                    .distinctBy { it.id }
+            )
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Unknown error", status = 500)
+        }
+    }
+
+    override fun getRecentSearches(limit: Int): Flow<List<Movie>> {
+        return dao.getRecentSearches(limit = limit)
+            .map { searches -> searches.map { it.toDomain() } }
+            .flowOn(Dispatchers.IO)
+    }
+
+    override suspend fun addRecentSearch(movie: Movie) {
+        dao.insertRecentSearch(movie.toRecentSearchEntity())
+    }
+
+    override fun getFavorites(): Flow<List<Movie>> {
+        return dao.getFavoritesFlow()
+            .map { favorites -> favorites.map { it.toDomain() } }
+            .flowOn(Dispatchers.IO)
+    }
+
+    override fun isFavorite(movieId: Int, mediaType: MediaType): Flow<Boolean> {
+        return dao.isFavoriteFlow(movieId = movieId, mediaType = mediaType.apiValue)
+            .flowOn(Dispatchers.IO)
+    }
+
+    override suspend fun addFavorite(movie: Movie) {
+        dao.insertFavorite(movie.toFavoriteEntity())
+    }
+
+    override suspend fun removeFavorite(movieId: Int, mediaType: MediaType) {
+        dao.deleteFavorite(movieId = movieId, mediaType = mediaType.apiValue)
     }
     
 //    suspend fun clearCache() {

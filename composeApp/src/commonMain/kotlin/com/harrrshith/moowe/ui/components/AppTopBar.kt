@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -93,7 +94,7 @@ private fun MediaTypeSegmentedControl(
             .width(SegmentWidth * options.size + TrackPadding * 2)
             .height(ControlHeight)
             .clip(RoundedCornerShape(50))
-            .background(AppTheme.colorScheme.surfaceContainerHighest.copy(alpha = 0.45f))
+            .background(AppTheme.colorScheme.surfaceContainerHigh.copy(alpha = 0.82f))
             .padding(TrackPadding)
     ) {
         // Sliding pill
@@ -103,7 +104,14 @@ private fun MediaTypeSegmentedControl(
                 .width(SegmentWidth)
                 .fillMaxHeight()
                 .clip(RoundedCornerShape(50))
-                .background(AppTheme.colorScheme.primary)
+                .background(
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(
+                            AppTheme.colorScheme.primary,
+                            AppTheme.colorScheme.secondary,
+                        )
+                    )
+                )
         )
 
         // Labels — drawn on top of the pill so they're always readable
@@ -112,7 +120,7 @@ private fun MediaTypeSegmentedControl(
                 val isSelected = mediaType == selectedMediaType
                 val textColor by animateColorAsState(
                     targetValue = if (isSelected) AppTheme.colorScheme.onPrimary
-                    else AppTheme.colorScheme.onSurface.copy(alpha = 0.55f),
+                    else AppTheme.colorScheme.onSurfaceVariant,
                     animationSpec = tween(durationMillis = 200),
                     label = "text_color_${mediaType.name}"
                 )

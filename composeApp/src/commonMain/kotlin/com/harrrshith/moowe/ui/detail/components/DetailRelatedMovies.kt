@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
+import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.ui.theme.AppTheme
 import com.harrrshith.moowe.utils.extensions.format
@@ -33,6 +34,7 @@ import com.harrrshith.moowe.utils.posterUrl
 fun LazyListScope.detailRelatedMovies(
     modifier: Modifier = Modifier,
     relatedMovies: List<Movie>,
+    mediaType: MediaType,
 ) {
     if (relatedMovies.isEmpty()) return
 
@@ -40,7 +42,7 @@ fun LazyListScope.detailRelatedMovies(
         Column(modifier = modifier.fillMaxWidth()) {
             Text(
                 modifier = Modifier.padding(horizontal = 16.dp),
-                text = "related movies",
+                text = if (mediaType == MediaType.TV_SERIES) "related series" else "related movies",
                 style = AppTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                 color = AppTheme.colorScheme.onSurface,
             )

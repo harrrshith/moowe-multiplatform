@@ -4,7 +4,9 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.harrrshith.moowe.data.local.entity.FavoriteEntity
 import com.harrrshith.moowe.data.local.entity.MovieEntity
+import com.harrrshith.moowe.data.local.entity.RecentSearchEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -27,8 +29,8 @@ interface MooweDao {
     @Query("SELECT * FROM movies WHERE genre = :id")
     fun getMoviesByGenre(id: Int): Flow<List<MovieEntity>>
     
-    @Query("SELECT * FROM movies WHERE id = :movieId")
-    suspend fun getMovieById(movieId: Int): MovieEntity?
+    @Query("SELECT * FROM movies WHERE id = :movieId AND mediaType = :mediaType")
+    suspend fun getMovieById(movieId: Int, mediaType: String): MovieEntity?
     
     @Query("DELETE FROM movies")
     suspend fun clearAllMovies()
@@ -42,4 +44,22 @@ interface MooweDao {
     // Simple cache cleanup
     @Query("DELETE FROM movies WHERE cachedAt < :expirationThreshold")
     suspend fun deleteExpiredMovies(expirationThreshold: Long)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertRecentSearch(search: RecentSearchEntity)
+
+    @Query("SELECT * FROM recent_searches ORDER BY searchedAt DESC LIMIT :limit")
+    fun getRecentSearches(limit: Int): Flow<List<RecentSearchEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFavorite(favorite: FavoriteEntity)
+
+    @Query("DELETE FROM favorites WHERE id = :movieId AND mediaType = :mediaType")
+    suspend fun deleteFavorite(movieId: Int, mediaType: String)
+
+    @Query("SELECT * FROM favorites ORDER BY createdAt DESC")
+    fun getFavoritesFlow(): Flow<List<FavoriteEntity>>
+
+    @Query("SELECT EXISTS(SELECT 1 FROM favorites WHERE id = :movieId AND mediaType = :mediaType)")
+    fun isFavoriteFlow(movieId: Int, mediaType: String): Flow<Boolean>
 }
