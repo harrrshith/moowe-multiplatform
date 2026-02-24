@@ -8,6 +8,7 @@ import com.harrrshith.moowe.data.repository.MovieRepositoryImpl
 import com.harrrshith.moowe.domain.repository.MovieRepository
 import com.harrrshith.moowe.ui.detail.DetailScreenViewModel
 import com.harrrshith.moowe.ui.discover.DiscoverViewModel
+import com.harrrshith.moowe.ui.search.SearchViewModel
 import com.harrrshith.moowe.ui.trending.TrendingViewModel
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -32,6 +33,7 @@ val repositoryModule = module {
 val viewModelModule = module {
     factory { DiscoverViewModel(get()) }
     factory { TrendingViewModel(get()) }
+    factory { SearchViewModel(get()) }
     factory { id -> DetailScreenViewModel(id.get(), get()) }
 }
 

@@ -102,4 +102,20 @@ class MooweApiHandler(
             parameter("page", page)
         }.body()
     }
+
+    suspend fun searchMedia(
+        mediaType: String = "movie",
+        query: String,
+        language: String = "en-US",
+        region: String = "IN",
+        page: Int = 1,
+    ): MoviesResponse {
+        return client.get("search/$mediaType") {
+            parameter("query", query)
+            parameter("language", language)
+            parameter("include_adult", false)
+            parameter("region", region)
+            parameter("page", page)
+        }.body()
+    }
 }

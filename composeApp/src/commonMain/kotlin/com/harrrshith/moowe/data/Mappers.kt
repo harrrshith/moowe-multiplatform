@@ -1,6 +1,7 @@
 package com.harrrshith.moowe.data
 
 import com.harrrshith.moowe.data.local.entity.MovieEntity
+import com.harrrshith.moowe.data.local.entity.RecentSearchEntity
 import com.harrrshith.moowe.data.remote.dto.CastDto
 import com.harrrshith.moowe.data.remote.dto.MediaDetailDto
 import com.harrrshith.moowe.data.remote.dto.MovieDto
@@ -10,6 +11,7 @@ import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.domain.model.Review
 import com.harrrshith.moowe.domain.model.Season
+import kotlin.time.Clock
 
 fun MovieDto.toDomain(mediaType: MediaType = MediaType.MOVIE): Movie {
     return Movie(
@@ -115,5 +117,34 @@ fun MovieEntity.toDomain() : Movie {
         adult = adult,
         genreIds = genreIds,
         mediaType = mediaTypeValue,
+    )
+}
+
+fun Movie.toRecentSearchEntity(): RecentSearchEntity {
+    return RecentSearchEntity(
+        cacheKey = "${mediaType.apiValue}-$id",
+        id = id,
+        title = title,
+        posterPath = posterPath,
+        releaseDate = releaseDate,
+        mediaType = mediaType.apiValue,
+        searchedAt = Clock.System.now().toEpochMilliseconds(),
+    )
+}
+
+fun RecentSearchEntity.toDomain(): Movie {
+    return Movie(
+        id = id,
+        title = title,
+        overview = "",
+        posterPath = posterPath,
+        backdropPath = "",
+        releaseDate = releaseDate,
+        voteAverage = 0.0,
+        voteCount = 0,
+        popularity = 0.0,
+        adult = false,
+        genreIds = emptyList(),
+        mediaType = MediaType.fromApiValue(mediaType),
     )
 }

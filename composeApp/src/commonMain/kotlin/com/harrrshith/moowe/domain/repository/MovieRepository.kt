@@ -31,4 +31,10 @@ interface MovieRepository {
     suspend fun getMediaCast(mediaId: Int, mediaType: MediaType): Result<List<CastMember>>
 
     suspend fun getRelatedMedia(mediaId: Int, mediaType: MediaType): Result<List<Movie>>
+
+    suspend fun searchMedia(query: String, mediaType: MediaType = MediaType.MOVIE): Result<List<Movie>>
+
+    fun getRecentSearches(limit: Int = 10): Flow<List<Movie>>
+
+    suspend fun addRecentSearch(movie: Movie)
 }
