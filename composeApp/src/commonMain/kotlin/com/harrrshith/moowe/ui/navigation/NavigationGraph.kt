@@ -1,6 +1,10 @@
 package com.harrrshith.moowe.ui.navigation
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -121,10 +125,10 @@ fun NavigationGraph(
             }
 
             composable<Destination.Detail>(
-                enterTransition = { NavigationTransitions.detailEnter() },
-                exitTransition = { NavigationTransitions.detailExit() },
-                popEnterTransition = { NavigationTransitions.detailPopEnter() },
-                popExitTransition = { NavigationTransitions.detailPopExit() }
+                enterTransition = { EnterTransition.None },
+                exitTransition = { ExitTransition.None },
+                popEnterTransition = { EnterTransition.None },
+                popExitTransition = { fadeOut(animationSpec = tween(120)) }
             ) {
                 val detailDestination = it.toRoute<Destination.Detail>()
                 DetailRoute(

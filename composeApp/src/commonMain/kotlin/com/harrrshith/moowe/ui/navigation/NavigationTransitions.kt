@@ -16,10 +16,9 @@ import androidx.navigation.NavBackStackEntry
  */
 object NavigationTransitions {
     private const val TOP_LEVEL_DURATION = 320
-    private const val DETAIL_ENTER_DURATION = 280
-    private const val DETAIL_EXIT_DURATION = 220
 
     fun topLevelEnter(scope: AnimatedContentTransitionScope<NavBackStackEntry>): EnterTransition {
+        if (!scope.isTopLevelToTopLevel()) return EnterTransition.None
         val movingForward = scope.isMovingForwardBetweenTopLevelDestinations()
         return fadeIn(
             animationSpec = tween(
@@ -34,6 +33,7 @@ object NavigationTransitions {
     }
 
     fun topLevelExit(scope: AnimatedContentTransitionScope<NavBackStackEntry>): ExitTransition {
+        if (!scope.isTopLevelToTopLevel()) return ExitTransition.None
         val movingForward = scope.isMovingForwardBetweenTopLevelDestinations()
         return fadeOut(
             animationSpec = tween(durationMillis = 180, easing = FastOutSlowInEasing)
@@ -43,26 +43,11 @@ object NavigationTransitions {
         )
     }
 
-    fun detailEnter(): EnterTransition =
-        fadeIn(
-            animationSpec = tween(durationMillis = DETAIL_ENTER_DURATION, delayMillis = 20)
-        ) + slideInHorizontally(
-            animationSpec = tween(durationMillis = DETAIL_ENTER_DURATION, easing = FastOutSlowInEasing),
-            initialOffsetX = { fullWidth -> fullWidth / 8 },
-        )
-
-    fun detailExit(): ExitTransition =
-        fadeOut(animationSpec = tween(durationMillis = DETAIL_EXIT_DURATION))
-
-    fun detailPopEnter(): EnterTransition =
-        fadeIn(animationSpec = tween(durationMillis = DETAIL_EXIT_DURATION))
-
-    fun detailPopExit(): ExitTransition =
-        fadeOut(animationSpec = tween(durationMillis = DETAIL_ENTER_DURATION / 2)) +
-            slideOutHorizontally(
-                animationSpec = tween(durationMillis = DETAIL_ENTER_DURATION, easing = FastOutSlowInEasing),
-                targetOffsetX = { fullWidth -> fullWidth / 8 },
-            )
+    private fun AnimatedContentTransitionScope<NavBackStackEntry>.isTopLevelToTopLevel(): Boolean {
+        val from = topLevelRouteIndex(initialState.destination.route)
+        val to = topLevelRouteIndex(targetState.destination.route)
+        return from != -1 && to != -1
+    }
 
     private fun AnimatedContentTransitionScope<NavBackStackEntry>.isMovingForwardBetweenTopLevelDestinations(): Boolean {
         val from = topLevelRouteIndex(initialState.destination.route)
