@@ -5,6 +5,7 @@ import com.harrrshith.moowe.data.local.MooweDatabase
 import com.harrrshith.moowe.data.remote.MooweApiHandler
 import com.harrrshith.moowe.data.remote.MooweHttpClient
 import com.harrrshith.moowe.data.repository.MovieRepositoryImpl
+import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.domain.repository.MovieRepository
 import com.harrrshith.moowe.ui.detail.DetailScreenViewModel
 import com.harrrshith.moowe.ui.discover.DiscoverViewModel
@@ -36,7 +37,13 @@ val viewModelModule = module {
     factory { TrendingViewModel(get()) }
     factory { SearchViewModel(get()) }
     factory { YoursViewModel(get()) }
-    factory { id -> DetailScreenViewModel(id.get(), get()) }
+    factory {
+        DetailScreenViewModel(
+            movieId = it.get<Int>(),
+            mediaType = it.get<MediaType>(),
+            repository = get(),
+        )
+    }
 }
 
 fun initKoin(appDeclaration: KoinAppDeclaration = {}) {

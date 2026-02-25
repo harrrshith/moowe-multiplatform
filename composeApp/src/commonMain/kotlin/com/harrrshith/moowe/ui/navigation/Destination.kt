@@ -1,7 +1,8 @@
 package com.harrrshith.moowe.ui.navigation
 
+import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
-sealed class Destination{
+sealed class Destination : NavKey {
     @Serializable
     data object Home: Destination() {
         @Serializable
