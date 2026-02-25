@@ -54,6 +54,7 @@ import com.harrrshith.moowe.ui.detail.mock.mockMovie
 import com.harrrshith.moowe.ui.theme.AppTheme
 import com.harrrshith.moowe.utils.extensions.format
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
@@ -65,7 +66,9 @@ fun DetailRoute(
     movieId: Int,
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
-    viewModel: DetailScreenViewModel = koinViewModel(),
+    viewModel: DetailScreenViewModel = koinViewModel(
+        parameters = { parametersOf(movieId, mediaType) }
+    ),
     onBackPressed: () -> Unit
 ){
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()

@@ -22,7 +22,7 @@ runtime = "1.10.0"
 sqliteVersion = "2.6.2"
 coil-version = "3.3.0"
 haze = "1.7.1"
-navigationCompose = "2.9.1"
+navigation3 = "1.0.0-alpha06"
 appCashPaging = "3.3.0-alpha02-0.5.1"
 uiToolingPreview = "1.10.0"
 
@@ -32,7 +32,7 @@ foundation = { module = "org.jetbrains.compose.foundation:foundation", version.r
 haze = { module = "dev.chrisbanes.haze:haze", version.ref = "haze" }
 haze-materials = { module = "dev.chrisbanes.haze:haze-materials", version.ref = "haze" }
 material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }
-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+navigation3-ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "navigation3" }
 app-cash-paging-common = { module = "app.cash.paging:paging-common", version.ref = "appCashPaging" }
 app-cash-paging-compose = { module = "app.cash.paging:paging-compose-common", version.ref = "appCashPaging" }
 androidx-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel", version.ref = "androidx-lifecycle" }

@@ -10,15 +10,11 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavDestination
-import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.harrrshith.moowe.ui.navigation.Destination
 import com.harrrshith.moowe.ui.navigation.TopLevelDestination
 import com.harrrshith.moowe.ui.navigation.isTopLevelDestination
@@ -32,12 +28,12 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 
 @Composable
 fun AppBottomBar(
-    navController: NavHostController,
+    backStack: SnapshotStateList<Destination>,
+    onDestinationSelected: (Destination) -> Unit,
     hazeState: HazeState
 ){
     val tabs = remember { topLevelDestinations }
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
+    val currentDestination = backStack.lastOrNull() ?: return
     if (currentDestination.isTopLevelDestination()) {
         Surface(
             modifier = Modifier
@@ -51,14 +47,8 @@ fun AppBottomBar(
                 tabs = tabs,
                 currentDestination = currentDestination,
                 onTabItemClick = { tab ->
-                    if (currentDestination?.hasRoute(tab.route::class) == false) {
-                        navController.navigate(tab.route) {
-                            popUpTo(Destination.Home.Discover) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                    if (currentDestination != tab.key) {
+                        onDestinationSelected(tab.key)
                     }
                 }
             )
@@ -72,7 +62,7 @@ private fun BottomBar(
     modifier: Modifier,
     hazeState: HazeState,
     tabs: List<TopLevelDestination>,
-    currentDestination: NavDestination?,
+    currentDestination: Destination,
     onTabItemClick: (TopLevelDestination) -> Unit
 ){
     NavigationBar(
@@ -88,7 +78,7 @@ private fun BottomBar(
         windowInsets = WindowInsets(0, 0, 0, 0)
     ){
         tabs.forEach { tab ->
-            val currentSelectedTab = currentDestination?.hasRoute(tab.route::class) == true
+            val currentSelectedTab = currentDestination == tab.key
             NavigationBarItem(
                 selected = currentSelectedTab,
                 icon = {
