@@ -36,6 +36,7 @@ fun DiscoverRoute(
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     viewModel: DiscoverViewModel = koinViewModel(),
+    navigateToSearch: () -> Unit,
     navigateToDetail: (Int, MediaType, String, String, String) -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -67,6 +68,7 @@ fun DiscoverRoute(
         isRefreshing = uiState.isRefreshing,
         onGenreVisible = viewModel::onGenreVisible,
         onMediaTypeChanged = viewModel::onMediaTypeChanged,
+        navigateToSearch = navigateToSearch,
         onRefresh = viewModel::onRefresh,
         onClick = { id, mediaType, sharedKey, title, posterPath ->
             viewModel.onMovieClick(id, mediaType, sharedKey, title, posterPath)
@@ -91,6 +93,7 @@ private fun DiscoverScreen(
     isRefreshing: Boolean = false,
     onGenreVisible: (Genre) -> Unit,
     onMediaTypeChanged: (MediaType) -> Unit,
+    navigateToSearch: () -> Unit,
     onRefresh: () -> Unit = {},
     onClick: (Int, MediaType, String, String, String) -> Unit
 ) {
@@ -101,7 +104,8 @@ private fun DiscoverScreen(
             SegmentedAppTopBar(
                 hazeState = hazeState,
                 selectedMediaType = selectedMediaType,
-                onMediaTypeSelected = onMediaTypeChanged
+                onMediaTypeSelected = onMediaTypeChanged,
+                onSearchClick = navigateToSearch,
             )
         }
     ) { innerPadding ->

@@ -83,7 +83,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(libs.app.cash.paging.common)
             implementation(libs.app.cash.paging.compose)
-            implementation(libs.navigation.compose)
+            implementation(libs.navigation3.ui)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
             implementation(libs.ktor.client.core)

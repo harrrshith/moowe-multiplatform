@@ -5,7 +5,6 @@ package com.harrrshith.moowe.ui.search
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
@@ -46,9 +44,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.rememberAsyncImagePainter
+import com.harrrshith.moowe.LocalHazeState
 import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.ui.components.ListingCardScrim
+import com.harrrshith.moowe.ui.components.SegmentedAppTopBar
 import com.harrrshith.moowe.ui.theme.AppTheme
 import com.harrrshith.moowe.utils.posterUrl
 import org.koin.compose.viewmodel.koinViewModel
@@ -60,6 +60,7 @@ fun SearchRoute(
     navigateToDetail: (Int, MediaType, String, String, String) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val hazeState = LocalHazeState.current
 
     LaunchedEffect(Unit) {
         viewModel.uiEvents.collect { event ->
@@ -79,32 +80,43 @@ fun SearchRoute(
 
     SearchScreen(
         modifier = modifier,
+        hazeState = hazeState,
         uiState = uiState,
         onQueryChanged = viewModel::onQueryChange,
+        onMediaTypeChanged = viewModel::onMediaTypeChanged,
         onMovieClick = viewModel::onMovieClick,
+        onRecentMovieClick = viewModel::onRecentMovieClick,
     )
 }
 
 @Composable
 private fun SearchScreen(
     modifier: Modifier = Modifier,
+    hazeState: dev.chrisbanes.haze.HazeState,
     uiState: SearchUiState,
     onQueryChanged: (String) -> Unit,
+    onMediaTypeChanged: (MediaType) -> Unit,
     onMovieClick: (Movie) -> Unit,
+    onRecentMovieClick: (Movie) -> Unit,
 ) {
+    val filteredRecent = uiState.recentSearches.filter { it.mediaType == uiState.selectedMediaType }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = AppTheme.colorScheme.surface,
         topBar = {
             SearchTopBar(
+                hazeState = hazeState,
+                selectedMediaType = uiState.selectedMediaType,
                 query = uiState.query,
+                onMediaTypeChanged = onMediaTypeChanged,
                 onQueryChanged = onQueryChanged,
             )
         },
     ) { innerPadding ->
         when {
             uiState.query.isBlank() -> {
-                if (uiState.recentSearches.isEmpty()) {
+                if (filteredRecent.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize().padding(innerPadding))
                 } else {
                     Column(
@@ -123,12 +135,12 @@ private fun SearchScreen(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                         ) {
                             rowItems(
-                                items = uiState.recentSearches.take(10),
+                                items = filteredRecent.take(10),
                                 key = { movie -> "recent-${movie.mediaType.name}-${movie.id}" },
                             ) { movie ->
                                 RecentSearchCard(
                                     movie = movie,
-                                    onClick = { onMovieClick(movie) },
+                                    onClick = { onRecentMovieClick(movie) },
                                 )
                             }
                         }
@@ -167,25 +179,39 @@ private fun SearchScreen(
             }
 
             else -> {
-                LazyVerticalStaggeredGrid(
-                    columns = StaggeredGridCells.Fixed(2),
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding),
-                    contentPadding = PaddingValues(start = 12.dp, end = 12.dp, bottom = 120.dp),
-                    verticalItemSpacing = 10.dp,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    items(
-                        items = uiState.results,
-                        key = { movie -> "search-${movie.mediaType.name}-${movie.id}" },
-                    ) { movie ->
-                        SearchMovieCard(
-                            movie = movie,
-                            onClick = { onMovieClick(movie) },
-                        )
+                    Text(
+                        text = "Recently searched",
+                        style = AppTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = AppTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 10.dp),
+                    )
+                    LazyVerticalStaggeredGrid(
+                        columns = StaggeredGridCells.Fixed(2),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                        contentPadding = PaddingValues(start = 12.dp, end = 12.dp, bottom = 120.dp),
+                        verticalItemSpacing = 10.dp,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        items(
+                            items = uiState.results,
+                            key = { movie -> "search-${movie.mediaType.name}-${movie.id}" },
+                        ) { movie ->
+                            SearchMovieCard(
+                                movie = movie,
+                                onClick = { onMovieClick(movie) },
+                            )
+                        }
                     }
                 }
+
+
             }
         }
     }
@@ -227,16 +253,21 @@ private fun RecentSearchCard(
 
 @Composable
 private fun SearchTopBar(
+    hazeState: dev.chrisbanes.haze.HazeState,
+    selectedMediaType: MediaType,
     query: String,
+    onMediaTypeChanged: (MediaType) -> Unit,
     onQueryChanged: (String) -> Unit,
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .statusBarsPadding()
-            .background(AppTheme.colorScheme.surface)
-            .padding(horizontal = 16.dp, vertical = 10.dp),
     ) {
+        SegmentedAppTopBar(
+            hazeState = hazeState,
+            selectedMediaType = selectedMediaType,
+            onMediaTypeSelected = onMediaTypeChanged,
+        )
         PremiumSearchInput(
             value = query,
             onValueChange = onQueryChanged,

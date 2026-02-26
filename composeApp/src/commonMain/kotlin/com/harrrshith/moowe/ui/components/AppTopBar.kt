@@ -20,6 +20,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -34,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.harrrshith.moowe.domain.model.MediaType
+import com.harrrshith.moowe.ui.components.composeVectors.SearchIcon
 import com.harrrshith.moowe.ui.theme.AppTheme
 import dev.chrisbanes.haze.HazeProgressive
 import dev.chrisbanes.haze.HazeState
@@ -46,7 +49,8 @@ import dev.chrisbanes.haze.materials.HazeMaterials
 internal fun SegmentedAppTopBar(
     hazeState: HazeState,
     selectedMediaType: MediaType = MediaType.MOVIE,
-    onMediaTypeSelected: ((MediaType) -> Unit)
+    onMediaTypeSelected: (MediaType) -> Unit,
+    onSearchClick: (() -> Unit)? = null,
 ) {
     CenterAlignedTopAppBar(
         modifier = Modifier
@@ -62,6 +66,17 @@ internal fun SegmentedAppTopBar(
                 selectedMediaType = selectedMediaType,
                 onMediaTypeSelected = onMediaTypeSelected
             )
+        },
+        actions = {
+            if (onSearchClick != null) {
+                IconButton(onClick = onSearchClick) {
+                    Icon(
+                        imageVector = SearchIcon,
+                        contentDescription = "Search",
+                        tint = AppTheme.colorScheme.onSurface,
+                    )
+                }
+            }
         },
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
     )
