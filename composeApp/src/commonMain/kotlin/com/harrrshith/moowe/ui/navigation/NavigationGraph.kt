@@ -38,19 +38,19 @@ fun NavigationGraph(
                     fadeOut(animationSpec = tween(durationMillis = 320), targetAlpha = 1f)
             },
             popTransitionSpec = {
-                fadeIn(animationSpec = tween(durationMillis = 320), initialAlpha = 1f) togetherWith
-                    fadeOut(animationSpec = tween(durationMillis = 320), targetAlpha = 1f)
+                fadeIn(animationSpec = tween(durationMillis = 1), initialAlpha = 1f) togetherWith
+                    fadeOut(animationSpec = tween(durationMillis = 120), targetAlpha = 0f)
             },
             predictivePopTransitionSpec = { _ ->
-                fadeIn(animationSpec = tween(durationMillis = 320), initialAlpha = 1f) togetherWith
-                    fadeOut(animationSpec = tween(durationMillis = 320), targetAlpha = 1f)
+                fadeIn(animationSpec = tween(durationMillis = 1), initialAlpha = 1f) togetherWith
+                    fadeOut(animationSpec = tween(durationMillis = 120), targetAlpha = 0f)
             },
             onBack = {
                 if (backStack.size > 1) {
                     backStack.removeLast()
                 }
             },
-            entryProvider = entryProvider<Destination> {
+            entryProvider = entryProvider {
                 entry<Destination.Home.Discover> {
                     DiscoverRoute(
                         animatedContentScope = LocalNavAnimatedContentScope.current,

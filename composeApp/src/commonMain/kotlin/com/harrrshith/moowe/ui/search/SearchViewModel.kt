@@ -49,16 +49,26 @@ class SearchViewModel(
     fun onMovieClick(movie: Movie) {
         viewModelScope.launch {
             repository.addRecentSearch(movie)
-            _uiEvents.emit(
-                SearchUiEvent.NavigateToDetail(
-                    id = movie.id,
-                    mediaType = movie.mediaType,
-                    sharedKey = "search-${movie.mediaType.name}-${movie.id}",
-                    title = movie.title,
-                    posterPath = movie.posterPath,
-                )
-            )
+            emitNavigateToDetail(movie)
         }
+    }
+
+    fun onRecentMovieClick(movie: Movie) {
+        viewModelScope.launch {
+            emitNavigateToDetail(movie)
+        }
+    }
+
+    private suspend fun emitNavigateToDetail(movie: Movie) {
+        _uiEvents.emit(
+            SearchUiEvent.NavigateToDetail(
+                id = movie.id,
+                mediaType = movie.mediaType,
+                sharedKey = "search-${movie.mediaType.name}-${movie.id}",
+                title = movie.title,
+                posterPath = movie.posterPath,
+            )
+        )
     }
 
     private fun performSearch() {

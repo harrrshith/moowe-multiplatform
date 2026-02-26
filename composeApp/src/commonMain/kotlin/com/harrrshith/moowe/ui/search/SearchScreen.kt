@@ -85,6 +85,7 @@ fun SearchRoute(
         onQueryChanged = viewModel::onQueryChange,
         onMediaTypeChanged = viewModel::onMediaTypeChanged,
         onMovieClick = viewModel::onMovieClick,
+        onRecentMovieClick = viewModel::onRecentMovieClick,
     )
 }
 
@@ -96,6 +97,7 @@ private fun SearchScreen(
     onQueryChanged: (String) -> Unit,
     onMediaTypeChanged: (MediaType) -> Unit,
     onMovieClick: (Movie) -> Unit,
+    onRecentMovieClick: (Movie) -> Unit,
 ) {
     val filteredRecent = uiState.recentSearches.filter { it.mediaType == uiState.selectedMediaType }
 
@@ -138,7 +140,7 @@ private fun SearchScreen(
                             ) { movie ->
                                 RecentSearchCard(
                                     movie = movie,
-                                    onClick = { onMovieClick(movie) },
+                                    onClick = { onRecentMovieClick(movie) },
                                 )
                             }
                         }
@@ -177,25 +179,39 @@ private fun SearchScreen(
             }
 
             else -> {
-                LazyVerticalStaggeredGrid(
-                    columns = StaggeredGridCells.Fixed(2),
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding),
-                    contentPadding = PaddingValues(start = 12.dp, end = 12.dp, bottom = 120.dp),
-                    verticalItemSpacing = 10.dp,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    items(
-                        items = uiState.results,
-                        key = { movie -> "search-${movie.mediaType.name}-${movie.id}" },
-                    ) { movie ->
-                        SearchMovieCard(
-                            movie = movie,
-                            onClick = { onMovieClick(movie) },
-                        )
+                    Text(
+                        text = "Recently searched",
+                        style = AppTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = AppTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 10.dp),
+                    )
+                    LazyVerticalStaggeredGrid(
+                        columns = StaggeredGridCells.Fixed(2),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                        contentPadding = PaddingValues(start = 12.dp, end = 12.dp, bottom = 120.dp),
+                        verticalItemSpacing = 10.dp,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        items(
+                            items = uiState.results,
+                            key = { movie -> "search-${movie.mediaType.name}-${movie.id}" },
+                        ) { movie ->
+                            SearchMovieCard(
+                                movie = movie,
+                                onClick = { onMovieClick(movie) },
+                            )
+                        }
                     }
                 }
+
+
             }
         }
     }
