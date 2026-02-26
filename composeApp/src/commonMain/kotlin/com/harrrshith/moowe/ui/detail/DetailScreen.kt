@@ -7,20 +7,19 @@ import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -29,7 +28,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -142,9 +145,11 @@ private fun DetailScreen(
         }
     }
 
-    Scaffold(
-        topBar = {
-            with(sharedTransitionScope) {
+    with(sharedTransitionScope) {
+        val isTransitionActiveNow = isTransitionActive
+
+        Scaffold(
+            topBar = {
                 DetailTopAppBar(
                     title = movie.title,
                     collapseProgress = collapseProgress,
@@ -160,10 +165,9 @@ private fun DetailScreen(
                         zIndexInOverlay = 2f,
                     ),
                 )
-            }
-        },
-        containerColor = AppTheme.colorScheme.surface
-    ) { _ ->
+            },
+            containerColor = AppTheme.colorScheme.surface
+        ) { _ ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize(),
@@ -198,30 +202,33 @@ private fun DetailScreen(
                 movie = movie
             )
 
-            detailCast(
-                modifier = Modifier.padding(top = 8.dp),
-                cast = cast,
-            )
+            if (!isTransitionActiveNow) {
+                detailCast(
+                    modifier = Modifier.padding(top = 8.dp),
+                    cast = cast,
+                )
 
-            detailRelatedMovies(
-                modifier = Modifier.padding(top = 22.dp),
-                relatedMovies = relatedMovies,
-                mediaType = movie.mediaType,
-            )
+                detailRelatedMovies(
+                    modifier = Modifier.padding(top = 22.dp),
+                    relatedMovies = relatedMovies,
+                    mediaType = movie.mediaType,
+                )
 
-            detailSeasons(
-                modifier = Modifier.padding(top = 22.dp),
-                seasons = movie.seasons,
-            )
+                detailSeasons(
+                    modifier = Modifier.padding(top = 22.dp),
+                    seasons = movie.seasons,
+                )
 
-            detailReviews(
-                modifier = Modifier.padding(top = 24.dp, bottom = 8.dp),
-                reviews = reviews,
-            )
+                detailReviews(
+                    modifier = Modifier.padding(top = 24.dp, bottom = 8.dp),
+                    reviews = reviews,
+                )
+            }
 
             item {
                 Spacer(modifier = Modifier.height(100.dp))
             }
+        }
         }
     }
 }
@@ -231,36 +238,68 @@ private fun DetailHeader(
     modifier: Modifier = Modifier,
     movie: Movie,
 ) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = AppTheme.colorScheme.surfaceContainerLow,
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-    ) {
-        Column(
+    Box(modifier = modifier.fillMaxWidth()) {
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+                .clip(RoundedCornerShape(24.dp))
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            AppTheme.colorScheme.primaryContainer.copy(alpha = 0.22f),
+                            AppTheme.colorScheme.surfaceContainerLow.copy(alpha = 0.72f),
+                        )
+                    )
+                )
         ) {
-            Text(
-                text = movie.title,
-                style = AppTheme.typography.headlineSmall.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = 0.3.sp,
-                ),
-                color = AppTheme.colorScheme.onSurface,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(color = AppTheme.colorScheme.surface.copy(alpha = 0.58f))
+                    .padding(horizontal = 20.dp, vertical = 18.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp),
+            ) {
+                Text(
+                    text = movie.title,
+                    style = AppTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = (-0.5).sp,
+                    ),
+                    color = AppTheme.colorScheme.onSurface,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                HeaderPill(text = movie.releaseDate.take(4).ifBlank { "N/A" })
-                HeaderPill(text = "${movie.voteAverage.format(1)}/10")
-                if (movie.mediaType == MediaType.TV_SERIES && movie.numberOfSeasons != null) {
-                    HeaderPill(text = "${movie.numberOfSeasons} seasons")
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    GlassPill(
+                        icon = "📅",
+                        text = movie.releaseDate.take(4).ifBlank { "N/A" },
+                        gradient = listOf(
+                            AppTheme.colorScheme.tertiaryContainer.copy(alpha = 0.32f),
+                            AppTheme.colorScheme.tertiaryContainer.copy(alpha = 0.16f),
+                        )
+                    )
+                    GlassPill(
+                        icon = "⭐",
+                        text = movie.voteAverage.format(1),
+                        gradient = listOf(
+                            AppTheme.colorScheme.primaryContainer.copy(alpha = 0.32f),
+                            AppTheme.colorScheme.primaryContainer.copy(alpha = 0.16f),
+                        )
+                    )
+                    if (movie.mediaType == MediaType.TV_SERIES && movie.numberOfSeasons != null) {
+                        GlassPill(
+                            icon = "📺",
+                            text = "${movie.numberOfSeasons} S",
+                            gradient = listOf(
+                                AppTheme.colorScheme.secondaryContainer.copy(alpha = 0.32f),
+                                AppTheme.colorScheme.secondaryContainer.copy(alpha = 0.16f),
+                            )
+                        )
+                    }
                 }
             }
         }
@@ -268,18 +307,38 @@ private fun DetailHeader(
 }
 
 @Composable
-private fun HeaderPill(text: String) {
-    Surface(
-        shape = RoundedCornerShape(100.dp),
-        color = AppTheme.colorScheme.surfaceContainerHigh,
-        modifier = Modifier.wrapContentWidth(),
+private fun GlassPill(
+    icon: String,
+    text: String,
+    gradient: List<Color>,
+) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(brush = Brush.linearGradient(colors = gradient))
     ) {
-        Text(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-            text = text,
-            style = AppTheme.typography.labelMedium.copy(fontWeight = FontWeight.Medium),
-            color = AppTheme.colorScheme.onSurfaceVariant,
-        )
+        Row(
+            modifier = Modifier
+                .background(color = AppTheme.colorScheme.surface.copy(alpha = 0.54f))
+                .padding(horizontal = 14.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = icon,
+                style = AppTheme.typography.labelMedium,
+                fontSize = 14.sp,
+            )
+
+            Text(
+                text = text,
+                style = AppTheme.typography.labelLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.2.sp,
+                ),
+                color = AppTheme.colorScheme.onSurface,
+            )
+        }
     }
 }
 

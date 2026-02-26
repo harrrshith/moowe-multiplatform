@@ -227,14 +227,14 @@ private fun TrendingMovieCard(
         else -> 280.dp
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(height)
-            .clip(RoundedCornerShape(16.dp))
-            .clickable(onClick = onClick)
-    ) {
-        with(sharedTransitionScope) {
+    with(sharedTransitionScope) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(height)
+                .clip(RoundedCornerShape(16.dp))
+                .clickable(onClick = onClick)
+        ) {
             Image(
                 painter = rememberAsyncImagePainter(posterUrl(movie.posterPath)),
                 contentDescription = movie.title,
@@ -253,19 +253,21 @@ private fun TrendingMovieCard(
                         }
                     )
             )
+
+            Box(modifier = Modifier.fillMaxSize()) {
+                ListingCardScrim()
+
+                Text(
+                    text = movie.title,
+                    modifier = Modifier
+                        .align(androidx.compose.ui.Alignment.BottomStart)
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    color = Color.White,
+                    style = AppTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                    maxLines = 2,
+                )
+            }
         }
-
-        ListingCardScrim()
-
-        Text(
-            text = movie.title,
-            modifier = Modifier
-                .align(androidx.compose.ui.Alignment.BottomStart)
-                .padding(horizontal = 12.dp, vertical = 10.dp),
-            color = Color.White,
-            style = AppTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-            maxLines = 2,
-        )
     }
 }
 

@@ -27,12 +27,14 @@ fun ImageCard(
     imageUrl: String,
     onClick: () -> Unit,
 ) {
-    Box(
-        modifier = modifier
-            .clickable(onClick = onClick)
-    ) {
-        // Main image with shared element transition
-        with(sharedTransitionScope) {
+    val sharedKey = "movie-$movieId-trending"
+
+    with(sharedTransitionScope) {
+        Box(
+            modifier = modifier
+                .clickable(onClick = onClick)
+        ) {
+            // Main image with shared element transition
             Image(
                 painter = rememberAsyncImagePainter(posterUrl(imageUrl)),
                 contentDescription = null,
@@ -40,7 +42,7 @@ fun ImageCard(
                 modifier = Modifier
                     .fillMaxSize()
                     .sharedBounds(
-                        sharedContentState = rememberSharedContentState(key = "movie-$movieId-trending"),
+                        sharedContentState = rememberSharedContentState(key = sharedKey),
                         animatedVisibilityScope = animatedContentScope,
                         clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(24.dp)),
                         boundsTransform = { _, _ ->
@@ -51,8 +53,10 @@ fun ImageCard(
                         }
                     )
             )
-        }
 
-        ListingCardScrim(intensity = 0.95f)
+            Box(modifier = Modifier.fillMaxSize()) {
+                ListingCardScrim(intensity = 0.95f)
+            }
+        }
     }
 }

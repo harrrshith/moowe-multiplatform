@@ -30,7 +30,8 @@ fun App() {
                     backStack = backStack,
                     onDestinationSelected = { destination ->
                         if (backStack.lastOrNull() != destination) {
-                            backStack[backStack.lastIndex] = destination
+                            backStack.clear()
+                            backStack.add(destination)
                         }
                     },
                     hazeState = hazeState
