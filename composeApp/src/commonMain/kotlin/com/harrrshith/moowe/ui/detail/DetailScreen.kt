@@ -67,6 +67,7 @@ fun DetailRoute(
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     viewModel: DetailScreenViewModel = koinViewModel(
+        key = "detail-$movieId-${mediaType.apiValue}",
         parameters = { parametersOf(movieId, mediaType) }
     ),
     onBackPressed: () -> Unit
