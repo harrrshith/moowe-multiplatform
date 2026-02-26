@@ -2,6 +2,10 @@ package com.harrrshith.moowe.ui.navigation
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
@@ -29,6 +33,18 @@ fun NavigationGraph(
         NavDisplay(
             backStack = backStack,
             modifier = modifier,
+            transitionSpec = {
+                fadeIn(animationSpec = tween(durationMillis = 320), initialAlpha = 1f) togetherWith
+                    fadeOut(animationSpec = tween(durationMillis = 320), targetAlpha = 1f)
+            },
+            popTransitionSpec = {
+                fadeIn(animationSpec = tween(durationMillis = 320), initialAlpha = 1f) togetherWith
+                    fadeOut(animationSpec = tween(durationMillis = 320), targetAlpha = 1f)
+            },
+            predictivePopTransitionSpec = { _ ->
+                fadeIn(animationSpec = tween(durationMillis = 320), initialAlpha = 1f) togetherWith
+                    fadeOut(animationSpec = tween(durationMillis = 320), targetAlpha = 1f)
+            },
             onBack = {
                 if (backStack.size > 1) {
                     backStack.removeLast()
