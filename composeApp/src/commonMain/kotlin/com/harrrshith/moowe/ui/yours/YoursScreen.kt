@@ -18,7 +18,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,8 +31,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.rememberAsyncImagePainter
+import com.harrrshith.moowe.LocalHazeState
 import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.domain.model.Movie
+import com.harrrshith.moowe.ui.components.SegmentedAppTopBar
 import com.harrrshith.moowe.ui.theme.AppTheme
 import com.harrrshith.moowe.utils.posterUrl
 import org.koin.compose.viewmodel.koinViewModel
@@ -38,15 +43,29 @@ import org.koin.compose.viewmodel.koinViewModel
 fun YoursRoute(
     modifier: Modifier = Modifier,
     viewModel: YoursViewModel = koinViewModel(),
+    navigateToSearch: () -> Unit,
     navigateToDetail: (Int, MediaType, String, String, String) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val hazeState = LocalHazeState.current
+    var selectedMediaType by remember { mutableStateOf(MediaType.MOVIE) }
+    val filteredSections = uiState.sections
+        .map { section -> section.copy(movies = section.movies.filter { it.mediaType == selectedMediaType }) }
+        .filter { it.movies.isNotEmpty() }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = AppTheme.colorScheme.surface,
+        topBar = {
+            SegmentedAppTopBar(
+                hazeState = hazeState,
+                selectedMediaType = selectedMediaType,
+                onMediaTypeSelected = { selectedMediaType = it },
+                onSearchClick = navigateToSearch,
+            )
+        },
     ) { innerPadding ->
-        if (uiState.sections.isEmpty()) {
+        if (filteredSections.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -67,7 +86,7 @@ fun YoursRoute(
                 contentPadding = PaddingValues(top = 8.dp, bottom = 120.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                uiState.sections.forEach { section ->
+                filteredSections.forEach { section ->
                     item(key = "header-${section.header}") {
                         Text(
                             text = section.header,

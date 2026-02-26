@@ -38,6 +38,43 @@ class SearchViewModel(
 
     fun onQueryChange(query: String) {
         _uiState.update { it.copy(query = query) }
+        performSearch()
+    }
+
+    fun onMediaTypeChanged(mediaType: MediaType) {
+        _uiState.update { it.copy(selectedMediaType = mediaType) }
+        performSearch()
+    }
+
+    fun onMovieClick(movie: Movie) {
+        viewModelScope.launch {
+            repository.addRecentSearch(movie)
+            emitNavigateToDetail(movie)
+        }
+    }
+
+    fun onRecentMovieClick(movie: Movie) {
+        viewModelScope.launch {
+            emitNavigateToDetail(movie)
+        }
+    }
+
+    private suspend fun emitNavigateToDetail(movie: Movie) {
+        _uiEvents.emit(
+            SearchUiEvent.NavigateToDetail(
+                id = movie.id,
+                mediaType = movie.mediaType,
+                sharedKey = "search-${movie.mediaType.name}-${movie.id}",
+                title = movie.title,
+                posterPath = movie.posterPath,
+            )
+        )
+    }
+
+    private fun performSearch() {
+        val query = _uiState.value.query
+        val mediaType = _uiState.value.selectedMediaType
+
         searchJob?.cancel()
 
         if (query.isBlank()) {
@@ -49,7 +86,7 @@ class SearchViewModel(
             delay(350)
             _uiState.update { it.copy(isLoading = true, error = null) }
 
-            when (val result = repository.searchMedia(query = query.trim(), mediaType = MediaType.MOVIE)) {
+            when (val result = repository.searchMedia(query = query.trim(), mediaType = mediaType)) {
                 is Result.Success -> _uiState.update {
                     it.copy(
                         isLoading = false,
@@ -67,21 +104,6 @@ class SearchViewModel(
 
                 is Result.Loading -> Unit
             }
-        }
-    }
-
-    fun onMovieClick(movie: Movie) {
-        viewModelScope.launch {
-            repository.addRecentSearch(movie)
-            _uiEvents.emit(
-                SearchUiEvent.NavigateToDetail(
-                    id = movie.id,
-                    mediaType = movie.mediaType,
-                    sharedKey = "search-${movie.mediaType.name}-${movie.id}",
-                    title = movie.title,
-                    posterPath = movie.posterPath,
-                )
-            )
         }
     }
 }

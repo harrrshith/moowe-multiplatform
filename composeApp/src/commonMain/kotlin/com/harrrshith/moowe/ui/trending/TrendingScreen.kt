@@ -63,6 +63,7 @@ fun TrendingRoute(
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     viewModel: TrendingViewModel = koinViewModel(),
+    navigateToSearch: () -> Unit,
     navigateToDetail: (Int, MediaType, String, String, String) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -75,6 +76,7 @@ fun TrendingRoute(
         pagedMovies = movies,
         onMediaTypeSelected = viewModel::onMediaTypeChanged,
         onGenreSelected = viewModel::onGenreSelected,
+        navigateToSearch = navigateToSearch,
         navigateToDetail = navigateToDetail,
     )
 }
@@ -88,6 +90,7 @@ private fun TrendingScreen(
     pagedMovies: LazyPagingItems<Movie>,
     onMediaTypeSelected: (MediaType) -> Unit,
     onGenreSelected: (Genre) -> Unit,
+    navigateToSearch: () -> Unit,
     navigateToDetail: (Int, MediaType, String, String, String) -> Unit,
 ) {
     val hazeState = LocalHazeState.current
@@ -119,6 +122,7 @@ private fun TrendingScreen(
                     hazeState = hazeState,
                     selectedMediaType = uiState.selectedMediaType,
                     onMediaTypeSelected = ::changeMediaType,
+                    onSearchClick = navigateToSearch,
                 )
                 GenreChipsRow(
                     genres = uiState.genres,
@@ -227,14 +231,14 @@ private fun TrendingMovieCard(
         else -> 280.dp
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(height)
-            .clip(RoundedCornerShape(16.dp))
-            .clickable(onClick = onClick)
-    ) {
-        with(sharedTransitionScope) {
+    with(sharedTransitionScope) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(height)
+                .clip(RoundedCornerShape(16.dp))
+                .clickable(onClick = onClick)
+        ) {
             Image(
                 painter = rememberAsyncImagePainter(posterUrl(movie.posterPath)),
                 contentDescription = movie.title,
@@ -253,19 +257,21 @@ private fun TrendingMovieCard(
                         }
                     )
             )
+
+            Box(modifier = Modifier.fillMaxSize()) {
+                ListingCardScrim()
+
+                Text(
+                    text = movie.title,
+                    modifier = Modifier
+                        .align(androidx.compose.ui.Alignment.BottomStart)
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    color = Color.White,
+                    style = AppTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                    maxLines = 2,
+                )
+            }
         }
-
-        ListingCardScrim()
-
-        Text(
-            text = movie.title,
-            modifier = Modifier
-                .align(androidx.compose.ui.Alignment.BottomStart)
-                .padding(horizontal = 12.dp, vertical = 10.dp),
-            color = Color.White,
-            style = AppTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-            maxLines = 2,
-        )
     }
 }
 

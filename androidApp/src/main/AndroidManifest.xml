@@ -11,6 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:label="Moowe"
         android:supportsRtl="true"
+        android:enableOnBackInvokedCallback="false"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
         <activity
             android:name="com.harrrshith.moowe.MainActivity"

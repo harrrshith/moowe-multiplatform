@@ -1,14 +1,17 @@
 package com.harrrshith.moowe.ui.navigation
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.navigation
-import androidx.navigation.toRoute
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.ui.LocalNavAnimatedContentScope
+import androidx.navigation3.ui.NavDisplay
 import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.ui.detail.DetailRoute
 import com.harrrshith.moowe.ui.discover.DiscoverRoute
@@ -16,128 +19,145 @@ import com.harrrshith.moowe.ui.search.SearchRoute
 import com.harrrshith.moowe.ui.trending.TrendingRoute
 import com.harrrshith.moowe.ui.yours.YoursRoute
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun NavigationGraph(
     modifier: Modifier = Modifier,
-    navController: NavHostController
+    backStack: SnapshotStateList<Destination>,
 ) {
-    val startDestination = Destination.Home
-    
-    SharedTransitionLayout {
-        NavHost(
-            modifier = modifier,
-            navController = navController,
-            startDestination = startDestination
-        ){
-            navigation<Destination.Home>(
-                startDestination = Destination.Home.Discover
-            ){
-                composable<Destination.Home.Discover>(
-                    enterTransition = { NavigationTransitions.topLevelEnter(this) },
-                    exitTransition = { NavigationTransitions.topLevelExit(this) },
-                    popEnterTransition = { NavigationTransitions.topLevelEnter(this) },
-                    popExitTransition = { NavigationTransitions.topLevelExit(this) }
-                ) {
-                    DiscoverRoute(
-                        animatedContentScope = this@composable,
-                        sharedTransitionScope = this@SharedTransitionLayout,
-                        navigateToDetail = { id, mediaType, sharedKey, title, posterPath ->
-                            navController.navigate(
-                                Destination.Detail(
-                                    id = id,
-                                    mediaType = mediaType.apiValue,
-                                    sharedKey = sharedKey,
-                                    title = title,
-                                    posterPath = posterPath,
-                                )
-                            )
-                        }
-                    )
-                }
-                composable<Destination.Home.Trending>(
-                    enterTransition = { NavigationTransitions.topLevelEnter(this) },
-                    exitTransition = { NavigationTransitions.topLevelExit(this) },
-                    popEnterTransition = { NavigationTransitions.topLevelEnter(this) },
-                    popExitTransition = { NavigationTransitions.topLevelExit(this) }
-                ) {
-                    TrendingRoute(
-                        animatedContentScope = this@composable,
-                        sharedTransitionScope = this@SharedTransitionLayout,
-                        navigateToDetail = { id, mediaType, sharedKey, title, posterPath ->
-                            navController.navigate(
-                                Destination.Detail(
-                                    id = id,
-                                    mediaType = mediaType.apiValue,
-                                    sharedKey = sharedKey,
-                                    title = title,
-                                    posterPath = posterPath,
-                                )
-                            )
-                        }
-                    )
-                }
-                composable<Destination.Home.Search>(
-                    enterTransition = { NavigationTransitions.topLevelEnter(this) },
-                    exitTransition = { NavigationTransitions.topLevelExit(this) },
-                    popEnterTransition = { NavigationTransitions.topLevelEnter(this) },
-                    popExitTransition = { NavigationTransitions.topLevelExit(this) }
-                ) {
-                    SearchRoute(
-                        modifier = Modifier.fillMaxSize(),
-                        navigateToDetail = { id, mediaType, sharedKey, title, posterPath ->
-                            navController.navigate(
-                                Destination.Detail(
-                                    id = id,
-                                    mediaType = mediaType.apiValue,
-                                    sharedKey = sharedKey,
-                                    title = title,
-                                    posterPath = posterPath,
-                                )
-                            )
-                        }
-                    )
-                }
-                composable<Destination.Home.Yours>(
-                    enterTransition = { NavigationTransitions.topLevelEnter(this) },
-                    exitTransition = { NavigationTransitions.topLevelExit(this) },
-                    popEnterTransition = { NavigationTransitions.topLevelEnter(this) },
-                    popExitTransition = { NavigationTransitions.topLevelExit(this) }
-                ) {
-                    YoursRoute(
-                        modifier = Modifier.fillMaxSize(),
-                        navigateToDetail = { id, mediaType, sharedKey, title, posterPath ->
-                            navController.navigate(
-                                Destination.Detail(
-                                    id = id,
-                                    mediaType = mediaType.apiValue,
-                                    sharedKey = sharedKey,
-                                    title = title,
-                                    posterPath = posterPath,
-                                )
-                            )
-                        }
-                    )
-                }
-            }
+    if (backStack.isEmpty()) {
+        backStack.add(Destination.Home.Discover)
+    }
 
-            composable<Destination.Detail>(
-                enterTransition = { NavigationTransitions.detailEnter() },
-                exitTransition = { NavigationTransitions.detailExit() },
-                popEnterTransition = { NavigationTransitions.detailPopEnter() },
-                popExitTransition = { NavigationTransitions.detailPopExit() }
-            ) {
-                val detailDestination = it.toRoute<Destination.Detail>()
-                DetailRoute(
-                    sharedKey = detailDestination.sharedKey,
-                    initialTitle = detailDestination.title,
-                    initialPosterPath = detailDestination.posterPath,
-                    mediaType = MediaType.fromApiValue(detailDestination.mediaType),
-                    movieId = detailDestination.id,
-                    animatedContentScope = this@composable,
-                    sharedTransitionScope = this@SharedTransitionLayout,
-                    onBackPressed = { navController.popBackStack() }
-                )
-            }
-        }
+    SharedTransitionLayout {
+        NavDisplay(
+            backStack = backStack,
+            modifier = modifier,
+            transitionSpec = {
+                fadeIn(animationSpec = tween(durationMillis = 320), initialAlpha = 1f) togetherWith
+                    fadeOut(animationSpec = tween(durationMillis = 320), targetAlpha = 1f)
+            },
+            popTransitionSpec = {
+                fadeIn(animationSpec = tween(durationMillis = 1), initialAlpha = 1f) togetherWith
+                    fadeOut(animationSpec = tween(durationMillis = 120), targetAlpha = 0f)
+            },
+            predictivePopTransitionSpec = { _ ->
+                fadeIn(animationSpec = tween(durationMillis = 1), initialAlpha = 1f) togetherWith
+                    fadeOut(animationSpec = tween(durationMillis = 120), targetAlpha = 0f)
+            },
+            onBack = {
+                if (backStack.size > 1) {
+                    backStack.removeLast()
+                }
+            },
+            entryProvider = entryProvider {
+                entry<Destination.Home.Discover> {
+                    DiscoverRoute(
+                        animatedContentScope = LocalNavAnimatedContentScope.current,
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        navigateToSearch = {
+                            if (backStack.lastOrNull() != Destination.Home.Search) {
+                                backStack.clear()
+                                backStack.add(Destination.Home.Search)
+                            }
+                        },
+                        navigateToDetail = { id, mediaType, sharedKey, title, posterPath ->
+                            backStack.add(
+                                Destination.Detail(
+                                    id = id,
+                                    mediaType = mediaType.apiValue,
+                                    sharedKey = sharedKey,
+                                    title = title,
+                                    posterPath = posterPath,
+                                )
+                            )
+                        },
+                    )
+                }
+
+                entry<Destination.Home.Trending> {
+                    TrendingRoute(
+                        animatedContentScope = LocalNavAnimatedContentScope.current,
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        navigateToSearch = {
+                            if (backStack.lastOrNull() != Destination.Home.Search) {
+                                backStack.clear()
+                                backStack.add(Destination.Home.Search)
+                            }
+                        },
+                        navigateToDetail = { id, mediaType, sharedKey, title, posterPath ->
+                            backStack.add(
+                                Destination.Detail(
+                                    id = id,
+                                    mediaType = mediaType.apiValue,
+                                    sharedKey = sharedKey,
+                                    title = title,
+                                    posterPath = posterPath,
+                                )
+                            )
+                        },
+                    )
+                }
+
+                entry<Destination.Home.Search> {
+                    SearchRoute(
+                        navigateToDetail = { id, mediaType, sharedKey, title, posterPath ->
+                            backStack.add(
+                                Destination.Detail(
+                                    id = id,
+                                    mediaType = mediaType.apiValue,
+                                    sharedKey = sharedKey,
+                                    title = title,
+                                    posterPath = posterPath,
+                                )
+                            )
+                        }
+                    )
+                }
+
+                entry<Destination.Home.Yours> {
+                    YoursRoute(
+                        navigateToSearch = {
+                            if (backStack.lastOrNull() != Destination.Home.Search) {
+                                backStack.clear()
+                                backStack.add(Destination.Home.Search)
+                            }
+                        },
+                        navigateToDetail = { id, mediaType, sharedKey, title, posterPath ->
+                            backStack.add(
+                                Destination.Detail(
+                                    id = id,
+                                    mediaType = mediaType.apiValue,
+                                    sharedKey = sharedKey,
+                                    title = title,
+                                    posterPath = posterPath,
+                                )
+                            )
+                        }
+                    )
+                }
+
+                entry<Destination.Detail>(
+                    clazzContentKey = { detail ->
+                        "detail-${detail.id}-${detail.mediaType}-${detail.sharedKey}"
+                    }
+                ) { detailDestination ->
+                    DetailRoute(
+                        sharedKey = detailDestination.sharedKey,
+                        initialTitle = detailDestination.title,
+                        initialPosterPath = detailDestination.posterPath,
+                        mediaType = MediaType.fromApiValue(detailDestination.mediaType),
+                        movieId = detailDestination.id,
+                        animatedContentScope = LocalNavAnimatedContentScope.current,
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        onBackPressed = {
+                            if (backStack.size > 1) {
+                                backStack.removeLast()
+                            }
+                        },
+                    )
+                }
+            },
+        )
     }
 }
