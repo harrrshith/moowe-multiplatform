@@ -281,7 +281,8 @@ private fun PremiumSearchInput(
     onValueChange: (String) -> Unit,
 ) {
     Surface(
-        shape = RoundedCornerShape(18.dp),
+        modifier = Modifier.padding(horizontal = 16.dp),
+        shape = RoundedCornerShape(12.dp),
         color = AppTheme.colorScheme.surfaceContainerLow,
         border = BorderStroke(1.dp, AppTheme.colorScheme.outlineVariant.copy(alpha = 0.55f)),
     ) {
