@@ -39,6 +39,12 @@ fun NavigationGraph(
                     DiscoverRoute(
                         animatedContentScope = LocalNavAnimatedContentScope.current,
                         sharedTransitionScope = this@SharedTransitionLayout,
+                        navigateToSearch = {
+                            if (backStack.lastOrNull() != Destination.Home.Search) {
+                                backStack.clear()
+                                backStack.add(Destination.Home.Search)
+                            }
+                        },
                         navigateToDetail = { id, mediaType, sharedKey, title, posterPath ->
                             backStack.add(
                                 Destination.Detail(
@@ -57,6 +63,12 @@ fun NavigationGraph(
                     TrendingRoute(
                         animatedContentScope = LocalNavAnimatedContentScope.current,
                         sharedTransitionScope = this@SharedTransitionLayout,
+                        navigateToSearch = {
+                            if (backStack.lastOrNull() != Destination.Home.Search) {
+                                backStack.clear()
+                                backStack.add(Destination.Home.Search)
+                            }
+                        },
                         navigateToDetail = { id, mediaType, sharedKey, title, posterPath ->
                             backStack.add(
                                 Destination.Detail(
@@ -89,6 +101,12 @@ fun NavigationGraph(
 
                 entry<Destination.Home.Yours> {
                     YoursRoute(
+                        navigateToSearch = {
+                            if (backStack.lastOrNull() != Destination.Home.Search) {
+                                backStack.clear()
+                                backStack.add(Destination.Home.Search)
+                            }
+                        },
                         navigateToDetail = { id, mediaType, sharedKey, title, posterPath ->
                             backStack.add(
                                 Destination.Detail(

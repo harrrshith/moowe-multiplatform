@@ -46,9 +46,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.rememberAsyncImagePainter
+import com.harrrshith.moowe.LocalHazeState
 import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.ui.components.ListingCardScrim
+import com.harrrshith.moowe.ui.components.SegmentedAppTopBar
 import com.harrrshith.moowe.ui.theme.AppTheme
 import com.harrrshith.moowe.utils.posterUrl
 import org.koin.compose.viewmodel.koinViewModel
@@ -60,6 +62,7 @@ fun SearchRoute(
     navigateToDetail: (Int, MediaType, String, String, String) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val hazeState = LocalHazeState.current
 
     LaunchedEffect(Unit) {
         viewModel.uiEvents.collect { event ->
@@ -79,8 +82,10 @@ fun SearchRoute(
 
     SearchScreen(
         modifier = modifier,
+        hazeState = hazeState,
         uiState = uiState,
         onQueryChanged = viewModel::onQueryChange,
+        onMediaTypeChanged = viewModel::onMediaTypeChanged,
         onMovieClick = viewModel::onMovieClick,
     )
 }
@@ -88,23 +93,30 @@ fun SearchRoute(
 @Composable
 private fun SearchScreen(
     modifier: Modifier = Modifier,
+    hazeState: dev.chrisbanes.haze.HazeState,
     uiState: SearchUiState,
     onQueryChanged: (String) -> Unit,
+    onMediaTypeChanged: (MediaType) -> Unit,
     onMovieClick: (Movie) -> Unit,
 ) {
+    val filteredRecent = uiState.recentSearches.filter { it.mediaType == uiState.selectedMediaType }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = AppTheme.colorScheme.surface,
         topBar = {
             SearchTopBar(
+                hazeState = hazeState,
+                selectedMediaType = uiState.selectedMediaType,
                 query = uiState.query,
+                onMediaTypeChanged = onMediaTypeChanged,
                 onQueryChanged = onQueryChanged,
             )
         },
     ) { innerPadding ->
         when {
             uiState.query.isBlank() -> {
-                if (uiState.recentSearches.isEmpty()) {
+                if (filteredRecent.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize().padding(innerPadding))
                 } else {
                     Column(
@@ -123,7 +135,7 @@ private fun SearchScreen(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                         ) {
                             rowItems(
-                                items = uiState.recentSearches.take(10),
+                                items = filteredRecent.take(10),
                                 key = { movie -> "recent-${movie.mediaType.name}-${movie.id}" },
                             ) { movie ->
                                 RecentSearchCard(
@@ -227,7 +239,10 @@ private fun RecentSearchCard(
 
 @Composable
 private fun SearchTopBar(
+    hazeState: dev.chrisbanes.haze.HazeState,
+    selectedMediaType: MediaType,
     query: String,
+    onMediaTypeChanged: (MediaType) -> Unit,
     onQueryChanged: (String) -> Unit,
 ) {
     Column(
@@ -237,6 +252,11 @@ private fun SearchTopBar(
             .background(AppTheme.colorScheme.surface)
             .padding(horizontal = 16.dp, vertical = 10.dp),
     ) {
+        SegmentedAppTopBar(
+            hazeState = hazeState,
+            selectedMediaType = selectedMediaType,
+            onMediaTypeSelected = onMediaTypeChanged,
+        )
         PremiumSearchInput(
             value = query,
             onValueChange = onQueryChanged,

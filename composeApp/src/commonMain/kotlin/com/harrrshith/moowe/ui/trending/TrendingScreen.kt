@@ -63,6 +63,7 @@ fun TrendingRoute(
     animatedContentScope: AnimatedContentScope,
     sharedTransitionScope: SharedTransitionScope,
     viewModel: TrendingViewModel = koinViewModel(),
+    navigateToSearch: () -> Unit,
     navigateToDetail: (Int, MediaType, String, String, String) -> Unit,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -75,6 +76,7 @@ fun TrendingRoute(
         pagedMovies = movies,
         onMediaTypeSelected = viewModel::onMediaTypeChanged,
         onGenreSelected = viewModel::onGenreSelected,
+        navigateToSearch = navigateToSearch,
         navigateToDetail = navigateToDetail,
     )
 }
@@ -88,6 +90,7 @@ private fun TrendingScreen(
     pagedMovies: LazyPagingItems<Movie>,
     onMediaTypeSelected: (MediaType) -> Unit,
     onGenreSelected: (Genre) -> Unit,
+    navigateToSearch: () -> Unit,
     navigateToDetail: (Int, MediaType, String, String, String) -> Unit,
 ) {
     val hazeState = LocalHazeState.current
@@ -119,6 +122,7 @@ private fun TrendingScreen(
                     hazeState = hazeState,
                     selectedMediaType = uiState.selectedMediaType,
                     onMediaTypeSelected = ::changeMediaType,
+                    onSearchClick = navigateToSearch,
                 )
                 GenreChipsRow(
                     genres = uiState.genres,
