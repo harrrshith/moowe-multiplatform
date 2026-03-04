@@ -30,6 +30,8 @@ interface MovieRepository {
 
     suspend fun getMediaCast(mediaId: Int, mediaType: MediaType): Result<List<CastMember>>
 
+    suspend fun getPersonCredits(personId: Int): Result<List<Movie>>
+
     suspend fun getRelatedMedia(mediaId: Int, mediaType: MediaType): Result<List<Movie>>
 
     suspend fun searchMedia(query: String, mediaType: MediaType = MediaType.MOVIE): Result<List<Movie>>

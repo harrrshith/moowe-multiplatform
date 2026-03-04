@@ -46,6 +46,7 @@ import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.domain.model.Movie
 import com.harrrshith.moowe.domain.model.Review
 import com.harrrshith.moowe.ui.detail.components.detailCast
+import com.harrrshith.moowe.ui.detail.components.detailCastCredits
 import com.harrrshith.moowe.ui.detail.components.DetailTopAppBar
 import com.harrrshith.moowe.ui.detail.components.detailImage
 import com.harrrshith.moowe.ui.detail.components.detailLineTwo
@@ -98,8 +99,13 @@ fun DetailRoute(
         movie = movie,
         reviews = uiState.reviews,
         cast = uiState.cast,
+        selectedCastMemberId = uiState.selectedCastMember?.id,
+        selectedCastName = uiState.selectedCastMember?.name,
+        selectedCastCredits = uiState.selectedCastCredits,
+        isCastCreditsLoading = uiState.isCastCreditsLoading,
         relatedMovies = uiState.relatedMovies,
         isLiked = uiState.isLiked,
+        onCastClicked = viewModel::onCastClicked,
         onLikeClicked = viewModel::onLikeClicked,
         onBackPressed = onBackPressed
     )
@@ -114,8 +120,13 @@ private fun DetailScreen(
     movie: Movie,
     reviews: List<Review> = emptyList(),
     cast: List<CastMember> = emptyList(),
+    selectedCastMemberId: Int? = null,
+    selectedCastName: String? = null,
+    selectedCastCredits: List<Movie> = emptyList(),
+    isCastCreditsLoading: Boolean = false,
     relatedMovies: List<Movie> = emptyList(),
     isLiked: Boolean,
+    onCastClicked: (CastMember) -> Unit,
     onLikeClicked: () -> Unit,
     onBackPressed: () -> Unit
 ){
@@ -206,6 +217,15 @@ private fun DetailScreen(
                 detailCast(
                     modifier = Modifier.padding(top = 8.dp),
                     cast = cast,
+                    selectedCastMemberId = selectedCastMemberId,
+                    onCastClicked = onCastClicked,
+                )
+
+                detailCastCredits(
+                    modifier = Modifier.padding(top = 22.dp),
+                    castName = selectedCastName,
+                    credits = selectedCastCredits,
+                    isLoading = isCastCreditsLoading,
                 )
 
                 detailRelatedMovies(
@@ -359,6 +379,7 @@ fun DetailScreenPreview() {
                         sharedTransitionScope = this@SharedTransitionLayout,
                         movie = movie,
                         isLiked = false,
+                        onCastClicked = {},
                         onLikeClicked = {},
                         onBackPressed = {}
                     )

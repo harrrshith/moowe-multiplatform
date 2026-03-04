@@ -3,6 +3,7 @@ package com.harrrshith.moowe.data
 import com.harrrshith.moowe.data.local.entity.MovieEntity
 import com.harrrshith.moowe.data.local.entity.FavoriteEntity
 import com.harrrshith.moowe.data.local.entity.RecentSearchEntity
+import com.harrrshith.moowe.data.remote.dto.CombinedCreditDto
 import com.harrrshith.moowe.data.remote.dto.CastDto
 import com.harrrshith.moowe.data.remote.dto.MediaDetailDto
 import com.harrrshith.moowe.data.remote.dto.MovieDto
@@ -97,6 +98,24 @@ fun CastDto.toDomain(): CastMember = CastMember(
     profilePath = profilePath,
     order = order,
 )
+
+fun CombinedCreditDto.toDomain(): Movie {
+    val resolvedMediaType = MediaType.fromApiValue(mediaType)
+    return Movie(
+        id = id,
+        title = name ?: title ?: "",
+        overview = overview ?: "",
+        posterPath = posterPath ?: "",
+        backdropPath = backdropPath ?: "",
+        releaseDate = firstAirDate ?: releaseDate ?: "",
+        voteAverage = voteAverage,
+        voteCount = voteCount,
+        popularity = popularity,
+        adult = adult,
+        genreIds = genreIds,
+        mediaType = resolvedMediaType,
+    )
+}
 
 fun MovieEntity.toDomain() : Movie {
     val mediaTypeValue = if (mediaType == MediaType.TV_SERIES.apiValue) {
