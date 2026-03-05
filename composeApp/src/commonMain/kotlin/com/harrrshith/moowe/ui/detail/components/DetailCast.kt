@@ -2,6 +2,8 @@ package com.harrrshith.moowe.ui.detail.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -37,6 +40,8 @@ import kotlin.math.absoluteValue
 fun LazyListScope.detailCast(
     modifier: Modifier = Modifier,
     cast: List<CastMember>,
+    selectedCastMemberId: Int? = null,
+    onCastClicked: (CastMember) -> Unit = {},
 ) {
     if (cast.isEmpty()) return
 
@@ -54,7 +59,11 @@ fun LazyListScope.detailCast(
                 horizontalArrangement = Arrangement.spacedBy(14.dp),
             ) {
                 items(cast, key = { it.id }) { person ->
-                    CastCard(member = person)
+                    CastCard(
+                        member = person,
+                        isSelected = selectedCastMemberId == person.id,
+                        onClick = { onCastClicked(person) },
+                    )
                 }
             }
         }
@@ -62,15 +71,27 @@ fun LazyListScope.detailCast(
 }
 
 @Composable
-private fun CastCard(member: CastMember) {
+private fun CastCard(
+    member: CastMember,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.size(width = 92.dp, height = 156.dp),
+        modifier = Modifier
+            .size(width = 92.dp, height = 156.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .clickable(onClick = onClick),
     ) {
         Box(
             modifier = Modifier
                 .size(76.dp)
                 .clip(CircleShape)
+                .border(
+                    width = if (isSelected) 2.dp else 0.dp,
+                    color = if (isSelected) AppTheme.colorScheme.primary else Color.Transparent,
+                    shape = CircleShape,
+                )
                 .background(avatarColor(member.name)),
             contentAlignment = Alignment.Center,
         ) {

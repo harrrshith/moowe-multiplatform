@@ -1,6 +1,7 @@
 package com.harrrshith.moowe.data.remote
 
 import com.harrrshith.moowe.data.remote.dto.CreditsResponse
+import com.harrrshith.moowe.data.remote.dto.CombinedCreditsResponse
 import com.harrrshith.moowe.data.remote.dto.MediaDetailDto
 import com.harrrshith.moowe.data.remote.dto.MoviesResponse
 import com.harrrshith.moowe.data.remote.dto.ReviewsResponse
@@ -87,6 +88,15 @@ class MooweApiHandler(
         language: String = "en-US",
     ): CreditsResponse {
         return client.get("$mediaType/$mediaId/credits") {
+            parameter("language", language)
+        }.body()
+    }
+
+    suspend fun getPersonCombinedCredits(
+        personId: Int,
+        language: String = "en-US",
+    ): CombinedCreditsResponse {
+        return client.get("person/$personId/combined_credits") {
             parameter("language", language)
         }.body()
     }

@@ -34,6 +34,7 @@ fun LazyListScope.detailSeasons(
     seasons: List<Season>,
 ) {
     if (seasons.isEmpty()) return
+    val seasonsByNumber = seasons.associateBy { it.seasonNumber }
 
     item(key = "seasons_section") {
         Column(modifier = modifier.fillMaxWidth()) {
@@ -49,7 +50,11 @@ fun LazyListScope.detailSeasons(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 items(items = seasons, key = { it.id }) { season ->
-                    SeasonCard(season = season)
+                    SeasonCard(
+                        season = season,
+                        previousSeason = seasonsByNumber[season.seasonNumber - 1],
+                        nextSeason = seasonsByNumber[season.seasonNumber + 1],
+                    )
                 }
             }
         }
@@ -57,7 +62,11 @@ fun LazyListScope.detailSeasons(
 }
 
 @Composable
-private fun SeasonCard(season: Season) {
+private fun SeasonCard(
+    season: Season,
+    previousSeason: Season?,
+    nextSeason: Season?,
+) {
     Column(modifier = Modifier.width(164.dp)) {
         Box {
             Image(
@@ -97,5 +106,27 @@ private fun SeasonCard(season: Season) {
             color = AppTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
         )
+
+        val adjacencyLabel = buildString {
+            previousSeason?.let {
+                append("Prev S")
+                append(it.seasonNumber)
+            }
+            nextSeason?.let {
+                if (isNotEmpty()) append(" • ")
+                append("Next S")
+                append(it.seasonNumber)
+            }
+        }
+
+        if (adjacencyLabel.isNotEmpty()) {
+            Text(
+                text = adjacencyLabel,
+                style = AppTheme.typography.labelSmall,
+                color = AppTheme.colorScheme.primary,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
     }
 }

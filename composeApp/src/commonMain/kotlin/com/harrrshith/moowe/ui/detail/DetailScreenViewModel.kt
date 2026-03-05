@@ -2,6 +2,7 @@ package com.harrrshith.moowe.ui.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.harrrshith.moowe.domain.model.CastMember
 import com.harrrshith.moowe.domain.model.MediaType
 import com.harrrshith.moowe.domain.repository.MovieRepository
 import com.harrrshith.moowe.domain.utility.Result
@@ -66,6 +67,46 @@ class DetailScreenViewModel(
                 repository.removeFavorite(movieId = movie.id, mediaType = movie.mediaType)
             } else {
                 repository.addFavorite(movie)
+            }
+        }
+    }
+
+    fun onCastClicked(member: CastMember) {
+        viewModelScope.launch {
+            val currentState = _uiState.value
+            if (currentState.selectedCastMember?.id == member.id) {
+                _uiState.update {
+                    it.copy(
+                        selectedCastMember = null,
+                        selectedCastCredits = emptyList(),
+                        isCastCreditsLoading = false,
+                    )
+                }
+                return@launch
+            }
+
+            _uiState.update {
+                it.copy(
+                    selectedCastMember = member,
+                    selectedCastCredits = emptyList(),
+                    isCastCreditsLoading = true,
+                )
+            }
+
+            when (val result = repository.getPersonCredits(personId = member.id)) {
+                is Result.Success -> _uiState.update {
+                    it.copy(
+                        selectedCastCredits = result.data,
+                        isCastCreditsLoading = false,
+                    )
+                }
+                is Result.Error -> _uiState.update {
+                    it.copy(
+                        selectedCastCredits = emptyList(),
+                        isCastCreditsLoading = false,
+                    )
+                }
+                is Result.Loading -> { }
             }
         }
     }

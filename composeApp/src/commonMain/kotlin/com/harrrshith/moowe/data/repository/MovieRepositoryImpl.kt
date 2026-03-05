@@ -205,6 +205,24 @@ class MovieRepositoryImpl(
         }
     }
 
+    override suspend fun getPersonCredits(personId: Int): Result<List<Movie>> {
+        return try {
+            val response = api.getPersonCombinedCredits(personId = personId)
+            Result.Success(
+                response.cast
+                    .asSequence()
+                    .filter { it.mediaType == MediaType.MOVIE.apiValue || it.mediaType == MediaType.TV_SERIES.apiValue }
+                    .map { it.toDomain() }
+                    .distinctBy { "${it.mediaType.apiValue}-${it.id}" }
+                    .sortedByDescending { it.popularity }
+                    .take(20)
+                    .toList()
+            )
+        } catch (e: Exception) {
+            Result.Error(e.message ?: "Unknown error", status = 500)
+        }
+    }
+
     override suspend fun getRelatedMedia(mediaId: Int, mediaType: MediaType): Result<List<Movie>> {
         return try {
             val response = api.getSimilarMedia(mediaType = mediaType.apiValue, mediaId = mediaId)
